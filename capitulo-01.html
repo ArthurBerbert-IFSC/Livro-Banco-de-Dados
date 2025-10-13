@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Capítulo 01: Fundamentos de Bancos de Dados — Geoprocessamento 2</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              'ifsc-green': '#1B5E20',
+              'ifsc-soft': '#E6F4EA',
+              'ifsc-gray': '#374151'
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+    
+    <div id="reading-progress" class="fixed top-0 left-0 h-1 w-full bg-ifsc-green scale-x-0 transition-transform duration-150 origin-left z-50"></div>
+
+    <!-- Cabeçalho Institucional -->
+    <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
+        <div class="border-b border-slate-200/60 dark:border-slate-700/60">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                    <img src="https://placehold.co/100x40/1B5E20/FFFFFF?text=IFSC" alt="Logotipo do IFSC" class="h-10 w-auto opacity-80" onerror="this.style.display='none'">
+                </div>
+                <div class="flex items-center gap-3 justify-center md:justify-end">
+                    <div class="text-center md:text-right">
+                        <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+                    </div>
+                    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Alternar tema">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="container mx-auto px-6 py-12">
+        <div class="flex flex-col gap-10 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
+            
+            <!-- Sumário Lateral (TOC) -->
+            <aside class="order-2 lg:order-1">
+                <div class="sticky top-28 space-y-4">
+                    <div class="toc-container">
+                        <h3 class="toc-title">
+                            <i data-lucide="list-tree" class="w-5 h-5"></i>
+                            Neste Capítulo
+                        </h3>
+                        <nav>
+                            <ul id="toc-list" class="space-y-2 text-sm">
+                                <li class="text-slate-400">Carregando seções...</li>
+                            </ul>
+                        </nav>
+                    </div>
+                     <a href="index.html" class="back-to-summary">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Voltar ao Sumário
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Artigo do Capítulo -->
+            <article id="chapter-content" class="prose dark:prose-invert max-w-none prose-h1:text-ifsc-green prose-h1:dark:text-emerald-300 prose-h2:border-b prose-h2:pb-2 prose-h2:border-slate-200 prose-h2:dark:border-slate-700 prose-a:text-ifsc-green prose-a:dark:text-emerald-400 prose-strong:text-ifsc-gray prose-strong:dark:text-slate-200">
+                
+                <h1><i data-lucide="database" class="inline-block -mt-2 mr-2"></i>Capítulo 1: Fundamentos de Bancos de Dados</h1>
+                
+                <p class="lead">Antes de explorarmos os bancos de dados espaciais, é crucial entender a diferença entre dado e informação, pois ela orienta como interpretamos a realidade geográfica. Este capítulo estabelece as bases para a organização, gerenciamento e análise de dados em projetos de geoprocessamento.</p>
+
+                <section data-toc-section>
+                    <h2>O que é um banco de dados?</h2>
+                    <p>Em sua forma mais simples, um banco de dados é uma coleção organizada de informações. No contexto do geoprocessamento, isso significa organizar dados espaciais (vetoriais, raster e/ou atributos). Assim como organizamos listas de compras ou contatos no celular, os bancos de dados digitais fazem isso em uma escala muito maior, permitindo armazenar, acessar e analisar grandes volumes de informações com eficiência.</p>
+                    <div class="didactic-block concept">
+                        <div class="didactic-icon"><i data-lucide="lightbulb"></i></div>
+                        <div>
+                            <span class="didactic-title">Definição Formal</span>
+                            <p>Um banco de dados é um conjunto de dados inter-relacionados, armazenados de forma organizada e controlada, para atender a um ou mais propósitos específicos.</p>
+                        </div>
+                    </div>
+                    <p>Para quem trabalha com geoprocessamento, imagine um mapa digital com diversas camadas: ruas, rios, bairros, áreas verdes. Cada uma dessas camadas contém atributos (como o nome de uma rua ou o tipo de vegetação) que precisam ser organizados de forma estruturada para que possamos fazer consultas, cruzar dados e gerar análises espaciais. O banco de dados é o sistema que torna tudo isso possível.</p>
+                </section>
+
+                <section data-toc-section>
+                    <h2>A evolução dos bancos de dados</h2>
+                    <p>Os bancos de dados evoluíram ao longo do tempo, desde os sistemas manuais em fichários de papel até os complexos sistemas digitais que utilizamos hoje. Essa evolução pode ser resumida em etapas:</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Sistemas Manuais:</strong> Registros em papel, lentos, sujeitos a erros e com capacidade limitada.</li>
+                        <li><strong>Sistemas de Arquivos:</strong> Primeiros arquivos digitais em computadores, mas com problemas de redundância e dificuldade de acesso.</li>
+                        <li><strong>Sistemas de Gerenciamento de Bancos de Dados (SGBD):</strong> Solução para os problemas dos sistemas de arquivos, oferecendo uma forma eficiente, organizada e segura de armazenar e manipular dados.</li>
+                        <li><strong>Bancos de Dados Modernos:</strong> Capazes de gerenciar grandes volumes de dados de diversos tipos (texto, números, imagens, dados geográficos) com recursos avançados de segurança e processamento.</li>
+                    </ul>
+                </section>
+
+                <section data-toc-section>
+                    <h2>Sistemas de Gerenciamento de Bancos de Dados (SGBD)</h2>
+                    <p>Um SGBD é um conjunto de softwares que atua como uma interface entre o usuário e o banco de dados, facilitando a criação, o acesso, a manipulação e o gerenciamento dos dados. Suas funções essenciais são:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                        <div class="didactic-block feature"><i data-lucide="save"></i><span>Armazenamento de dados</span></div>
+                        <div class="didactic-block feature"><i data-lucide="search"></i><span>Recuperação de dados</span></div>
+                        <div class="didactic-block feature"><i data-lucide="edit-3"></i><span>Atualização de dados</span></div>
+                        <div class="didactic-block feature"><i data-lucide="shield"></i><span>Segurança de dados</span></div>
+                        <div class="didactic-block feature"><i data-lucide="users"></i><span>Controle de concorrência</span></div>
+                        <div class="didactic-block feature"><i data-lucide="check-check"></i><span>Integridade de dados</span></div>
+                    </div>
+                </section>
+                
+                <!-- O restante do conteúdo do capítulo 1 iria aqui -->
+
+            </article>
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+            <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+            <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+            <p class="text-sm">Professor responsável: Arthur Berbert</p>
+            <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="main.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+</body>
+</html>
+
