@@ -1,0 +1,66 @@
+/* Estilos para o tema claro e escuro, componentes, etc. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .theme-toggle {
+        @apply p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors;
+    }
+
+    .dark .sun-icon { display: none; }
+    .light .moon-icon { display: none; }
+    html.dark .sun-icon { display: block; }
+    html.dark .moon-icon { display: none; }
+    html:not(.dark) .sun-icon { display: none; }
+    html:not(.dark) .moon-icon { display: block; }
+
+    .chapter-card {
+        @apply flex items-center gap-6 p-6 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg hover:border-ifsc-green/50 dark:hover:border-emerald-400/50 transition-all duration-300 transform hover:-translate-y-1;
+    }
+    .chapter-number {
+        @apply flex-shrink-0 w-12 h-12 flex items-center justify-center bg-ifsc-soft dark:bg-slate-700 text-ifsc-green dark:text-emerald-300 font-bold text-xl rounded-full transition-colors group-hover:bg-ifsc-green group-hover:text-white dark:group-hover:bg-emerald-500;
+    }
+    .chapter-title {
+        @apply text-lg font-semibold text-ifsc-gray dark:text-slate-200 group-hover:text-ifsc-green dark:group-hover:text-emerald-400 transition-colors;
+    }
+    .chapter-description {
+        @apply text-sm text-slate-500 dark:text-slate-400 mt-1;
+    }
+    .chapter-arrow {
+        @apply ml-auto w-6 h-6 text-slate-300 dark:text-slate-600 group-hover:text-ifsc-green dark:group-hover:text-emerald-400 transition-transform duration-300 group-hover:translate-x-1;
+    }
+
+    .toc-container {
+        @apply bg-white/70 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/70 dark:border-slate-700/60 rounded-xl p-4;
+    }
+    .toc-title {
+        @apply flex items-center gap-2 font-semibold text-ifsc-green dark:text-emerald-300 mb-3 text-base border-b border-slate-200 dark:border-slate-700 pb-2;
+    }
+    #toc-list a {
+        @apply block py-1 px-2 rounded-md text-slate-600 dark:text-slate-400 hover:bg-ifsc-soft dark:hover:bg-slate-700/50 hover:text-ifsc-green dark:hover:text-emerald-400 transition-colors;
+    }
+    #toc-list a.active {
+        @apply bg-ifsc-green/10 dark:bg-emerald-500/20 text-ifsc-green dark:text-emerald-300 font-semibold;
+    }
+    .back-to-summary {
+        @apply inline-flex items-center gap-2 text-sm text-ifsc-green dark:text-emerald-400 hover:underline mt-4 p-2;
+    }
+    
+    /* Blocos Didáticos */
+    .didactic-block {
+        @apply my-6 p-4 rounded-lg border-l-4 flex items-start gap-4;
+    }
+    .didactic-icon {
+        @apply flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center;
+    }
+    .didactic-title {
+        @apply block font-semibold mb-1;
+    }
+
+    .concept { @apply bg-blue-50 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300; }
+    .concept .didactic-icon { @apply bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400; }
+
+    .feature { @apply bg-slate-100 border-slate-400 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 text-sm p-3 gap-2; }
+    .feature i { @apply w-5 h-5 text-ifsc-green dark:text-emerald-400; }
+}
