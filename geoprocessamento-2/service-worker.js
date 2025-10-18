@@ -1,5 +1,5 @@
 self.addEventListener('install', (event) => {
-    const PRECACHE = 'geoprocessamento-v2';
+    const PRECACHE = 'geoprocessamento-v3';
     event.waitUntil(
         caches.open(PRECACHE).then((cache) => {
             return cache.addAll([
@@ -17,8 +17,9 @@ self.addEventListener('install', (event) => {
                 './scripts/sql.js-wasm',
                 './dados/banco_exemplo.sqlite',
                 './manifest.webmanifest',
-                // Ícones e logotipos (adicione os reais conforme existirem)
-                // './imagens/logotipos/ifsc.png',
+                // Logotipos
+                './imagens/logotipos/florianopolis_horizontal_marca2015_PNG.png',
+                './imagens/logotipos/Logo_Disciplina_5.png',
             ]);
         })
     );
@@ -31,7 +32,7 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(req).then((cached) => cached || fetch(req).then((resp) => {
                 const clone = resp.clone();
-                caches.open('geoprocessamento-v2').then((c) => c.put(req, clone));
+                caches.open('geoprocessamento-v3').then((c) => c.put(req, clone));
                 return resp;
             }))
         );
@@ -44,7 +45,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    const cacheWhitelist = ['geoprocessamento-v2'];
+    const cacheWhitelist = ['geoprocessamento-v3'];
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
