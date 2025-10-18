@@ -1,0 +1,152 @@
+body {
+    background-color: #F9FAFB; /* Light background color */
+    color: #374151; /* Text color */
+    font-family: 'Inter', sans-serif; /* Font family */
+    line-height: 1.6; /* Line height for readability */
+}
+
+header {
+    background-color: rgba(255, 255, 255, 0.95); /* Header background */
+    backdrop-filter: blur(10px); /* Blur effect for header */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow for header */
+}
+
+.container {
+    max-width: 1200px; /* Maximum width for the container */
+    margin: 0 auto; /* Center the container */
+    padding: 0 1.5rem; /* Horizontal padding */
+}
+
+.chapter-card {
+    display: flex; /* Flexbox for chapter cards */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Space between items */
+    padding: 1rem; /* Padding for cards */
+    border: 1px solid #D1D5DB; /* Border color */
+    border-radius: 0.5rem; /* Rounded corners */
+    background-color: #FFFFFF; /* Card background */
+    transition: transform 0.2s; /* Transition for hover effect */
+}
+
+.chapter-card:hover {
+    transform: scale(1.02); /* Scale effect on hover */
+}
+
+.chapter-number {
+    font-size: 1.5rem; /* Font size for chapter number */
+    font-weight: bold; /* Bold font weight */
+    color: #1B5E20; /* IFSC green color */
+}
+
+.chapter-title {
+    font-size: 1.25rem; /* Font size for chapter title */
+    font-weight: 600; /* Semi-bold font weight */
+}
+
+.chapter-description {
+    font-size: 0.875rem; /* Font size for chapter description */
+    color: #6B7280; /* Gray color for description */
+}
+
+footer {
+    background-color: rgba(255, 255, 255, 0.95); /* Footer background */
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Shadow for footer */
+    padding: 2rem 0; /* Padding for footer */
+}
+
+footer p {
+    margin: 0; /* Remove margin for footer paragraphs */
+}
+
+.dark body {
+    background-color: #1F2937; /* Dark mode background */
+    color: #D1D5DB; /* Dark mode text color */
+}
+
+.dark header {
+    background-color: rgba(31, 41, 55, 0.95); /* Dark mode header background */
+}
+
+.dark .chapter-card {
+    background-color: #374151; /* Dark mode card background */
+    border-color: #4B5563; /* Dark mode border color */
+}
+
+.dark footer {
+    background-color: rgba(31, 41, 55, 0.95); /* Dark mode footer background */
+}
+
+/* Tipografia editorial para o conteúdo dos capítulos */
+.prose {
+    hyphens: auto;
+    hanging-punctuation: first last;
+    text-wrap: pretty;
+}
+.prose-justificado :where(p){
+    text-align: justify;
+    text-justify: inter-word;
+}
+@media (min-width: 768px){
+    .prose-indent :where(p){
+        text-indent: 1.25rem;
+        margin-top: 0.4rem;
+    }
+    .prose-indent :where(h2 + p, h3 + p, h4 + p, blockquote + p, figure + p, table + p){
+        text-indent: 0;
+    }
+}
+.prose :where(strong){
+    color: #1B5E20;
+    font-weight: 700;
+}
+.prose :where(em){
+    color: #0f766e;
+}
+.prose :where(mark){
+    background: linear-gradient(transparent 60%, rgba(251, 191, 36, .35) 0);
+    padding: 0 .1em;
+}
+.prose :where(table){
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+}
+.prose :where(th, td){
+    border: 1px solid rgba(148,163,184,.4);
+    padding: .5rem .75rem;
+}
+.prose :where(thead th){
+    background: rgba(226,232,240,.5);
+    font-weight: 600;
+}
+.prose :where(img){
+    max-width: 100%;
+    height: auto;
+    border-radius: .5rem;
+    box-shadow: 0 1px 8px rgba(0,0,0,.08);
+}
+.prose :where(figure){
+    margin: 1.25rem auto;
+    text-align: center;
+}
+.prose :where(figcaption){
+    font-size: .875rem;
+    color: #64748b;
+    margin-top: .5rem;
+}
+.prose :where(blockquote){
+    border-left: 4px solid #1B5E20;
+    background: rgba(230, 244, 234, 0.4);
+    padding: .75rem 1rem;
+    border-radius: .375rem;
+}
+.dark .prose :where(thead th){
+    background: rgba(30,41,59,.6);
+}
+.dark .prose :where(th, td){
+    border-color: rgba(100,116,139,.35);
+}
+.dark .prose :where(figcaption){
+    color: #94a3b8;
+}

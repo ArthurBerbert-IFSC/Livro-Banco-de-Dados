@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Banco de Dados com PostGIS — Geoprocessamento 2</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+    <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
+        <div class="border-b border-slate-200/60 dark:border-slate-700/60">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                    <img src="https://placehold.co/100x40/1B5E20/FFFFFF?text=IFSC" alt="Logotipo do IFSC" class="h-10 w-auto opacity-80" onerror="this.style.display='none'">
+                </div>
+                <div class="flex items-center gap-3 justify-center md:justify-end">
+                    <div class="text-center md:text-right">
+                        <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+                    </div>
+                    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Alternar tema">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="mb-6 text-slate-500 dark:text-slate-400"><a href="index.html" class="text-sm hover:underline">← Sumário</a> · <a href="capitulo-06.html" class="text-sm hover:underline">← Cap. anterior: Padronizar Campos em Banco de Dados</a></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-3 hidden lg:block">
+                <div class="sticky top-24 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/60 dark:bg-slate-900/40">
+                    <nav class="text-sm">
+<p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Neste capítulo</p>
+<ul class="space-y-1">
+<li class="ml-0"><a href="#introducao-ao-banco-de-dados-geoespacial-com-postgis" class="hover:text-ifsc-green dark:hover:text-emerald-300">Introdução ao Banco de Dados Geoespacial com PostGIS</a></li>
+<li class="ml-0"><a href="#caracteristicas-fundamentais-e-padroes" class="hover:text-ifsc-green dark:hover:text-emerald-300">Características Fundamentais e Padrões</a></li>
+<li class="ml-0"><a href="#configurando-o-ambiente-de-trabalho" class="hover:text-ifsc-green dark:hover:text-emerald-300">Configurando o Ambiente de Trabalho</a></li>
+<li class="ml-0"><a href="#conectando-o-qgis-ao-postgis" class="hover:text-ifsc-green dark:hover:text-emerald-300">Conectando o QGIS ao PostGIS</a></li>
+<li class="ml-0"><a href="#especificacoes-do-padrao-ogc" class="hover:text-ifsc-green dark:hover:text-emerald-300">ESPECIFICAÇÕES DO PADRÃO OGC</a></li>
+<li class="ml-4"><a href="#o-que-e-o-postgis-e-por-que-usa-lo" class="hover:text-ifsc-green dark:hover:text-emerald-300">O que é o PostGIS e por que usá-lo?</a></li>
+<li class="ml-4"><a href="#vantagens-sobre-formatos-baseados-em-arquivo" class="hover:text-ifsc-green dark:hover:text-emerald-300">Vantagens sobre formatos baseados em arquivo</a></li>
+<li class="ml-4"><a href="#tipos-de-dados-geometricos-vetoriais" class="hover:text-ifsc-green dark:hover:text-emerald-300">Tipos de Dados Geométricos Vetoriais</a></li>
+<li class="ml-4"><a href="#o-modelo-de-dados-matricial-raster" class="hover:text-ifsc-green dark:hover:text-emerald-300">O Modelo de Dados Matricial (Raster)</a></li>
+<li class="ml-4"><a href="#modelo-de-dados-topologico" class="hover:text-ifsc-green dark:hover:text-emerald-300">Modelo de Dados Topológico</a></li>
+<li class="ml-4"><a href="#indices-espaciais-para-otimizacao-de-consultas-gist" class="hover:text-ifsc-green dark:hover:text-emerald-300">Índices Espaciais para Otimização de Consultas (GiST)</a></li>
+<li class="ml-4"><a href="#a-vasta-gama-de-funcoes-espaciais" class="hover:text-ifsc-green dark:hover:text-emerald-300">A Vasta Gama de Funções Espaciais</a></li>
+<li class="ml-4"><a href="#interoperabilidade-e-o-padrao-ogc" class="hover:text-ifsc-green dark:hover:text-emerald-300">Interoperabilidade e o Padrão OGC</a></li>
+<li class="ml-4"><a href="#o-ecossistema-de-extensoes-postgis-uma-visao-geral" class="hover:text-ifsc-green dark:hover:text-emerald-300">O Ecossistema de Extensões PostGIS: Uma Visão Geral</a></li>
+<li class="ml-4"><a href="#pre-requisitos" class="hover:text-ifsc-green dark:hover:text-emerald-300">Pré-requisitos</a></li>
+<li class="ml-4"><a href="#criando-usuarios-grupos-para-o-banco-de-dados-no-pgadmin-4" class="hover:text-ifsc-green dark:hover:text-emerald-300">Criando Usuários/Grupos para o Banco de Dados no pgAdmin 4</a></li>
+<li class="ml-4"><a href="#criando-um-banco-de-dados-espacial-com-o-pgadmin-4" class="hover:text-ifsc-green dark:hover:text-emerald-300">Criando um Banco de Dados Espacial com o pgAdmin 4</a></li>
+<li class="ml-4"><a href="#schemas-em-bancos-de-dados-postgis" class="hover:text-ifsc-green dark:hover:text-emerald-300">Schemas em Bancos de Dados PostGIS</a></li>
+<li class="ml-4"><a href="#permissao-de-acesso-ao-schema-usage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Permissão de acesso ao schema (USAGE)</a></li>
+<li class="ml-4"><a href="#habilitando-extensoes-no-banco-de-dados-espacial" class="hover:text-ifsc-green dark:hover:text-emerald-300">Habilitando Extensões no Banco de Dados Espacial</a></li>
+<li class="ml-4"><a href="#conexao-ao-banco-de-dados-local-localhost" class="hover:text-ifsc-green dark:hover:text-emerald-300">Conexão ao Banco de Dados Local (localhost)</a></li>
+<li class="ml-4"><a href="#entendendo-as-opcoes-de-conexao" class="hover:text-ifsc-green dark:hover:text-emerald-300">Entendendo as Opções de Conexão</a></li>
+<li class="ml-4"><a href="#conexao-a-um-banco-de-dados-em-rede-servidor-remoto" class="hover:text-ifsc-green dark:hover:text-emerald-300">Conexão a um Banco de Dados em Rede (Servidor Remoto)</a></li>
+<li class="ml-4"><a href="#testando-a-conexao-e-navegando-com-o-db-manager" class="hover:text-ifsc-green dark:hover:text-emerald-300">Testando a Conexão e Navegando com o DB Manager</a></li>
+</ul></nav>
+                </div>
+            </aside>
+            <article class="lg:col-span-9">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Capítulo 7: Banco de Dados com PostGIS</h1>
+                    
+                </header>
+                <div class="prose prose-lg max-w-none prose-slate dark:prose-invert prose-justificado prose-indent">
+                
+
+<p><img src="imagens/capitulos/capitulo-07/image079.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Neste capítulo, mergulharemos no universo dos bancos de
+dados geoespaciais utilizando o PostGIS, a extensão que transforma o robusto
+PostgreSQL em uma poderosa ferramenta para armazenamento, gerenciamento e
+análise de informações geográficas. Iniciaremos com a configuração de um
+ambiente local, aprenderemos a importar dados e a realizar consultas espaciais,
+e finalizaremos com as práticas para conectar e gerenciar um banco de dados em
+rede, preparando você para cenários de produção. </p>
+
+<h2 id="introducao-ao-banco-de-dados-geoespacial-com-postgis" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">7.1 Introdução ao Banco de Dados Geoespacial com PostGIS</h2>
+
+<h3 id="o-que-e-o-postgis-e-por-que-usa-lo" class="mt-8 scroll-mt-24 text-xl font-semibold">7.1.1 O que é o PostGIS e por que usá-lo?</h3>
+
+<p>O <b>PostGIS</b> é uma extensão que se instala sobre o
+PostgreSQL, um robusto sistema de gerenciamento de banco de dados (SGBD) de
+código aberto. Na prática, ele &quot;ensina&quot; o banco de dados a entender,
+armazenar e analisar dados geográficos. Com o PostGIS, uma tabela de banco de
+dados pode ter uma coluna para guardar geometrias (pontos, linhas e polígonos)
+da mesma forma que já guarda textos, números ou datas.</p>
+
+<p>Mas por que um técnico em geoprocessamento deveria
+deixar de usar apenas os arquivos que já conhece? A resposta está nas
+limitações que aparecem em projetos reais:</p>
+
+<p><a name="_Toc206575361">Tabela </a>6&#8209;1
+: limitações que aparecem em projetos reais</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image080.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<h3 id="vantagens-sobre-formatos-baseados-em-arquivo" class="mt-8 scroll-mt-24 text-xl font-semibold">7.1.2 Vantagens sobre formatos baseados em arquivo</h3>
+
+<p>Para entender o salto de qualidade que o PostGIS oferece, basta
+analisar um cenário de trabalho em equipe. Com formatos baseados em arquivo, as
+limitações operacionais tornam-se evidentes:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Com
+Shapefiles:</b> O principal desafio é a <b>gestão de múltiplos arquivos para
+uma única camada vetorial</b> (no mínimo, .shp, .shx, .dbf). Em um projeto
+colaborativo, a falta de uma política rígida para nomear versões
+(areas_verdes_v1, areas_verdes_final) rapidamente leva à desorganização e ao
+uso de dados desatualizados, especialmente quando há troca de arquivos
+compactados.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Com
+GeoPackage:</b> Este formato resolve o problema dos múltiplos arquivos,
+consolidando os dados em um único arquivo .gpkg. Contudo, <b>sua principal
+limitação em ambientes colaborativos é o acesso para escrita</b>. Para garantir
+a integridade dos dados, apenas <b>um usuário</b> pode realizar operações de
+edição (criar, alterar ou deletar feições) por vez. Os demais usuários ficam
+com acesso de somente leitura, criando um gargalo no fluxo de trabalho.</p>
+
+<p>Com o PostGIS, o fluxo de trabalho é transformado, superando
+essas barreiras:</p>
+
+<p><a name="_Toc206575362">Tabela </a>6&#8209;2</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image081.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<p align=center><b>Em resumo,
+enquanto formatos baseados em arquivo são adequados para projetos individuais e
+para a entrega de dados, o PostGIS é a plataforma profissional para o
+desenvolvimento e gerenciamento contínuo de projetos, especialmente os
+colaborativos e de grande escala.</b></p>
+
+<h2 id="caracteristicas-fundamentais-e-padroes" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">7.2 Características Fundamentais e Padrões</h2>
+
+<p>O PostGIS é muito mais do que um simples local de armazenamento
+para geometrias. Seu verdadeiro poder reside em um conjunto de características
+que o transformam em uma plataforma completa para análise geoespacial. A
+seguir, detalhamos os pilares que tornam o PostGIS uma ferramenta tão robusta.</p>
+
+<h3 id="tipos-de-dados-geometricos-vetoriais" class="mt-8 scroll-mt-24 text-xl font-semibold">7.2.1 Tipos de Dados Geométricos Vetoriais</h3>
+
+<p>Para representar o mundo real, o PostGIS oferece um conjunto de
+tipos de dados geométricos. Eles seguem o padrão internacional OGC, garantindo
+a compatibilidade com outros softwares SIG. Os tipos essenciais são:</p>
+
+<p><a name="_Toc206575363">Tabela </a>6&#8209;3</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image082.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<h3 id="o-modelo-de-dados-matricial-raster" class="mt-8 scroll-mt-24 text-xl font-semibold">7.2.2 O Modelo de Dados Matricial (Raster)</h3>
+
+<p>Enquanto o modelo vetorial descreve o mundo através de objetos
+com fronteiras discretas, muitos fenômenos geográficos, como a elevação de um
+terreno, a temperatura de uma área ou uma imagem de satélite, são de natureza
+contínua. Para representar essa realidade, utilizamos o <strong>modelo de dados matricial (ou raster)</strong>.
+Um raster representa uma área geográfica como uma grade contínua de células,
+conhecidas como <strong>pixels</strong>.
+Cada pixel possui um valor numérico que corresponde à medição do fenômeno
+naquele ponto. A extensão postgis_raster habilita o PostgreSQL a armazenar e
+analisar esses dados, permitindo que o poder do SQL seja aplicado a imagens e
+grades de valores.</p>
+
+<h3 id="modelo-de-dados-topologico" class="mt-8 scroll-mt-24 text-xl font-semibold">7.2.3 Modelo de Dados Topológico</h3>
+
+<p>Além de saber a forma e a localização de uma feição, em muitos
+projetos de geoprocessamento é crucial garantir a integridade das relações
+entre elas. Para isso, utilizamos um <strong>modelo
+de dados topológico</strong>. A topologia não é um novo tipo de
+geometria, mas um conjunto de regras matemáticas que governa as relações de
+adjacência (o que está ao lado de quê), conectividade (o que está ligado a quê)
+e continência (o que está dentro de quê). Em vez de armazenar polígonos e
+linhas completos, um modelo topológico os decompõe em elementos primitivos
+compartilhados (nós, arestas e faces). Isso impede erros comuns, como a
+sobreposição de lotes em um cadastro ou a existência de vãos entre eles,
+garantindo a qualidade e a consistência lógica dos dados. A extensão
+postgis_topology é a ferramenta que implementa essa capacidade.</p>
+
+<h3 id="indices-espaciais-para-otimizacao-de-consultas-gist" class="mt-8 scroll-mt-24 text-xl font-semibold">7.2.4 Índices Espaciais para Otimização de Consultas (GiST)</h3>
+
+<p>Ao lidar com milhares ou milhões de feições, uma
+consulta como &quot;selecione todos os lotes dentro deste bairro&quot; seria
+extremamente lenta se o banco de dados precisasse testar cada um dos lotes
+existentes. Para resolver isso, o PostGIS utiliza índices espaciais.</p>
+
+<p><b>Pense no índice de um atlas: em vez de folhear
+página por página, você vai direto à seção que contém o mapa da sua região de
+interesse</b>. Um índice espacial no PostGIS, geralmente do tipo GiST
+(Generalized Search Tree), funciona de forma análoga. Ele <b>organiza as
+geometrias em uma árvore hierárquica baseada em sua localização e extensão</b>
+(seu &quot;retângulo envolvente&quot; ou <i>bounding box</i>).</p>
+
+<p>Quando uma consulta espacial é executada, o PostGIS usa
+o índice para descartar rapidamente as geometrias que estão fora da área de
+interesse, analisando em detalhe apenas um pequeno subconjunto de dados. A
+criação de um índice espacial em colunas de geometria é uma prática essencial
+para garantir a performance de um banco de dados geoespacial.</p>
+
+<h3 id="a-vasta-gama-de-funcoes-espaciais" class="mt-8 scroll-mt-24 text-xl font-semibold">7.2.5 A Vasta Gama de Funções Espaciais</h3>
+
+<p>A verdadeira &quot;mágica&quot; do PostGIS acontece por meio de
+suas centenas de funções espaciais, que permitem realizar análises diretamente
+no banco de dados com comandos SQL. Elas podem ser agrupadas em categorias,
+como:</p>
+
+<p><a name="_Toc206575364">Tabela </a>6&#8209;4</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image083.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<h3 id="interoperabilidade-e-o-padrao-ogc" class="mt-8 scroll-mt-24 text-xl font-semibold">7.2.6 Interoperabilidade e o Padrão OGC</h3>
+
+<p>A interoperabilidade — a capacidade de diferentes
+sistemas trocarem e utilizarem informações — é vital no mundo geoespacial. O
+PostGIS é um exemplo de implementação da especificação SFS (Simple Feature
+Specification for SQL) do Open Geospatial Consortium (OGC).</p>
+
+<p>O OGC é um consórcio internacional que define padrões
+para dados e serviços geoespaciais. Por ser aderente a esses padrões, o PostGIS
+garante que:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Os
+dados armazenados possam ser lidos e entendidos por uma vasta gama de softwares
+(QGIS, ArcGIS, GeoServer, etc.).</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Os
+nomes e comportamentos das funções espaciais (ST_Area, ST_Intersects, etc.)
+sigam uma convenção global, facilitando a migração de conhecimento entre
+diferentes sistemas.</p>
+
+<p><b>Essa conformidade com o padrão OGC é o que permite que o
+ecossistema SIG funcione de forma integrada, onde o PostGIS atua como um pilar
+central e confiável</b>.</p>
+
+<h3 id="o-ecossistema-de-extensoes-postgis-uma-visao-geral" class="mt-8 scroll-mt-24 text-xl font-semibold">7.2.7 O Ecossistema de Extensões PostGIS: Uma Visão Geral</h3>
+
+<p>É um erro comum pensar no PostGIS como um único
+&quot;pacote&quot;. <b>Na realidade, ele é um ecossistema de extensões
+modulares, onde cada uma habilita um conjunto específico de funcionalidades no
+PostgreSQL.</b> Essa abordagem permite que os administradores de banco de dados
+instalem apenas o que é necessário para o projeto, otimizando recursos e
+mantendo o sistema organizado. As extensões mais importantes são:</p>
+
+<h4>7.2.7.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Extensões Fundamentais</h4>
+
+<p>Este é o trio que forma a base para a grande maioria dos
+projetos em geoprocessamento.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgis</b>:
+Considerado o coração do sistema, esta é a extensão principal e obrigatória.
+Ela fornece o suporte para os tipos de dados vetoriais (como POINT, LINESTRING
+e POLYGON), implementa a vasta gama de funções espaciais (como ST_Intersection,
+ST_Buffer, etc.) e habilita o uso de índices espaciais para otimizar consultas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgis_raster</b>:
+Esta extensão <b>capacita o banco de dados a armazenar, gerenciar e analisar
+dados matriciais (raster)</b>. Com ela, é possível executar operações de map álgebra
+e consultas em imagens de satélite, modelos digitais de elevação e outros dados
+raster diretamente via SQL.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgis_topology</b>:
+Implementa um <b>modelo de dados topológico robusto</b>. Seu propósito é
+permitir a <b>criação e validação de regras de integridade espacial</b>,
+garantindo que as feições de uma ou mais camadas se relacionem de maneira
+consistente (por exemplo, &quot;limites de municípios não podem se
+sobrepor&quot; ou &quot;quadras devem estar contidas dentro de um
+bairro&quot;).</p>
+
+<h4>7.2.7.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Extensões para Análise Avançada</h4>
+
+<p>Para aplicações que demandam capacidades mais específicas, o
+ecossistema oferece módulos especializados.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgis_sfcgal</b>:
+Fornece uma interface para a biblioteca CGAL (<i>Computational Geometry
+Algorithms Library</i>), oferecendo funções avançadas para processamento de
+geometrias 2D e, especialmente, 3D. <b>É utilizada para validação de sólidos,
+reparo de geometrias inválidas e operações booleanas mais robustas</b>, sendo
+essencial para quem trabalha com modelos 3D de cidades ou análises
+volumétricas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>pointcloud_postgis</b>:
+Uma extensão desenvolvida para lidar com <b>nuvens de pontos</b>, como as
+geradas por sensores LiDAR. Ela introduz tipos de dados e funções otimizadas
+para armazenar, indexar e analisar bilhões de pontos de forma eficiente.</p>
+
+<h4>7.2.7.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Extensões Utilitárias e de Integração</h4>
+
+<p>Estes módulos atuam como ferramentas de apoio, facilitando a
+importação de dados e a comunicação com outros sistemas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgis_tiger_geocoder</b>:
+Um <b>geocodificador de endereços completo</b>, projetado para funcionar com os
+dados públicos TIGER, do censo dos Estados Unidos. Permite transformar
+endereços textuais (ex: &quot;1600 Amphitheatre Parkway, Mountain View,
+CA&quot;) em coordenadas geográficas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgres_fdw</b>:
+O &quot;Foreign Data Wrapper&quot; (Invólucro de Dados Externos) do PostgreSQL
+é uma ferramenta poderosa que <b>permite acessar tabelas localizadas em outros
+servidores PostgreSQL como se fossem tabelas locais</b>. No contexto do
+geoprocessamento, isso significa que um banco de dados pode consultar
+diretamente uma camada armazenada em outro banco PostGIS, sem a necessidade de
+replicar os dados.</p>
+
+<p>Compreender essa estrutura modular é fundamental para explorar
+todo o potencial do PostGIS como uma plataforma flexível e poderosa para
+soluções geoespaciais.</p>
+
+<h2 id="configurando-o-ambiente-de-trabalho" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">7.3 Configurando o Ambiente de Trabalho</h2>
+
+<p>Com os conceitos fundamentais apresentados, esta seção aborda a
+parte prática da configuração inicial do ambiente. As etapas a seguir
+demonstram como criar <b>usuários e banco de dados habilitados para o PostGIS</b>
+utilizando o pgAdmin 4, a ferramenta de administração padrão do PostgreSQL.</p>
+
+<h3 id="pre-requisitos" class="mt-8 scroll-mt-24 text-xl font-semibold">7.3.1 Pré-requisitos</h3>
+
+<p>Este guia assume que o PostgreSQL e a ferramenta de
+gerenciamento pgAdmin 4 já estão instalados no sistema. A maioria dos pacotes
+de instalação do PostgreSQL já inclui a extensão PostGIS, que precisa apenas
+ser habilitada no banco de dados, conforme demonstrado nos passos seguintes.</p>
+
+<h3 id="criando-usuarios-grupos-para-o-banco-de-dados-no-pgadmin-4" class="mt-8 scroll-mt-24 text-xl font-semibold">7.3.2 Criando Usuários/Grupos para o Banco de Dados no pgAdmin 4</h3>
+
+<p>Por questões de segurança e seguindo as boas práticas
+da indústria, <b>é fundamental não utilizar o usuário padrão postgres para as
+operações diárias.</b> Este usuário é o Superusuário (ou superuser), análogo a
+um administrador com a chave mestra do sistema. Ele <b>possui permissão
+irrestrita para executar qualquer comando, inclusive a modificação ou exclusão
+de bancos de dados inteiros, ignorando todas as barreiras de segurança.</b></p>
+
+<p>O método correto e seguro é operar com base no <b>Princípio
+do Menor Privilégio: cada usuário deve ter apenas as permissões estritamente
+necessárias para realizar seu trabalho.</b> Portanto, para cada projeto ou
+aplicação, deve-se criar um usuário específico com um conjunto limitado e bem
+definido de permissões.</p>
+
+<p>Para facilitar o entendimento, podemos pensar no
+servidor como um edifício corporativo. O servidor PostgreSQL representa o
+prédio inteiro, os bancos de dados seriam os andares ou departamentos, e os
+schemas, as seções específicas dentro de cada andar. As tabelas e objetos são
+os arquivos e estações de trabalho. <b>As funções (roles) são os crachás que
+determinam o acesso de cada pessoa.</b></p>
+
+<p>Complementando essa estrutura, o PostgreSQL permite <b>organizar
+as permissões de forma ainda mais eficiente por meio das chamadas funções de
+grupo</b> (<i>Group Roles</i>). Diferente dos usuários comuns, essas funções
+não acessam o banco diretamente — elas <b>existem exclusivamente para agrupar
+permissões</b> que serão herdadas pelos usuários associados a elas. Podemos
+pensar nos grupos como cargos ou departamentos dentro da organização, como
+“equipe de geoprocessamento” ou “administração de dados”. <b>Em vez de
+configurar permissões individualmente</b> para cada usuário, basta <b>atribuí-las
+ao grupo</b> e, em seguida, <b>vincular os usuários</b> relevantes a ele. Com
+isso, todos os membros herdam automaticamente os mesmos privilégios, o que
+simplifica a gestão de acessos e garante consistência nas permissões aplicadas.
+Esse modelo é especialmente útil em ambientes com vários usuários desempenhando
+papéis semelhantes, como equipes técnicas que acessam e atualizam as mesmas
+tabelas.</p>
+
+<p>A seguir, detalha-se o processo de criação de um novo
+usuário utilizando o pgAdmin 4.</p>
+
+<p>No painel lateral do pgAdmin, expanda o servidor
+conectado e localize a opção <b>Login/Funções de Grupo</b>. Clique com o botão
+direito e escolha <b>Criar &gt; Função de Login/Grupo...</b></p>
+
+<p align=center><img src="imagens/capitulos/capitulo-07/image084.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575341">Figura </a>6&#8209;1
+: Acesso ao menu para a criação de um novo usuário (Função de Login/Grupo) no
+pgAdmin 4</p>
+
+
+
+<h4>7.3.2.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Geral</h4>
+
+<p>Na aba <b>Geral</b>, informe um nome identificador para
+o usuário. Use nomes curtos, em letras minúsculas e sem espaços. Por exemplo,
+&quot;Administrador_GIS&quot;.</p>
+
+<p align=center><img src="imagens/capitulos/capitulo-07/image085.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575342">Figura </a>6&#8209;2
+: Definição do nome do novo usuário na aba &quot;Geral&quot; da janela de
+criação de Função de Login/Grupo.</p>
+
+
+
+<h4>7.3.2.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Definição</h4>
+
+<p>Na aba Definição, crie uma senha segura. Esta senha será
+utilizada para autenticação ao acessar o servidor. Nesta mesma aba, também é
+possível definir dois parâmetros importantes:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data
+de expiração: especifica até quando esse usuário poderá se autenticar. Após
+essa data, o login será bloqueado automaticamente. Essa opção é útil para
+acessos temporários, como o de estagiários ou colaboradores de curto prazo.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Limite
+de conexões: determina quantas sessões simultâneas esse usuário pode manter com
+o servidor. O valor -1 representa conexões ilimitadas. Estabelecer um limite
+pode ajudar a distribuir melhor os recursos do servidor em ambientes
+multiusuário.</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image086.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575343">Figura </a>6&#8209;3</p>
+
+<h4>7.3.2.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Privilégios</h4>
+
+<p>Na aba Privilégios, configure os parâmetros conforme a
+função que o usuário desempenhará. Abaixo está uma descrição das principais
+opções que aparecem nessa aba:</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image087.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p align=center><img src="imagens/capitulos/capitulo-07/image088.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575344">Figura </a>6&#8209;4
+: Exemplo para criar um usuário administrador (Só não é superusuário)</p>
+
+<h4>7.3.2.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Associação</h4>
+
+<p>A aba <b>Associação</b> permite definir a relação entre
+usuários e grupos no PostgreSQL. Ela é usada para dizer <b>de quais grupos um
+usuário faz parte</b> ou, no caso de um grupo, <b>quais usuários pertencem a
+ele</b>.</p>
+
+<p>Essa aba é dividida em duas listas distintas:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Membro
+de</b>: essa seção <b>indica os grupos (<i>roles</i>) dos quais o usuário atual
+faz parte</b>. Por exemplo, se estivermos criando o usuário tecnico_gis e o
+adicionarmos como <i>membro de</i> equipe_gis, ele herdará automaticamente
+todas as permissões que forem atribuídas ao grupo equipe_gis. Isso permite que
+múltiplos usuários compartilhem os mesmos acessos, sem configurar
+individualmente cada um.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Membros</b>:
+essa seção é usada quando estamos criando ou editando uma <b>função de grupo</b>.
+Aqui, <b>indicamos quais usuários fazem parte daquele grupo</b>. Por exemplo,
+ao configurar o grupo equipe_gis, podemos incluir os usuários tecnico_gis e
+estagiario_gis na lista de <i>membros</i>. Com isso, qualquer permissão
+concedida ao grupo será automaticamente aplicada a todos os seus integrantes.</p>
+
+<p>Esse mecanismo é fundamental para manter a gestão de acessos
+organizada, especialmente em projetos onde várias pessoas desempenham papéis
+semelhantes. Com ele, torna-se mais fácil e seguro controlar quem pode fazer o
+quê no banco de dados, evitando erros e garantindo que as permissões estejam
+alinhadas às funções dos usuários.</p>
+
+<h4>7.3.2.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Parâmetros </h4>
+
+<p>A aba <strong>Parâmetros</strong>
+permite personalizar o ambiente de sessão de um usuário, sobrescrevendo
+configurações padrão do servidor PostgreSQL. Esses parâmetros influenciam o
+comportamento das consultas SQL executadas por aquele usuário e podem ser úteis
+em contextos específicos, como performance, segurança ou organização do banco.</p>
+
+<p>Embora a maioria dos projetos educacionais e pequenos
+ambientes possa deixar essa aba em branco, vale destacar um exemplo prático que
+pode ser aplicado em bancos espaciais:</p>
+
+<p><strong>Exemplo</strong><strong>: Definir o schema padrão</strong></p>
+
+<p>No PostgreSQL, se um banco possui múltiplos schemas, é
+possível indicar qual deve ser considerado o padrão. Isso evita que o usuário
+precise escrever <b><i>schema.tabela</i></b> em cada consulta. Para isso, basta
+configurar:</p>
+
+<p>search_path = public</p>
+
+<p>Esse parâmetro diz ao PostgreSQL que o <b><i>schema
+public</i></b> será o primeiro local a ser procurado quando o usuário executar
+comandos como <b><i>SELECT * FROM pontos_coleta;</i></b>. Esse tipo de
+configuração é útil, por exemplo, em projetos de geoprocessamento em que os
+dados espaciais estão organizados dentro de um único schema (como public,
+dados_gis, ou balneabilidade).</p>
+
+<p>Outros parâmetros que podem ser usados em contextos
+mais avançados incluem controle de memória (<i>work_mem</i>), codificação (<i>client_encoding</i>)
+ou até configurações de idioma (<i>datestyle</i>), mas raramente são alterados
+em ambientes de ensino técnico.</p>
+
+
+
+<h4>7.3.2.6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Segurança</h4>
+
+<p>A aba <b>Segurança</b> é voltada para configurações
+avançadas de controle de acesso e confiabilidade da função. Em projetos
+educacionais ou pequenos ambientes de geoprocessamento, geralmente não é
+necessário alterar essas opções.</p>
+
+<p>Nesta aba, é possível definir, por exemplo:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Se a função é <b>confiável</b> (trusted), o que impacta em
+ambientes com políticas de segurança mais rígidas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Se existem <b>restrições adicionais de acesso</b>, como regras
+específicas que limitam o uso da função em certas operações ou contextos de
+autenticação.</p>
+
+<p>Por padrão, as configurações dessa aba podem ser
+mantidas inalteradas. Ela é mais comum em bancos corporativos, com múltiplos
+níveis de auditoria, replicação ou integração com sistemas externos de
+autenticação.</p>
+
+
+
+<h4>7.3.2.7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba SQL</h4>
+
+<p>A aba <strong>SQL</strong>
+exibe o código SQL que será executado no servidor PostgreSQL com base nas
+configurações definidas nas abas anteriores. Ela não serve para configurar o
+usuário, mas sim para visualizar — e eventualmente copiar — o comando
+correspondente.</p>
+
+<p>Esse recurso é muito útil para quem está aprendendo
+SQL, pois mostra como o pgAdmin converte ações gráficas em comandos reais. É
+uma forma prática de aprender a sintaxe da linguagem de forma gradual,
+observando como cada opção escolhida na interface resulta em uma instrução.</p>
+
+<p>Por exemplo, ao criar um usuário chamado tecnico_gis com
+permissão de login e uma senha, o conteúdo da aba SQL poderá ser algo como:</p>
+
+<p>CREATEROLE tecnico_gis WITH</p>
+
+<p>&nbsp; LOGIN</p>
+
+<p>&nbsp; PASSWORD'xxxxxxx'</p>
+
+<p>Ao longo do tempo, esse recurso ajuda a desenvolver
+autonomia no uso direto do SQL, o que é essencial para profissionais que
+trabalham com bancos espaciais, automações e análises mais avançadas.</p>
+
+<p>Neste momento, o usuário já foi criado com sucesso,
+porém ainda não possui permissões específicas sobre bancos ou tabelas. Antes de
+atribuir essas permissões, precisamos criar o banco de dados espacial, para que
+possamos definir claramente quais acessos serão permitidos ao usuário. Vejamos
+agora como criar esse banco no pgAdmin 4.</p>
+
+<h3 id="criando-um-banco-de-dados-espacial-com-o-pgadmin-4" class="mt-8 scroll-mt-24 text-xl font-semibold">7.3.3 Criando um Banco de Dados Espacial com o pgAdmin 4</h3>
+
+<p>Após criar o usuário que será responsável pelo banco de
+dados, o próximo passo é a criação do banco de dados propriamente dito. A
+criação envolve definir claramente o proprietário do banco e configurar
+corretamente as suas propriedades básicas. Posteriormente, vamos habilitar a
+extensão PostGIS para tornar o banco apto a armazenar e processar dados
+geoespaciais.</p>
+
+<p><b>Criar um Banco de Dados</b></p>
+
+<p>Na árvore de navegação do pgAdmin, clique com o botão
+direito sobre <strong>Bancos de Dados</strong>
+e selecione <strong>Criar &gt; Banco de
+Dados...</strong></p>
+
+<p align=center><img src="imagens/capitulos/capitulo-07/image089.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575345">Figura </a>6&#8209;5
+: Acesso ao menu de criação de banco de dados no pgAdmin 4</p>
+
+
+
+<p>A janela que se abre possui diversas abas com configurações
+específicas, veja:</p>
+
+<h4>7.3.3.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Geral</h4>
+
+<p>Nesta aba você define as configurações essenciais do banco de
+dados:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Banco
+de Dados</b>: Defina um nome claro e descritivo, sem espaços ou caracteres
+especiais. Por exemplo: Campus_Mauro_Ramos_db.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<strong>OID</strong>:
+Cada banco de dados possui um identificador interno único (OID - Object
+Identifier). Esse campo é preenchido automaticamente pelo PostgreSQL e não
+precisa ser alterado.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Proprietário</b>:
+Selecione o usuário responsável pelo banco (por exemplo, analista_gis ou o
+usuário que você criou no item anterior).</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Comentário</b>:
+Opcionalmente, pode-se inserir um comentário explicativo sobre a finalidade
+deste banco de dados.</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image090.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575346">Figura </a>6&#8209;6:
+Definição do nome do banco de dados</p>
+
+
+
+<h4>7.3.3.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Definição (Avançado)</h4>
+
+<p>Esta aba permite configurar propriedades técnicas do banco. Em
+muitos casos, as configurações padrão já são adequadas, mas é importante
+entender o papel de cada item:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Codificação
+(Encoding)</b>: Define o padrão de codificação de caracteres. O valor padrão
+UTF8 é recomendado para suportar múltiplos idiomas e caracteres especiais.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Modelo
+(Template)</b>: Permite selecionar um banco de dados existente como base
+(template) para o novo. O padrão é template1, que contém configurações
+genéricas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Espaço
+de tabela (Tablespace)</b>: Define onde os arquivos do banco serão fisicamente
+armazenados. A opção padrão é geralmente suficiente.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Strategy</b>:
+Relaciona-se ao método de alocação de tabelas em tablespaces com suporte a
+partições. Usado em contextos avançados.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Locale
+Provider</b>: Define o mecanismo de localização. libc é o provedor padrão para
+configurações regionais.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Agrupamento
+(Collation)</b>: Determina como os dados de texto são ordenados e comparados.
+Exemplo: en_US para inglês dos Estados Unidos, que costuma estar disponível por
+padrão.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Tipo
+de caractere (Character Type)</b>: Especifica o conjunto de caracteres.
+Normalmente é derivado do locale e codificação.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>ICU
+Locale / ICU Rules</b>: Configurações específicas de internacionalização quando
+se usa o provedor ICU (International Components for Unicode). Usado apenas em
+bancos altamente personalizados.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Limite
+de conexão (Connection Limit)</b>: Define quantas conexões simultâneas o banco
+aceita. O valor -1 indica conexões ilimitadas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Modelo?</b>:
+Se ativado, o banco poderá ser usado como base (template) para a criação de
+outros bancos.</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image091.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575347">Figura </a>6&#8209;7
+: Aba “Definição” do assistente de criação de banco de dados no pgAdmin 4</p>
+
+
+
+<h4>7.3.3.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Segurança (Opcional)</h4>
+
+<p>A aba Segurança oferece dois recursos distintos:
+controle de privilégios e etiquetas de segurança. É importante entender seu
+funcionamento:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Privilégios</b>: Aqui podemos definir quais usuários (ou
+grupos) terão acesso ao banco e quais ações poderão realizar. Ao clicar no
+botão (+), escolhemos um &quot;Beneficiário&quot; (por exemplo, um usuário) e
+os privilégios associados, como CONNECT (permitir conexão), TEMP (criação de
+tabelas temporárias) ou CREATE (autoriza a criação de novos objetos, como
+esquemas ou extensões, dentro do banco de dados). O campo
+&quot;Concedente&quot; indica quem está concedendo a permissão.</p>
+
+<p>Além disso, há a opção <b>WITH GRANT OPTION</b>, que
+permite ao beneficiário repassar esse mesmo privilégio a outros usuários. Por
+exemplo, se o usuário tecnico_gis receber CONNECT com GRANT OPTION, ele poderá
+autorizar outros usuários a também se conectarem ao banco. Esse nível de
+delegação deve ser usado com cautela, pois amplia o alcance das permissões.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Etiquetas de segurança</b>: Esse recurso é voltado para
+ambientes com controle mais rigoroso, como bancos integrados a políticas de
+segurança baseadas em rótulos (Label Security). Ao clicar em (+), pode-se
+definir uma etiqueta de segurança vinculada a um provedor externo. É raramente
+utilizado em contextos técnicos ou acadêmicos.</p>
+
+<p>Em muitos casos, é comum deixar essa aba em branco e
+aplicar as permissões diretamente nas tabelas ou schemas, conforme veremos
+adiante.</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image092.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575348">Figura </a>6&#8209;8</p>
+
+<h4>7.3.3.4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Parâmetros</h4>
+
+<p>Permite configurar parâmetros específicos para o banco, que
+serão aplicados automaticamente a todas as sessões abertas dentro dele. Embora
+nem sempre necessários, alguns parâmetros podem ser úteis para ajustar o
+desempenho ou o comportamento de consultas, especialmente em bancos de dados
+com foco em geoprocessamento.</p>
+
+<p>Exemplos práticos:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; search_path:
+Define quais schemas serão buscados primeiro nas consultas. Por exemplo:
+search_path = public, dados_gis.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>work_mem</b>:
+Controla a quantidade de memória usada por operações como ordenações ou
+junções. Exemplo: work_mem = '16MB'.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>datestyle</b>:
+Define o formato padrão de datas. Exemplo: datestyle = 'ISO, DMY' para datas no
+formato dia/mês/ano.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>timezone</b>:
+Define o fuso horário padrão. Exemplo: timezone = 'America/Sao_Paulo'.</p>
+
+<p>Esses parâmetros podem ser úteis, por exemplo, para garantir que
+consultas espaciais tenham comportamento consistente ou para evitar erros de
+interpretação de datas em ambientes multiusuário.</p>
+
+
+
+<h4>7.3.3.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Aba Avançado (Restrição de Esquema)</h4>
+
+<p>Esta aba permite restringir quais schemas estarão
+disponíveis para visualização no navegador do pgAdmin. É especialmente útil
+quando o banco possui muitos schemas e o usuário deseja ocultar alguns deles
+para simplificar a navegação.</p>
+
+<p><b>Restrição de esquema</b>: neste campo, você pode
+especificar os nomes dos schemas que deseja restringir. Isso <b>não impede o
+acesso real aos schemas no banco</b>, apenas os oculta da visualização no
+painel lateral do pgAdmin. Após aplicar a restrição, é necessário atualizar
+(refresh) o nó de schemas para que a mudança tenha efeito.</p>
+
+<p>Essa funcionalidade é mais voltada à organização visual
+do ambiente de trabalho e não interfere diretamente nas permissões de acesso
+aos dados</p>
+
+<h4>7.3.3.6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<strong>Aba SQL</strong></h4>
+
+<p>Exibe o comando SQL que será gerado com as
+configurações realizadas durante o preenchimento das abas anteriores. Isso é
+útil tanto para revisar os parâmetros quanto para aprender a sintaxe SQL
+equivalente às ações feitas pela interface gráfica do pgAdmin.</p>
+
+<p>Um exemplo prático gerado na criação do banco pode ser:</p>
+
+<p>CREATEDATABASE
+&quot;Campus_Mauro_Ramos_db&quot;</p>
+
+<p>&nbsp;
+&nbsp; WITH</p>
+
+<p>&nbsp;
+&nbsp; OWNER = &quot;Professor
+Arthur Berbert&quot;</p>
+
+<p>&nbsp;
+&nbsp; ENCODING = 'UTF8'</p>
+
+<p>&nbsp;
+&nbsp; LOCALE_PROVIDER = 'libc'</p>
+
+<p>&nbsp;
+&nbsp; CONNECTIONLIMIT = -1</p>
+
+<p>&nbsp;
+&nbsp; IS_TEMPLATE = False;</p>
+
+
+
+<p>GRANT ALL ONDATABASE&quot;Campus_Mauro_Ramos_db&quot;TO&quot;Professores&quot;;</p>
+
+<p>Observe que além da instrução de criação (<code>CREATE DATABASE</code>), o
+pgAdmin também pode gerar comandos adicionais, como <code>GRANT</code>, que concede
+permissões de uso do banco a outros usuários ou grupos. Nesse caso, o grupo
+&quot;Professores&quot; recebe todos os privilégios sobre o banco de dados
+criado.</p>
+
+
+
+<p><b>Clique em </b><strong>Salvar</strong><b> para concluir a criação do banco.</b></p>
+
+<h3 id="schemas-em-bancos-de-dados-postgis" class="mt-8 scroll-mt-24 text-xl font-semibold">7.3.4 Schemas em Bancos de Dados PostGIS</h3>
+
+<p>Schemas são estruturas organizacionais internas em
+bancos de dados PostgreSQL/PostGIS que <b>permitem agrupar logicamente tabelas,
+views, funções e outros objetos</b>. Seu uso facilita a organização, segurança
+e gerenciamento dos dados.</p>
+
+<p>Exemplos de uso de schemas:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Separar
+dados por departamentos ou setores de uma organização.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Isolar
+dados temporários ou experimentais.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Controlar
+permissões e acessos distintos para grupos de usuários.</p>
+
+<h4>7.3.4.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="imagens/capitulos/capitulo-07/image093.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Como criar um schema no PostGIS com o pgAdmin 4:</h4>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Abra o pgAdmin e conecte-se ao banco desejado.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No painel à esquerda, expanda o banco, clique com o botão direito em <b>Esquemas</b>.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Escolha Criar &gt; Schema...</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="imagens/capitulos/capitulo-07/image094.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />No campo <b>Nome</b>, insira o nome desejado para o schema (ex.: geo2).</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique em <b>Salvar</b>.</p>
+
+
+
+
+
+<p>O schema criado aparecerá listado na árvore do banco
+de dados. Agora você pode criar tabelas espaciais diretamente dentro desse
+schema, garantindo melhor organização e clareza no seu projeto geoespacial.</p>
+
+<p>Após criar os schemas desejados, você poderá <b>instalar
+extensões diretamente neles, garantindo que as funcionalidades específicas </b>(como
+as extensões PostGIS ou UUID) <b>fiquem logicamente agrupadas com os dados e
+funções relacionados.</b> </p>
+
+
+
+<h3 id="permissao-de-acesso-ao-schema-usage" class="mt-8 scroll-mt-24 text-xl font-semibold">7.3.5 Permissão de acesso ao schema (USAGE)</h3>
+
+<p>Uma vez que o usuário consiga acessar o banco, o
+próximo passo é permitir que ele veja os objetos dentro do schema desejado.
+Normalmente, os dados espaciais ficam armazenados no schema padrão chamado
+public.</p>
+
+<p>Para conceder permissão ao schema:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Expanda
+o banco de dados desejado e depois a opção <b>Schemas</b>.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Clique
+com o botão direito no schema desejado (ex.: geo2) e escolha <b>Propriedades</b>.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Na
+aba <b>Segurança</b>, adicione novamente o usuário ou grupo, desta vez com o
+privilégio <b>USAGE</b> marcado.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salve
+as configurações.</p>
+
+<p>Agora o usuário consegue visualizar as tabelas, mas ainda não
+possui permissão para executar ações sobre elas.</p>
+
+<h4>7.3.5.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Permissões específicas sobre tabelas (SELECT, INSERT, UPDATE, DELETE)</h4>
+
+<p>Finalmente, defina quais operações o usuário poderá executar nas
+tabelas específicas do banco de dados. Essas permissões são concedidas
+individualmente por tabela, podendo variar conforme a função que o usuário ou
+grupo desempenha no projeto:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>SELECT</b>:
+leitura ou consulta aos dados da tabela.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>INSERT</b>:
+inclusão de novos registros.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>UPDATE</b>:
+modificação dos registros existentes.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>DELETE</b>:
+exclusão de registros existentes.</p>
+
+<p>Para configurar permissões em tabelas específicas:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Expanda
+o schema escolhido (ex.: public) e depois a pasta <b>Tabelas</b>.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Clique
+com o botão direito sobre a tabela desejada e escolha <b>Propriedades</b>.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Na
+aba <b>Segurança</b>, adicione o usuário ou grupo, selecionando exatamente as
+permissões desejadas (SELECT, INSERT, UPDATE ou DELETE).</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Repita
+o procedimento para cada tabela conforme necessário e salve as configurações.</p>
+
+<h3 id="habilitando-extensoes-no-banco-de-dados-espacial" class="mt-8 scroll-mt-24 text-xl font-semibold">7.3.6 Habilitando Extensões no Banco de Dados Espacial</h3>
+
+<p>Extensões <b>adicionam funcionalidades adicionais ao PostgreSQL</b>,
+permitindo trabalhar com tipos específicos de dados, como informações
+espaciais, dados raster ou geração de identificadores únicos. Algumas das
+extensões mais importantes para bancos espaciais são:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgis</b>:
+permite armazenar e consultar dados espaciais vetoriais (pontos, linhas e
+polígonos).</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>postgis_raster</b>:
+permite armazenar e consultar dados espaciais raster (imagens de satélite,
+modelos de elevação).</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>uuid-ossp</b>:
+gera identificadores únicos universais (UUIDs), úteis como chaves primárias
+seguras e exclusivas.</p>
+
+<h4>7.3.6.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Como habilitar extensões usando pgAdmin 4:</h4>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Expanda o banco de dados no painel lateral esquerdo do pgAdmin.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique com o botão direito sobre <b>Extensões</b> e escolha <b>Criar
+&gt; Extensão...</b></p>
+
+<p><img src="imagens/capitulos/capitulo-07/image095.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575351">Figura </a>6&#8209;11:
+Criar extensão PostGIS no banco de dados.</p>
+
+
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Na aba <b>Geral</b>, selecione o nome da extensão desejada (postgis,
+postgis_raster ou uuid-ossp).</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Na aba <b>Definição</b>, selecione o schema onde deseja instalar a
+extensão (ex.: geo2).</p>
+
+<table class="min-w-full border border-slate-300 my-6">
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p>. <img src="imagens/capitulos/capitulo-07/image096.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+  <p><a name="_Toc206575352"></a><a name="_Ref198752861">Figura
+  </a>6&#8209;12 : Selecionar a extensão postgis</p>
+  
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p align=center><img src="imagens/capitulos/capitulo-07/image097.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+  <p align=center><a name="_Toc206575353"></a><a name="_Ref198752980"><b>Figura </b></a><b>6</b><b>&#8209;</b><b>13</b><b>:
+  Verificação do comando SQL gerado automaticamente.</b></p>
+  </td>
+ </tr>
+</table>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Verifique o comando SQL gerado na aba <b>SQL</b> e clique em <b>Salvar</b>
+para concluir a instalação.</p>
+
+<p>Exemplos dos comandos SQL gerados:</p>
+
+
+
+<p>Com essas extensões instaladas, seu banco de dados espacial
+está pronto para armazenar e analisar dados vetoriais, raster e garantir
+identificadores únicos consistentes.</p>
+
+<p>CREATE EXTENSION postgis SCHEMA geo2;</p>
+
+<p>CREATE EXTENSION
+postgis_raster SCHEMA geo2;</p>
+
+<p>CREATE EXTENSION &quot;uuid-ossp&quot;SCHEMA geo2;</p>
+
+<h2 id="conectando-o-qgis-ao-postgis" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">7.4 Conectando o QGIS ao PostGIS</h2>
+
+<p>Com o banco de dados geoespacial criado e o usuário
+configurado, o próximo passo é conectar uma ferramenta de Sistema de Informação
+Geográfica (SIG) a ele. O QGIS, por ser um software livre e com excelente
+integração, é a ferramenta ideal para interagir com o PostGIS.</p>
+
+<p>Esta seção detalha como estabelecer a conexão, tanto
+para um banco de dados na mesma máquina (local) quanto para um servidor em
+rede.</p>
+
+<h3 id="conexao-ao-banco-de-dados-local-localhost" class="mt-8 scroll-mt-24 text-xl font-semibold">7.4.1 Conexão ao Banco de Dados Local (localhost)</h3>
+
+<p><img src="imagens/capitulos/capitulo-07/image098.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Este é o cenário mais comum para desenvolvimento e estudo, onde o
+QGIS e o PostgreSQL rodam na mesma máquina.</p>
+
+<p>a)&nbsp;&nbsp;&nbsp; Abra o QGIS. No <b>Painel
+Navegador</b> (geralmente localizado à esquerda), encontre o item <b>PostGIS</b>.</p>
+
+<p>b)&nbsp;&nbsp;&nbsp; Clique com o
+botão direito sobre &quot;PostGIS&quot; e selecione a opção <b>Nova Conexão...</b>
+</p>
+
+<p>c)&nbsp;&nbsp;&nbsp; Na janela
+&quot;Criar uma Nova Conexão PostGIS&quot; que se abre, preencha os seguintes
+campos: </p>
+
+<p>o&nbsp;&nbsp; <b>Nome:</b> Um
+apelido para identificar a conexão (ex: geoportal_local).</p>
+
+<p>o&nbsp;&nbsp; <b>Host:</b>
+localhost. Este é um nome padrão que sempre se refere à própria máquina.</p>
+
+<p>o&nbsp;&nbsp; <b>Porta:</b>
+5432. Esta é a porta de comunicação padrão do PostgreSQL.</p>
+
+<p>o&nbsp;&nbsp; <b>Banco de
+Dados:</b> O nome exato do banco de dados criado anteriormente (ex:
+geoportal_db).</p>
+
+<p>o&nbsp;&nbsp; <b>Autenticação:</b>
+Clique no botão <b>Básica</b>. Será solicitado o <b>Nome de usuário</b> e a <b>Senha</b>.
+Utilize as credenciais do usuário criado na seção 6.3.2 (ex: usuario_geoportal
+e a senha definida).</p>
+
+<p><img src="imagens/capitulos/capitulo-07/image099.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575355">Figura </a>6&#8209;16</p>
+
+
+
+<p>d)&nbsp;&nbsp;&nbsp; É altamente
+recomendável clicar no botão Testar conexão. Se uma mensagem de &quot;Conexão
+bem sucedida&quot; for exibida, as informações estão corretas.</p>
+
+<p>e)&nbsp;&nbsp;&nbsp; Clique em OK
+para salvar. A nova conexão aparecerá agora sob o item &quot;PostGIS&quot; no
+Painel Navegador.</p>
+
+<h3 id="entendendo-as-opcoes-de-conexao" class="mt-8 scroll-mt-24 text-xl font-semibold">7.4.2 Entendendo as Opções de Conexão</h3>
+
+<p>Na parte inferior da janela &quot;Criar uma Nova
+Conexão PostGIS&quot;, há uma série de caixas de seleção que permitem ajustar o
+comportamento da conexão. Entender essas opções é importante para otimizar o
+uso do QGIS com o banco de dados.</p>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Apenas olhar no esquema 'público'</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>O
+que faz:</b> Restringe a busca por tabelas e visualizações apenas ao esquema
+public, que é o esquema padrão do PostgreSQL.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Quando
+usar:</b> Ative esta opção para simplificar a interface e acelerar a conexão em
+bancos de dados que possuem muitos esquemas, garantindo que o QGIS não perca
+tempo procurando dados onde não deveria.</p>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Também listar tabelas sem geometria</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>O
+que faz:</b> Inclui na lista de camadas disponíveis as tabelas que não possuem
+uma coluna espacial (geométrica).</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Quando
+usar:</b> É fundamental manter esta opção ativada para que você possa adicionar
+tabelas puramente alfanuméricas ao seu projeto. Isso permite realizar uniões
+(joins) entre camadas espaciais e tabelas com dados auxiliares (por exemplo,
+uma tabela com dados de censo para ser unida a uma camada de bairros).</p>
+
+<p><b>&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Não solucionar tipo de colunas sem restrições (GEOMETRY)</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>O
+que faz:</b> Ignora a detecção automática do subtipo de geometria (Ponto,
+Linha, Polígono, etc.) para colunas que foram criadas com o tipo genérico
+geometry e não possuem uma restrição explícita.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Quando
+usar:</b> Em bancos de dados com um grande número de tabelas, ativar esta opção
+pode melhorar o desempenho da conexão, pois evita que o QGIS tenha que
+inspecionar cada tabela para determinar o tipo exato de geometria que ela
+armazena.</p>
+
+<p><b>&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Usar metadados estimados de tabela</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>O
+que faz:</b> Utiliza as estatísticas internas do PostgreSQL (que são
+estimativas) para obter informações sobre as tabelas, como o número de feições,
+em vez de fazer uma contagem exata.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Quando
+usar:</b> Ative esta opção para acelerar significativamente o carregamento de
+camadas de tabelas muito grandes (com milhões de registros). A contagem de
+feições pode não ser exata, mas o ganho de performance é considerável.</p>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;
+V.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Permitir salvar/carregar projetos QGIS no banco de dados</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>O
+que faz:</b> Habilita a funcionalidade de salvar o arquivo de projeto do QGIS (<b>.qgz</b>
+ou <b>.qgs</b>) diretamente dentro do banco de dados, em vez de em um arquivo
+local na sua máquina.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Quando
+usar:</b> Essencial para ambientes de trabalho colaborativos. Salvar o projeto
+no banco centraliza o acesso e garante que todos os membros da equipe abram a
+mesma versão do projeto, com as mesmas camadas e estilos.</p>
+
+<p><b>&nbsp;&nbsp;
+VI.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Permitir salvar/carregar metadados da camada QGIS no banco
+de dados</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>O
+que faz:</b> Permite que os estilos de visualização das camadas, configurações
+de formulários e outros metadados específicos do QGIS sejam salvos diretamente
+no banco de dados.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Quando
+usar:</b> Quando esta opção é usada em conjunto com a anterior, ela garante
+que, ao carregar o projeto do banco, todas as camadas aparecerão com a
+simbologia, rótulos e estilos corretos para todos os usuários, promovendo uma
+padronização visual completa.</p>
+
+<p><b>&nbsp;
+VII.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Mostre apenas camadas nos registrados de camada</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>O
+que faz:</b> Exibe somente as camadas que estão registradas na tabela de
+metadados do próprio PostGIS (geometry_columns e geography_columns).</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Quando
+usar:</b> Esta opção geralmente deve ser mantida ativada, pois garante que o
+QGIS liste apenas as tabelas que são reconhecidas pelo PostGIS como camadas
+espaciais válidas, proporcionando uma filtragem limpa e correta.</p>
+
+
+
+<h3 id="conexao-a-um-banco-de-dados-em-rede-servidor-remoto" class="mt-8 scroll-mt-24 text-xl font-semibold">7.4.3 Conexão a um Banco de Dados em Rede (Servidor Remoto)</h3>
+
+<p>Em ambientes de trabalho colaborativos, é comum que o
+banco de dados esteja em um servidor central na rede. O processo de conexão no
+QGIS é quase idêntico, alterando-se apenas os parâmetros de acesso.</p>
+
+<p>o&nbsp;&nbsp; <b>Host</b>: Em
+vez de localhost, será informado o endereço IP (ex: 192.168.0.100) ou o nome de
+domínio do servidor (ex: db.empresa.com.br). Esta informação é fornecida pelo
+administrador do banco de dados ou da rede.</p>
+
+<p>o&nbsp;&nbsp; <b>Porta</b>:
+Geralmente 5432, a menos que o administrador a tenha alterado por motivos de
+segurança.</p>
+
+<p>o&nbsp;&nbsp; <b>Credenciais</b>:
+Serão fornecidas as credenciais de um usuário autorizado a acessar o banco de
+dados remotamente.</p>
+
+<p>Observações
+Importantes para Conexões em Rede:</p>
+
+<p>o&nbsp;&nbsp; <b>Firewall</b>:
+O servidor que hospeda o PostgreSQL deve ter regras de firewall que permitam o
+tráfego de entrada na porta 5432 a partir da máquina do usuário.</p>
+
+<p>o&nbsp;&nbsp; <b>Configuração
+do PostgreSQL (pg_hba.conf)</b>: O administrador do servidor precisa configurar
+o arquivo pg_hba.conf para autorizar explicitamente que o usuário se conecte a
+partir de um determinado endereço IP ou faixa de rede.</p>
+
+<p>o&nbsp;&nbsp; <b>Segurança
+(SSL)</b>: Para conexões que atravessam redes não seguras (como a internet), é
+fundamental utilizar um modo de conexão SSL para criptografar os dados entre o
+QGIS e o servidor.</p>
+
+
+
+<h3 id="testando-a-conexao-e-navegando-com-o-db-manager" class="mt-8 scroll-mt-24 text-xl font-semibold">7.4.4 Testando a Conexão e Navegando com o DB Manager</h3>
+
+<p>Após salvar a conexão, é possível verificá-la
+diretamente no Painel Navegador. Ao clicar na seta ao lado do nome da conexão,
+ela deve se expandir e exibir os &quot;esquemas&quot; (<i>schemas</i>) do banco
+de dados, como o esquema public.</p>
+
+<p>Para uma interação mais avançada, o QGIS oferece o <b>Gerenciador
+de Banco de Dados (DB Manager)</b>.</p>
+
+<p>a)&nbsp;&nbsp;&nbsp; Acesse-o através
+do menu <b>Banco de Dados &gt; Gerenciador de BD</b>.</p>
+
+<p>b)&nbsp;&nbsp;&nbsp; Na janela do
+Gerenciador, expanda o item &quot;PostGIS&quot; e localize a sua conexão.</p>
+
+<p>c)&nbsp;&nbsp;&nbsp; Ao expandir a
+conexão e o esquema public, é possível visualizar as tabelas espaciais (que
+ainda não criamos), executar consultas SQL na aba <b>Janela SQL</b> e
+pré-visualizar geometrias e atributos na aba <b>Pré-visualizar</b>.</p>
+
+<p>Por enquanto, o banco de dados está vazio, mas a
+conexão funcional é a ponte que usaremos nas próximas seções para importar e
+criar dados.</p>
+
+
+
+
+
+<b><br
+clear=all>
+</b>
+
+<p><b>&nbsp;</b></p>
+
+<p><b>&nbsp;</b></p>
+
+
+
+<p><b>7.6. (Objetivo 2) Populando o Banco: Importação de Dados
+Vetoriais</b> * 7.6.1. Método 1: Via Interface Gráfica do QGIS (DB Manager) *
+7.6.2. Método 2: Via Linha de Comando (shp2pgsql) * 7.6.3. Exercício Prático 2:
+Importar um Shapefile de municípios</p>
+
+<p><b>7.7. (Objetivo 3) Consultando Dados: SQL com Funções
+Espaciais Básicas</b> * 7.7.1. Visualizando a Geometria com ST_AsText() e
+ST_SRID() * 7.7.2. Funções de Medição e Análise: ST_Area(), ST_Length(),
+ST_NPoints() * 7.7.3. Filtrando dados com a cláusula WHERE em funções espaciais
+* 7.7.4. Exercício Prático 3: Selecionar municípios por área</p>
+
+<p><b>7.8. [SUGESTÃO] Boas Práticas e Tópicos Adicionais</b> *
+7.8.1. Segurança: Por que não usar o usuário postgres para tudo? * 7.8.2.
+Manutenção Básica: A importância de VACUUM e ANALYZE * 7.8.3. Backup e
+Restauração de Dados Geoespaciais (pg_dump)</p>
+
+<p><b>7.9. Considerações Finais do Capítulo</b> * Recapitulação
+dos principais aprendizados * Quando escolher PostGIS em vez de GeoPackage? *
+Próximos passos: Análises espaciais avançadas (gancho para o Capítulo 8)</p>
+
+
+
+<br
+clear=all>
+
+
+
+
+<br
+clear=all>
+
+
+
+
+<ul type=circle>
+ <li>Colunas de Geometria e Sistemas
+     de Referência Espacial (SRID): </li>
+ <ul type=square>
+  <li>Como o PostGIS armazena a
+      geometria (coluna do tipo GEOMETRY).</li>
+  <li>A importância do SRID (Spatial
+      Reference Identifier) e a tabela spatial_ref_sys. </li>
+  <li>Exemplos comuns: 4326 (WGS
+      84), SIRGAS 2000 (códigos EPSG apropriados para o Brasil).</li>
+ </ul>
+ <li>Criando Tabelas Espaciais com
+     SQL: </li>
+ <ul type=square>
+  <li>Comando CREATE TABLE.</li>
+  <li>Sintaxe para adicionar uma
+      coluna de geometria: ADD COLUMN geom GEOMETRY(Point, 4326); ou
+      diretamente na criação da tabela.</li>
+  <li>Definindo o tipo de geometria
+      e o SRID na criação da coluna.</li>
+  <li>Exemplo prático no pgAdmin: </li>
+  <ul type=square>
+   <li>Criar uma tabela
+       pontos_interesse (com id, nome, tipo, geom POINT).</li>
+   <li>Criar uma tabela
+       limites_municipais_pg (com id, nome_municipio, cod_ibge, geom
+       MULTIPOLYGON).</li>
+  </ul>
+ </ul>
+ <li>Visualizando a estrutura da
+     tabela e a coluna de geometria no pgAdmin e no QGIS.</li>
+ <li><b>Exercício Prático 1</b>: </li>
+ <ul type=square>
+  <li>Escrever o código SQL para
+      criar uma tabela chamada hidrografia_trechos para armazenar trechos de
+      rios (geometria do tipo LINESTRING), com campos para id_trecho (inteiro,
+      chave primária), nome_rio (texto) e extensao_km (real). Usar SRID
+      adequado.</li>
+ </ul>
+</ul>
+
+<p>2.&nbsp;&nbsp;&nbsp;&nbsp; <b>(Objetivo
+2) Importando Dados Vetoriais para o PostGIS</b></p>
+
+<p>o&nbsp;&nbsp; <b>Método 1:
+Utilizando o QGIS</b> </p>
+
+<p>§&nbsp; Usando o Gerenciador
+de Banco de Dados (DB Manager): </p>
+
+<p>§&nbsp; Passo a passo:
+Selecionar a conexão PostGIS, esquema (public por padrão).</p>
+
+<p>§&nbsp; Opção &quot;Importar
+Camada/Arquivo&quot;.</p>
+
+<p>§&nbsp; Configurações: nome
+da tabela no PostGIS, coluna de geometria, SRID de origem e destino (se
+necessário transformar), criação de índice espacial.</p>
+
+<p>§&nbsp; Usando a ferramenta
+&quot;Exportar para PostgreSQL&quot; (disponível ao clicar com o botão direito
+na camada no painel de Camadas &gt; Exportar &gt; Salvar Feições Como... e
+escolher PostgreSQL).</p>
+
+<p>o&nbsp;&nbsp; <b>Método 2:
+Introdução ao </b>shp2pgsql<b> (Ferramenta de Linha de Comando)</b> </p>
+
+<p>§&nbsp; O que é e para que
+serve (converter Shapefiles para SQL).</p>
+
+<p>§&nbsp; Sintaxe básica:
+shp2pgsql -s &lt;SRID&gt; -I -W &quot;LATIN1&quot; &lt;caminho_shapefile&gt;
+&lt;nome_tabela&gt; | psql -d &lt;nome_banco&gt; -U &lt;usuario&gt;</p>
+
+<p>§&nbsp; Breve explicação das
+opções comuns: -s (SRID), -I (criar índice espacial), -W (codificação de
+caracteres).</p>
+
+<p>§&nbsp; Vantagens: útil para
+scripts e automação.</p>
+
+<p>o&nbsp;&nbsp; Verificando os
+dados importados no pgAdmin e carregando como camada no QGIS.</p>
+
+<p>o&nbsp;&nbsp; <b>Exercício
+Prático 2</b>: </p>
+
+<p>§&nbsp; Importar um arquivo
+Shapefile (ex: municipios.shp ou outro fornecido) para o PostGIS usando o DB
+Manager do QGIS.</p>
+
+<p>§&nbsp; Carregar a tabela
+importada como uma camada no QGIS a partir da conexão PostGIS.</p>
+
+<p>3.&nbsp;&nbsp;&nbsp;&nbsp; <b>(Objetivo
+3) Consultas SQL Básicas com Dados Espaciais no PostGIS</b></p>
+
+<p>o&nbsp;&nbsp; Revisão rápida
+dos comandos SELECT, FROM, WHERE (Capítulo 5).</p>
+
+<p>o&nbsp;&nbsp; Acessando
+atributos e a coluna de geometria: </p>
+
+<p>§&nbsp; Ex: SELECT id,
+nome_ponto, ST_AsText(geom) AS geometria_wkt FROM pontos_interesse;</p>
+
+<p>§&nbsp; Função ST_AsText():
+para visualizar a geometria como texto (Well-Known Text).</p>
+
+<p>§&nbsp; Função ST_SRID(geom):
+para verificar o SRID da geometria.</p>
+
+<p>o&nbsp;&nbsp; Introdução a
+funções espaciais simples (serão aprofundadas no Capítulo 8 ): </p>
+
+<p>§&nbsp; ST_Area(geom):
+calcula a área de polígonos (unidade depende do SRID).</p>
+
+<p>§&nbsp; ST_Length(geom):
+calcula o comprimento de linhas (unidade depende do SRID).</p>
+
+<p>§&nbsp; ST_NPoints(geom):
+conta o número de vértices em uma geometria.</p>
+
+<p>o&nbsp;&nbsp; Exemplos de
+consultas usando essas funções com a cláusula WHERE: </p>
+
+<p>§&nbsp; SELECT
+nome_municipio, ST_Area(geom) AS area_m2 FROM limites_municipais_pg WHERE
+ST_Area(geom) &gt; 1000000; (Considerar o SRID e a unidade da área).</p>
+
+<p>o&nbsp;&nbsp; Executando
+consultas espaciais no DB Manager do QGIS e carregando o resultado como uma
+nova camada (opção &quot;Carregar como nova camada&quot;).</p>
+
+<p>o&nbsp;&nbsp; <b>Exercício
+Prático 3</b>: </p>
+
+<p>§&nbsp; Dada a tabela
+limites_municipais_pg importada, escrever uma consulta SQL para selecionar os
+municípios com área maior que um determinado valor.</p>
+
+<p>§&nbsp; Carregar o resultado
+como uma camada no QGIS.</p>
+
+<p>4.&nbsp;&nbsp;&nbsp;&nbsp; <b>Considerações
+Finais do Capítulo</b></p>
+
+<p>o&nbsp;&nbsp; Recapitulação
+dos principais aprendizados: criar tabelas espaciais, importar dados e
+consultar dados espacialmente no PostGIS.</p>
+
+<p>o&nbsp;&nbsp; Comparativo
+breve: Quando optar por GeoPackage e quando migrar ou iniciar com PostGIS.</p>
+
+<p>o&nbsp;&nbsp; Próximos
+passos: Aprofundamento em funções espaciais e análises mais complexas (gancho
+para o Capítulo 8).</p>
+
+<div align=center>
+
+<hr size=2 width="100%" noshade align=center>
+
+</div>
+
+<p>O que você acha desta estrutura e do nível de detalhe
+proposto para cada seção? Ela atende aos objetivos que definimos? Podemos
+ajustar ou aprofundar em algum ponto específico conforme sua necessidade.</p>
+
+<h2 id="especificacoes-do-padrao-ogc" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">7.5 ESPECIFICAÇÕES DO PADRÃO OGC</h2>
+
+<p>- SFS (Simple Feature Specification for SQL).</p>
+
+<p>- OWS - Serviço WEB (WMS e WFS).</p>
+
+<p>- GML (Geographic Markup Language).</p>
+
+
+
+<p><b>Tabelas “Padrão” e informações</b></p>
+
+<p>• Spatial_Ref_Sys : Informações sobre o sistema de
+coordenadas geográficas do objetos.</p>
+
+<p>• Geometry Columns: Informações sobre as propriedades dos
+objetos geográficos. &nbsp;</p>
+
+<p>• SRID: Código do sistema de referência no banco de dados
+espacial.</p>
+
+<p>Importação dos dados - PostGIS Shapefile Import/Export
+Manager</p>
+
+<p>• Schemas: O nome do esquema que o banco de dados encontra.</p>
+
+<p>• Table: Nome da tabela no banco de dados.</p>
+
+<p>• Geo_column: Atributo para armazenamento da geometria.</p>
+
+<p>• SRID: Código do georreferenciamento.</p>
+
+<p>• Modo: O tipo de inserção da tabela.</p>
+
+
+
+
+
+
+
+</div>
+
+<div><br clear=all>
+
+<hr align=left size=1 width="33%">
+
+<div id=ftn1>
+
+<p><a href="#_ftnref1" name="_ftn1" title="">[1]</a>
+No QGIS, isso significa que você poderá conectar-se a um banco PostGIS,
+visualizar camadas diretamente do banco de dados, aplicar filtros com SQL e
+gerar mapas temáticos com base nos atributos das tabelas.</p>
+
+</div>
+
+<div id=ftn2>
+
+<p><a href="#_ftnref2" name="_ftn2" title="">[2]</a>
+Linguagem de Consulta Estruturada, em tradução livre para o português.</p>
+
+</div>
+
+<div id=ftn3>
+
+<p><a href="#_ftnref3" name="_ftn3" title="">[3]</a>
+Programa apara Gerenciamento de Banco de dados.</p>
+
+</div>
+
+<div id=ftn4>
+
+<p><a href="#_ftnref4" name="_ftn4" title="">[4]</a>
+Triggers (ou gatilhos) são comandos automáticos que o banco executa quando algo
+acontece em uma tabela, como uma inserção ou alteração. Elas servem para
+automatizar tarefas e garantir que certas regras sejam sempre cumpridas.</p>
+
+</div>
+
+<div id=ftn5>
+
+<p><a href="#_ftnref5" name="_ftn5" title="">[5]</a>
+O recurso de “Domínio Global” do QGIS ainda é relativamente novo e pode
+apresentar instabilidades, sendo necessário maior estudo e desenvolvimento para
+amadurecer sua implementação.</p>
+
+</div>
+
+</div>
+
+</body>
+
+</html>
+
+                </div>
+                <div class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                    <a href="index.html" class="text-slate-500 hover:underline">Sumário</a>
+                    <div class="flex gap-3">
+                        <a href="capitulo-06.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">← Padronizar Campos em Banco de Dados</a>
+                        
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+            <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+            <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+            <p class="text-sm">Professor responsável: Arthur Berbert</p>
+            <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="main.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

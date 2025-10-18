@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Bancos de Dados GeoPackage — Geoprocessamento 2</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+    <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
+        <div class="border-b border-slate-200/60 dark:border-slate-700/60">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                    <img src="https://placehold.co/100x40/1B5E20/FFFFFF?text=IFSC" alt="Logotipo do IFSC" class="h-10 w-auto opacity-80" onerror="this.style.display='none'">
+                </div>
+                <div class="flex items-center gap-3 justify-center md:justify-end">
+                    <div class="text-center md:text-right">
+                        <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+                    </div>
+                    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Alternar tema">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="mb-6 text-slate-500 dark:text-slate-400"><a href="index.html" class="text-sm hover:underline">← Sumário</a> · <a href="capitulo-02.html" class="text-sm hover:underline">← Cap. anterior: MODELAGEM DE DADOS</a> · <a href="capitulo-04.html" class="text-sm hover:underline">Próx. capítulo: Fundamentos do SQL →</a></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-3 hidden lg:block">
+                <div class="sticky top-24 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/60 dark:bg-slate-900/40">
+                    <nav class="text-sm">
+<p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Neste capítulo</p>
+<ul class="space-y-1">
+<li class="ml-0"><a href="#o-que-acontece-nos-bastidores-do-qgis-ao-criar-uma-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">O que acontece nos bastidores do QGIS ao criar uma GeoPackage?</a></li>
+<li class="ml-0"><a href="#criando-uma-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Criando uma GeoPackage</a></li>
+<li class="ml-0"><a href="#salvar-o-projeto-dentro-da-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Salvar o Projeto dentro da GeoPackage</a></li>
+<li class="ml-0"><a href="#conectando-ao-qgis-um-banco-de-dados-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Conectando ao QGIS um Banco de dados GeoPackage</a></li>
+<li class="ml-0"><a href="#criar-camadas-tabelas-no-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Criar Camadas (tabelas) no GeoPackage</a></li>
+<li class="ml-0"><a href="#adicionar-as-camadas-para-o-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Adicionar as Camadas para o GeoPackage</a></li>
+<li class="ml-0"><a href="#renomear-tabelas-no-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Renomear tabelas no GeoPackage</a></li>
+<li class="ml-0"><a href="#apagar-tabelas-no-geopackage" class="hover:text-ifsc-green dark:hover:text-emerald-300">Apagar tabelas no GeoPackage</a></li>
+<li class="ml-0"><a href="#depurar-o-banco-de-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">Depurar o Banco de Dados</a></li>
+<li class="ml-0"><a href="#salvando-o-estilo-da-camada-dentro-do-gpkg" class="hover:text-ifsc-green dark:hover:text-emerald-300">Salvando o Estilo da Camada dentro do GPKG</a></li>
+<li class="ml-0"><a href="#abrindo-o-db-manager-e-uma-consulta-sql-no-qgis" class="hover:text-ifsc-green dark:hover:text-emerald-300">Abrindo o DB Manager e uma consulta SQL no QGIS</a></li>
+<li class="ml-4"><a href="#camadas-nao-espaciais" class="hover:text-ifsc-green dark:hover:text-emerald-300">Camadas não espaciais</a></li>
+<li class="ml-4"><a href="#camadas-espaciais" class="hover:text-ifsc-green dark:hover:text-emerald-300">Camadas espaciais</a></li>
+</ul></nav>
+                </div>
+            </aside>
+            <article class="lg:col-span-9">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Capítulo 3: Bancos de Dados GeoPackage</h1>
+                    
+                </header>
+                <div class="prose prose-lg max-w-none prose-slate dark:prose-invert prose-justificado prose-indent">
+                
+
+<p>O GeoPackage (extensão <code>.gpkg</code>) é <b>atualmente um dos formatos
+mais versáteis e eficientes</b> para o armazenamento de dados espaciais e
+atributos no ambiente SIG. Desenvolvido <b>com base no banco de dados SQLite e
+padronizado pelo OGC</b> (Open Geospatial Consortium), ele permite reunir <b>em
+um único arquivo todas as informações de um projeto</b>: camadas espaciais
+(pontos, linhas, polígonos), tabelas não espaciais, estilos, layouts e até o
+próprio projeto QGIS.</p>
+
+<p>Neste capítulo, vamos explorar em profundidade o
+funcionamento do GeoPackage dentro do QGIS. Começaremos entendendo o que
+acontece nos bastidores quando uma camada é criada, e avançaremos com práticas
+fundamentais como a criação de tabelas, adição de dados espaciais e não
+espaciais, renomeação e exclusão de camadas, otimização do banco de dados e
+integração com estilos e projetos salvos.</p>
+
+<p>A proposta é que você, ao final deste capítulo, domine o
+uso do GeoPackage como banco de dados local e consiga aproveitá-lo plenamente
+em seus projetos de geoprocessamento.</p>
+
+<h2 id="o-que-acontece-nos-bastidores-do-qgis-ao-criar-uma-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.1 O que acontece nos bastidores do QGIS ao criar uma GeoPackage?</h2>
+
+<p><b>Ao criar um banco de dados ou uma tabela no QGIS</b>,
+especialmente em formato GeoPackage (.gpkg), o programa não cria apenas a
+tabela com os campos definidos pelo usuário. Na verdade, <b>ele executa
+automaticamente uma série de comandos SQL</b> para garantir que o banco seja
+compatível com o funcionamento interno do QGIS e com a estrutura do padrão OGC
+(Open Geospatial Consortium).</p>
+
+<p>Essas operações incluem <b>a criação e o preenchimento
+automático de tabelas de sistema e metadados</b>, como por exemplo aquelas que
+armazenam informações sobre estilos, formulários e propriedades das camadas.</p>
+
+<p>A imagem abaixo mostra um GeoPackage criado no QGIS
+(exibido no DB Browser<a href="#_ftn3" name="_ftnref3" title="">[3]</a>),
+no qual <b>o usuário adicionou apenas a tabela 'GEO2'. As demais foram geradas
+automaticamente</b> pelo sistema para armazenar metadados, estilos e outras
+informações necessárias ao funcionamento do projeto.2F<a href="#_ftn4"
+name="_ftnref4" title="">[4]</a></p>
+
+<p><img src="imagens/capitulos/capitulo-03/image034.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575322">Figura </a>3&#8209;1
+: arquivo GeoPackage criado no QGIS exibido no DB Browser</p>
+
+<p>Mesmo com a GeoPackage já criada, se quisermos criar uma tabela
+espacial do zero, sem usar o QGIS, precisamos replicar todas as operações
+realizadas pelo QGIS, porém com comandos SQL. Veja um exemplo de criação de uma
+tabela de pontos que o QGIS entenderá como camada espacial:</p>
+
+<p>-- Criação da
+tabela</p>
+
+<p>CREATETABLEpontos_site (</p>
+
+<p>&nbsp; &nbsp; id INTEGERPRIMARY KEY AUTOINCREMENT,</p>
+
+<p>&nbsp; &nbsp; nome TEXTNOT NULL,</p>
+
+<p>&nbsp; &nbsp;
+descricao TEXT,</p>
+
+<p>&nbsp; &nbsp; geom
+BLOB NOT
+NULL
+&nbsp;--
+a geometria será registrada como BLOB</p>
+
+<p>);</p>
+
+<p>-- Registro da
+tabela na gpkg_contents</p>
+
+<p>INSERT INTO gpkg_contents (</p>
+
+<p>&nbsp; &nbsp;
+table_name, data_type, identifier, description, last_change, min_x, min_y, max_x,
+max_y, srs_id</p>
+
+<p>)</p>
+
+<p>VALUES (</p>
+
+<p>&nbsp; &nbsp; 'pontos_site', 'features', 'pontos_site', 'Camada de pontos',
+CURRENT_TIMESTAMP, 0, 0, 0, 0, 4326</p>
+
+<p>);</p>
+
+<p>-- Registro do
+campo geométrico na gpkg_geometry_columns</p>
+
+<p>INSERT INTO
+gpkg_geometry_columns (</p>
+
+<p>&nbsp; &nbsp;
+table_name, column_name, geometry_type_name, srs_id, z, m</p>
+
+<p>)</p>
+
+<p>VALUES (</p>
+
+<p>&nbsp; &nbsp; 'pontos_site', 'geom', 'POINT', 4326, 0, 0</p>
+
+<p>);</p>
+
+<p>-- Registro do
+sistema de referência espacial se ainda não estiver presente</p>
+
+<p>INSERTORIGNOREINTO
+gpkg_spatial_ref_sys (</p>
+
+<p>&nbsp; &nbsp;
+srs_name, srs_id, organization, organization_coordsys_id, definition</p>
+
+<p>)</p>
+
+<p>VALUES (</p>
+
+<p>&nbsp; &nbsp; 'WGS 84', 4326, 'EPSG', 4326, 'GEOGCS[&quot;WGS
+84&quot;, ...]'</p>
+
+<p>);</p>
+
+<p>Neste curso, não trabalharemos com a criação de tabelas
+diretamente por meio de comandos SQL. Por ora, utilizaremos o QGIS como
+ferramenta principal para construir nossas tabelas, aproveitando sua interface
+gráfica intuitiva.</p>
+
+<p><img src="imagens/capitulos/capitulo-03/image035.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p>Por isso, quando pensamos na modelagem dos dados,
+precisamos conhecer as possibilidades e as limitações do QGIS nesse processo.
+Essa compreensão será fundamental para garantir que o banco de dados resultante
+seja confiável, consistente e compatível com futuras análises e integrações.</p>
+
+<p>Nesta etapa do curso não vamos modelar um banco de dados
+desde o início, que seria  o ideal, vamos importar dados e trabalhar neles. </p>
+
+<h2 id="criando-uma-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.2 Criando uma GeoPackage</h2>
+
+<p>Vamos criar um arquivo GeoPackage: Abra o QGIS e clique
+em Camada &gt; Criar camada &gt; Nova camada GeoPackage.</p>
+
+<p align=center><img src="imagens/capitulos/capitulo-03/image036.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575323">Figura </a>3&#8209;2:
+Como criar um GeoPackage</p>
+
+<div>
+
+<p>Ao criar um banco de dados no formato GeoPackage
+(*.gpkg) no QGIS, o software exige que seja criada, já no momento da criação,
+pelo menos uma tabela (ou camada) dentro deste arquivo. Essa obrigatoriedade
+existe porque o QGIS precisa definir uma estrutura mínima que torne o banco
+utilizável e reconhecível no ambiente do projeto. </p>
+
+</div>
+
+<p>Em particular, quando a camada criada é espacial (ou
+seja, possui geometria de pontos, linhas ou polígonos), é necessário definir
+também um sistema de referência de coordenadas (SRC), que é uma informação
+essencial para o correto posicionamento dos dados no mapa.</p>
+
+<p>Se não houver nenhuma camada espacial ao criar o
+GeoPackage, o banco continuará sendo válido para armazenamento de dados
+tabulares, mas não poderá ser utilizado imediatamente em operações geográficas
+que dependem de localização e projeção. Por isso, ao criar o arquivo pelo QGIS,
+o fluxo padrão já sugere a criação de uma camada espacial — pois, além de
+garantir o funcionamento pleno do banco no ambiente SIG, também permite que o
+QGIS registre internamente o SRC e outras configurações relacionadas à espacialidade
+dos dados. Segue um exemplo de criação da GeoPackage com uma tabela inicial
+denominada Pontos:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="imagens/capitulos/capitulo-03/image037.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><b>Nomear Arquivo e Tabela:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Em &quot;Banco de Dados&quot;, clique em &quot;...&quot; para
+escolher o local e nomear seu arquivo GeoPackage (ex: BD_Balneabilidade.gpkg).</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Em &quot;Nome da tabela&quot;, defina o nome da sua primeira
+camada de dados (ex: Pontos).</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Definir Geometria e SRC:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Escolha o &quot;Tipo de geometria&quot; (ex: Ponto, Linha,
+Polígono).</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique no ícone ao lado do campo SRC para selecionar o Sistema de
+Referência de Coordenadas adequado para sua camada (ex: EPSG:31982 – SIRGAS
+2000 / UTM zone 22S).</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Adicionar Campos (Atributos):</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Na seção &quot;Novo Campo&quot;, informe o &quot;Nome&quot; (ex:
+codigo), &quot;Tipo&quot; (ex: Texto) e &quot;Comprimento&quot; (se texto).</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique em &quot;Adicionar campos à lista&quot; para cada atributo
+necessário. No exemplo: nome (Texto), codigo (Texto), descricao (Texto).</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Confirmar:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Mantenha a opção &quot;Criar um índice espacial&quot; marcada
+para melhor performance.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique em &quot;OK&quot;. O QGIS criará o arquivo .gpkg e a
+camada especificada.</p>
+
+
+
+<p><img src="imagens/capitulos/capitulo-03/image038.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<p>Este processo cria um arquivo GeoPackage organizado com
+sua primeira camada de dados espaciais, pronto para uso em seus projetos de
+geoprocessamento.</p>
+
+<h2 id="salvar-o-projeto-dentro-da-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.3 Salvar o Projeto dentro da GeoPackage</h2>
+
+<table class="min-w-full border border-slate-300 my-6">
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p align=center><img src="imagens/capitulos/capitulo-03/image039.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+  <p><a name="_Toc206575325">Figura </a>3&#8209;4
+  : Salvar projeto na GeoPackage</p>
+  
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>&nbsp;&nbsp;&nbsp; I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Vá em 'Projeto' &gt; 'Salvar Para...'.</p>
+  <p>&nbsp; II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  No tipo de arquivo, selecione 'GeoPackage (*.gpkg)'.</p>
+  <p>III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Escolha a conexão do arquivo GeoPackage desejado.</p>
+  <p>IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Dê um nome interno para o projeto.</p>
+  <p>V.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Clique em 'Salvar'.</p>
+  <p>VI.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  O projeto será armazenado como uma entrada especial dentro do GPKG.</p>
+  <p align=center><img src="imagens/capitulos/capitulo-03/image040.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+  <p><a name="_Toc206575326">Figura </a>3&#8209;5
+  : Escolhendo a conexão e nome do projeto </p>
+  </td>
+ </tr>
+</table>
+
+<h2 id="conectando-ao-qgis-um-banco-de-dados-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.4 Conectando ao QGIS um Banco de dados GeoPackage</h2>
+
+<p><img src="imagens/capitulos/capitulo-03/image041.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><img src="imagens/capitulos/capitulo-03/image042.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Uma vez que um arquivo
+GeoPackage (.gpkg) já existe – seja porque foi criado anteriormente ou recebido
+de outra fonte – conectá-lo ao seu projeto no QGIS é um processo direto. O QGIS
+utiliza o painel &quot;Navegador&quot; para facilitar o acesso a diversas
+fontes de dados, incluindo os GeoPackages.</p>
+
+<p><b>Localize o Painel Navegador</b>: Geralmente, este
+painel está visível por padrão na interface do QGIS. Caso não esteja, pode
+ativá-lo através do menu &quot;Exibir&quot; &gt; &quot;Painéis&quot; &gt;
+&quot;Navegador&quot;. </p>
+
+<p><b>Acesse à Secção GeoPackage</b>: No painel
+Navegador, expanda a árvore de itens até encontrar a entrada
+&quot;GeoPackage&quot;. </p>
+
+<p><b>Estabelecer uma Conexão (se necessário): </b></p>
+
+<p><img src="imagens/capitulos/capitulo-03/image043.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />O QGIS pode listar automaticamente GeoPackages de
+diretórios que já foram acedidos.</p>
+
+<p>Para adicionar um GeoPackage de um local específico,
+clique com o botão direito sobre o item &quot;GeoPackage&quot; no Navegador e
+selecione a opção &quot;Nova Conexão...&quot;. Navegue até o diretório onde o
+seu arquivo .gpkg está guardado, selecione-o e clique em &quot;Abrir&quot;. O
+arquivo aparecerá listado sob a entrada &quot;GeoPackage&quot;.</p>
+
+<p><b>Explorar o Conteúdo do GeoPackage</b>: Após a
+conexão, o arquivo GeoPackage aparecerá no Navegador. Clique na seta ao lado do
+nome do arquivo para expandir e visualizar todas as camadas (tabelas espaciais
+e não espaciais) contidas nele.</p>
+
+<h2 id="criar-camadas-tabelas-no-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.5 Criar Camadas (tabelas) no GeoPackage</h2>
+
+<h3 id="camadas-nao-espaciais" class="mt-8 scroll-mt-24 text-xl font-semibold">3.5.1 Camadas não espaciais</h3>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Acesse o Navegador do QGIS:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+O painel &quot;Navegador&quot; geralmente fica localizado à
+esquerda da interface do<a name="_Toc195894180"> QGIS. Se não estiver visível,
+você pode ativá-lo no menu Exibir &gt; Painéis &gt; Navegador.</a></p>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Localize seu GeoPackage:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No painel Navegador, expanda a seção &quot;GeoPackage&quot;.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Encontre o arquivo GeoPackage ao qual você deseja adicionar a
+nova tabela.</p>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Crie uma Nova Tabela:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique com o botão direito do mouse sobre o nome do seu arquivo
+GeoPackage existente.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No menu de contexto que aparece, escolha a opção Nova Tabela....</p>
+
+<p><i>(Imagem ilustrativa, a interface pode variar
+ligeiramente)</i></p>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Configure a Nova Tabela:</b></p>
+
+<p>Na janela &quot;Nova Tabela&quot; que se abre:</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Nome da Tabela: Digite Medicoes.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Adicionar Campos: Adicione os seguintes campos, um por um,
+especificando o nome e o tipo: </p>
+
+<p>§&nbsp;
+<b>id_ponto</b>: Tipo Texto (string)</p>
+
+<p>§&nbsp;
+<b>data_coleta</b>: Tipo Data</p>
+
+<p>§&nbsp;
+<b>valor</b>: Tipo Número decimal (real)</p>
+
+<p>§&nbsp;
+<b>chuva</b>: Tipo Texto (string)</p>
+
+<p>§&nbsp;
+<b>improprio</b>: Tipo Booleano</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tipo de Geometria: No menu suspenso &quot;Tipo de
+geometria&quot;, selecione a opção Sem geometria. Isso é crucial, pois estamos
+criando uma tabela apenas de atributos. </p>
+
+<p><img src="imagens/capitulos/capitulo-03/image045.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</b><b>Confirmar Criação:</b></p>
+
+<p>Após configurar todos os campos e garantir que
+&quot;Sem geometria&quot; está selecionado, clique no botão OK.</p>
+
+<p>A nova tabela &quot;Medicoes&quot; será criada dentro do
+seu arquivo GeoPackage e aparecerá listada sob ele no painel Navegador.</p>
+
+<h3 id="camadas-espaciais" class="mt-8 scroll-mt-24 text-xl font-semibold">3.5.2 Camadas espaciais</h3>
+
+<p>1.&nbsp;&nbsp;&nbsp; <b>Acesse o
+Navegador do QGIS:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Como antes, localize o painel &quot;Navegador&quot; na interface
+do QGIS.</p>
+
+<p>2.&nbsp;&nbsp;&nbsp; <b>Localize seu
+GeoPackage:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No painel Navegador, expanda a seção &quot;GeoPackage&quot;.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Encontre o arquivo GeoPackage ao qual você deseja adicionar a
+nova tabela espacial.</p>
+
+<p>3.&nbsp;&nbsp;&nbsp; <b>Crie uma Nova
+Camada/Tabela:</b></p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique com o <b>botão direito</b> do mouse sobre o nome do seu
+arquivo GeoPackage existente.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No menu de contexto, escolha a opção <b>Nova Camada...</b> (ou <b>Nova
+Tabela...</b> – a interface pode variar ligeiramente, mas ambas levam a um
+diálogo similar onde você pode definir a geometria).</p>
+
+<p>4.&nbsp;&nbsp;&nbsp; <b>Configure a
+Nova Camada Espacial:</b></p>
+
+<p>Na janela &quot;Nova Camada GeoPackage&quot; (ou
+similar) que se abre:</p>
+
+<p>§&nbsp; <b>Nome da Tabela:</b>
+Digite Areas_Interesse.</p>
+
+<p>§&nbsp; <b>Tipo de geometria:</b>
+Selecione <b>Polígono</b> no menu suspenso. </p>
+
+<p>§&nbsp; Você também pode
+optar por &quot;Incluir dimensão Z&quot; ou &quot;Incluir valores M&quot;, se
+aplicável.</p>
+
+<p>§&nbsp; <b>Sistema de
+Referência de Coordenadas (SRC):</b> Este é um passo crucial para tabelas
+espaciais. Clique no botão ao lado do campo de SRC (geralmente com um ícone de
+globo &#127760;)
+para escolher o SRC apropriado para os seus dados. <b>Sempre defina um SRC.</b></p>
+
+<p>§&nbsp; <b>Adicionar Campos:</b>
+Adicione os seguintes campos à tabela de atributos: </p>
+
+<p>§&nbsp; id_area: Tipo <b>Número
+Inteiro (integer)</b></p>
+
+<p>§&nbsp; nome_area: Tipo <b>Texto
+(string)</b> (defina um comprimento máximo, ex: 80)</p>
+
+<p>§&nbsp; tipo_uso: Tipo <b>Texto
+(string)</b> (ex: &quot;Preservacao&quot;, &quot;Recreacao&quot;,
+&quot;Estudo&quot;, comprimento ex: 50)</p>
+
+<p>§&nbsp; data_cadastro: Tipo <b>Data</b></p>
+
+<p>§&nbsp; <b>Opções Avançadas
+(Verifique):</b> </p>
+
+<p>§&nbsp; <b>Coluna de
+geometria:</b> Geralmente será geom ou geometry por padrão.</p>
+
+<p>§&nbsp; <b>Criar um índice
+espacial:</b> Certifique-se de que esta opção esteja marcada. É fundamental
+para o bom desempenho de camadas espaciais pois este índice melhora a
+performance especialmente em camadas com grande volume de dados ou operações
+frequentes de seleção e visualização.</p>
+
+<p><i>(Imagem ilustrativa da janela de configuração da
+camada)</i></p>
+
+<p>5.&nbsp;&nbsp;&nbsp; <b>Confirmar
+Criação:</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Após configurar todos os campos, o tipo de geometria e o SRC,
+clique em <b>OK</b>.</p>
+
+<p>A nova tabela espacial &quot;Areas_Interesse&quot; será
+criada dentro do seu arquivo GeoPackage.</p>
+
+<h2 id="adicionar-as-camadas-para-o-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.6 Adicionar as Camadas para o GeoPackage</h2>
+
+<p><img src="imagens/capitulos/capitulo-03/image046.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><b>Adicionar Camadas ao Projeto</b>: Para utilizar
+uma camada no seu mapa, basta arrastá-la do painel Navegador para a janela do
+mapa ou para o painel &quot;Camadas&quot;. Alternativamente, pode clicar duas
+vezes sobre a camada desejada ou clicar com o botão direito sobre ela e
+selecionar &quot;Adicionar camada ao projeto&quot;.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="renomear-tabelas-no-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.7 Renomear tabelas no GeoPackage</h2>
+
+<p>Para manter o seu banco de dados GeoPackage organizado,
+pode ser necessário renomear tabelas (camadas) para que os seus nomes sejam
+mais descritivos ou sigam um padrão. Siga os passos abaixo:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No painel &quot;Navegador&quot;, dentro da conexão do seu GeoPackage,
+clique com o botão direito do mouse sobre a tabela (camada) que deseja
+renomear.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No menu de contexto que surge, selecione &quot;Gerenciar&quot; e, em
+seguida, clique em &quot;Renomear a camada...&quot;. </p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Na janela de diálogo que aparecerá, digite o novo nome desejado para a
+tabela (por exemplo, &quot;Locais_Coleta&quot;) no campo apropriado. </p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique no botão &quot;OK&quot; (ou &quot;Sim&quot;, dependendo da versão
+do QGIS e do idioma) para confirmar a alteração e renomear a tabela. </p>
+
+<p align=center><img src="imagens/capitulos/capitulo-03/image047.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575329">Figura </a>3&#8209;9:
+Menu popup para renomear a tabela.</p>
+
+<p align=center><img src="imagens/capitulos/capitulo-03/image048.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575330">Figura </a>3&#8209;10:
+janela para inserir o novo nome da tabela.</p>
+
+<h2 id="apagar-tabelas-no-geopackage" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.8 Apagar tabelas no GeoPackage</h2>
+
+<p><img src="imagens/capitulos/capitulo-03/image049.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Para remover uma tabela (camada) que não é mais
+necessária de um arquivo GeoPackage, siga estes passos:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No <strong>painel Navegador</strong>,
+localize o arquivo GeoPackage e a tabela que deseja excluir.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique com o <strong>botão direito do mouse</strong>
+sobre o nome da tabela.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No menu de contexto, vá em <strong>Gerenciar</strong>
+&#8594; <strong>Deletar Camada...</strong>.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+O QGIS solicitará uma confirmação. Clique em <strong>Sim</strong> para prosseguir com a exclusão
+da tabela.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Após a exclusão, o QGIS perguntará se deseja executar o comando <code>VACUUM</code>. Recomenda-se
+clicar em <strong>Sim</strong> para
+otimizar o arquivo GeoPackage, recuperando espaço e melhorando o desempenho.</p>
+
+
+
+<p align=center><img src="imagens/capitulos/capitulo-03/image050.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575332">Figura </a>3&#8209;12</p>
+
+
+
+<p align=center><img src="imagens/capitulos/capitulo-03/image051.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575333">Figura </a>3&#8209;13</p>
+
+
+
+<h2 id="depurar-o-banco-de-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.9 Depurar o Banco de Dados</h2>
+
+<p>O comando VACUUM é uma ferramenta utilizada em bancos de dados
+como SQLite (base do GeoPackage) e PostgreSQL. A sua função é realizar uma <b>limpeza
+e reorganização interna</b> das tabelas. Este processo inclui:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Remover
+dados de registros que foram excluídos. </p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Otimizar
+o uso do espaço de armazenamento. </p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Melhorar
+o desempenho geral das consultas ao banco de dados. </p>
+
+<p>No contexto de um GeoPackage, executar o <i>VACUUM</i> pode <b>reduzir
+o tamanho do arquivo </b><b>.</b><i>gpkg</i> e reorganizar a disposição
+física dos dados no disco. Isso é particularmente útil após realizar muitas
+operações de inserção ou exclusão de dados. </p>
+
+
+
+<p align=center><img src="imagens/capitulos/capitulo-03/image052.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575334">Figura </a>3&#8209;14
+: Depurar o Banco de Dados</p>
+
+<h2 id="salvando-o-estilo-da-camada-dentro-do-gpkg" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.10 Salvando o Estilo da Camada dentro do GPKG</h2>
+
+<p>É possível armazenar o estilo visual de uma camada
+(cores, símbolos, rótulos, etc.) diretamente dentro do arquivo GeoPackage. Isso
+garante que, ao carregar a camada em outros projetos ou partilhá-la, o estilo
+seja preservado e aplicado automaticamente.</p>
+
+<p><strong>Para salvar o
+estilo de uma camada no GeoPackage como estilo padrão:</strong></p>
+
+
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No painel &quot;Camadas&quot;, clique com o <strong>botão direito do mouse</strong> sobre a
+camada cujo estilo deseja salvar.</p>
+
+<p><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</strong>No menu de contexto, vá em <strong>Exportar</strong> &#8594; <strong>Guardar
+Como Ficheiro de Estilo de Camada QGIS...</strong></p>
+
+<p> <img src="imagens/capitulos/capitulo-03/image053.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Observação:</b> Embora esta opção mencione &quot;Ficheiro de
+Estilo&quot;, ela também permite salvar o estilo diretamente no banco de dados
+GeoPackage. </p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Na janela &quot;Guardar estilo de camada&quot;, na secção &quot;Guardar
+estilo&quot;, escolha a opção <strong>&quot;As
+default in local user database&quot;</strong>.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+V.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Clique em <strong>OK</strong>.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+VI.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="imagens/capitulos/capitulo-03/image054.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Se o estilo for salvo com sucesso, uma mensagem de
+confirmação aparecerá. Clique em <strong>OK</strong>
+novamente.</p>
+
+
+
+<p><img src="imagens/capitulos/capitulo-03/image055.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<h2 id="abrindo-o-db-manager-e-uma-consulta-sql-no-qgis" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">3.11 Abrindo o DB Manager e uma consulta SQL no QGIS</h2>
+
+<p>O DB Manager é a interface principal para interagir com
+bancos de dados dentro do QGIS, permitindo não apenas executar consultas, mas
+também gerenciar conexões, visualizar esquemas de tabelas e importar/exportar
+dados.</p>
+
+<p><img src="imagens/capitulos/capitulo-03/image056.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><b>Passos para abrir o DB Manager e executar uma
+consulta:</b></p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No menu superior do QGIS, clique em <b>Banco de Dados (Database)</b>.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+No menu suspenso, selecione <b>Gerenciador de BD</b>. </p>
+
+<p><b>&nbsp;</b></p>
+
+<p><b>Visão
+Geral da Interface do DB Manager:</b></p>
+
+<p>A janela do DB Manager é tipicamente dividida em
+alguns painéis principais:</p>
+
+<p><img src="imagens/capitulos/capitulo-03/image057.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><b>Árvore de Provedores de Dados</b> (Data Source
+Tree): À esquerda, mostra as conexões de banco de dados disponíveis
+(GeoPackage, PostGIS, SpatiaLite, etc.) e as tabelas dentro delas.</p>
+
+<p><b>Abas de Informação/Consulta:</b> Na parte direita,
+abas como &quot;Informação&quot; (mostra detalhes da tabela selecionada),
+&quot;Tabela&quot; (mostra os dados da tabela), &quot;Pré-visualização&quot;
+(mostra a geometria) e &quot;Janela SQL&quot; (onde você escreverá suas
+consultas). </p>
+
+<p><b>Conectando-se
+a um Banco de Dados (Exemplo: GeoPackage):</b></p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Na árvore de provedores, expanda o tipo de banco de dados desejado (por
+exemplo, &quot;GeoPackage&quot;).</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Se o seu arquivo GeoPackage já foi adicionado ao projeto QGIS ou se você
+já estabeleceu uma conexão, ele deverá aparecer listado.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Caso contrário, você pode precisar adicionar uma nova conexão (clique
+com o botão direito no tipo de banco de dados e escolha a opção apropriada para
+conectar/adicionar uma camada).</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Uma vez conectado, expanda o arquivo GeoPackage para ver as tabelas que
+ele contém.</p>
+
+<p><b>Acessando
+a Janela SQL:</b></p>
+
+<p>Com a
+conexão ao banco de dados estabelecida e uma fonte de dados selecionada
+(opcionalmente, uma tabela específica para ter como referência), procure pelo
+ícone da <b>Janela SQL</b> na barra de ferramentas do DB Manager (geralmente um
+ícone com &quot;SQL&quot;) ou clique na aba &quot;Janela SQL&quot;.</p>
+
+<p align=center><img src="imagens/capitulos/capitulo-03/image058.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><a name="_Toc206575339">Figura </a>3&#8209;19</p>
+
+<p>.<br clear=all>
+</p>
+
+
+                </div>
+                <div class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                    <a href="index.html" class="text-slate-500 hover:underline">Sumário</a>
+                    <div class="flex gap-3">
+                        <a href="capitulo-02.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">← MODELAGEM DE DADOS</a>
+                        <a href="capitulo-04.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">Fundamentos do SQL →</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+            <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+            <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+            <p class="text-sm">Professor responsável: Arthur Berbert</p>
+            <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="main.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

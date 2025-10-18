@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Os Subconjuntos da Linguagem SQL: DDL, DML e DQL — Geoprocessamento 2</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+    <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
+        <div class="border-b border-slate-200/60 dark:border-slate-700/60">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                    <img src="https://placehold.co/100x40/1B5E20/FFFFFF?text=IFSC" alt="Logotipo do IFSC" class="h-10 w-auto opacity-80" onerror="this.style.display='none'">
+                </div>
+                <div class="flex items-center gap-3 justify-center md:justify-end">
+                    <div class="text-center md:text-right">
+                        <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+                    </div>
+                    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Alternar tema">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="mb-6 text-slate-500 dark:text-slate-400"><a href="index.html" class="text-sm hover:underline">← Sumário</a> · <a href="capitulo-04.html" class="text-sm hover:underline">← Cap. anterior: Fundamentos do SQL</a> · <a href="capitulo-06.html" class="text-sm hover:underline">Próx. capítulo: Padronizar Campos em Banco de Dados →</a></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-3 hidden lg:block">
+                <div class="sticky top-24 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/60 dark:bg-slate-900/40">
+                    <nav class="text-sm">
+<p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Neste capítulo</p>
+<ul class="space-y-1">
+<li class="ml-0"><a href="#ddl-data-definition-language-linguagem-de-definicao-de-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">DDL – Data Definition Language (Linguagem de Definição de Dados)</a></li>
+<li class="ml-0"><a href="#dml-na-pratica-inserindo-atualizando-e-removendo-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">DML na Prática: Inserindo, Atualizando e Removendo Dados</a></li>
+<li class="ml-0"><a href="#dql-na-pratica-consultando-os-dados-com-select" class="hover:text-ifsc-green dark:hover:text-emerald-300">DQL na Prática: Consultando os Dados com SELECT</a></li>
+<li class="ml-0"><a href="#dql-analises-e-transformacoes-de-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">DQL: Análises e Transformações de Dados</a></li>
+<li class="ml-0"><a href="#dicas-e-boas-praticas-ao-escrever-sql" class="hover:text-ifsc-green dark:hover:text-emerald-300">Dicas e Boas Práticas ao Escrever SQL</a></li>
+<li class="ml-0"><a href="#funcoes-espaciais-basicas" class="hover:text-ifsc-green dark:hover:text-emerald-300">Funções espaciais básicas</a></li>
+<li class="ml-0"><a href="#camada-virtual-x-consulta" class="hover:text-ifsc-green dark:hover:text-emerald-300">Camada Virtual X Consulta</a></li>
+<li class="ml-0"><a href="#criando-uma-consulta" class="hover:text-ifsc-green dark:hover:text-emerald-300">Criando uma Consulta</a></li>
+<li class="ml-0"><a href="#criando-a-camada" class="hover:text-ifsc-green dark:hover:text-emerald-300">Criando a Camada</a></li>
+<li class="ml-4"><a href="#o-comando-create-table" class="hover:text-ifsc-green dark:hover:text-emerald-300">O Comando CREATE TABLE</a></li>
+<li class="ml-4"><a href="#comando-alter-table" class="hover:text-ifsc-green dark:hover:text-emerald-300">Comando ALTER TABLE</a></li>
+<li class="ml-4"><a href="#o-comando-drop-table" class="hover:text-ifsc-green dark:hover:text-emerald-300">O Comando DROP TABLE</a></li>
+<li class="ml-4"><a href="#o-comando-insert-into-adicionando-novos-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">O Comando INSERT INTO: Adicionando Novos Dados</a></li>
+<li class="ml-4"><a href="#a-estrutura-essencial-select-e-from" class="hover:text-ifsc-green dark:hover:text-emerald-300">A Estrutura Essencial: SELECT e FROM</a></li>
+<li class="ml-4"><a href="#filtrando-resultados" class="hover:text-ifsc-green dark:hover:text-emerald-300">Filtrando Resultados</a></li>
+<li class="ml-4"><a href="#combinando-filtros-operadores-logicos-and-or-e-not" class="hover:text-ifsc-green dark:hover:text-emerald-300">Combinando Filtros: Operadores Lógicos AND, OR e NOT</a></li>
+<li class="ml-4"><a href="#ordenando-os-resultados-a-clausula-order-by" class="hover:text-ifsc-green dark:hover:text-emerald-300">Ordenando os Resultados: A Cláusula ORDER BY</a></li>
+<li class="ml-4"><a href="#limitando-o-numero-de-resultados-a-clausula-limit" class="hover:text-ifsc-green dark:hover:text-emerald-300">Limitando o Número de Resultados: A Cláusula LIMIT</a></li>
+<li class="ml-4"><a href="#funcoes-de-manipulacao-de-texto" class="hover:text-ifsc-green dark:hover:text-emerald-300">Funções de Manipulação de Texto</a></li>
+<li class="ml-4"><a href="#cast-convertendo-tipos-de-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">CAST(): Convertendo Tipos de Dados</a></li>
+<li class="ml-4"><a href="#round" class="hover:text-ifsc-green dark:hover:text-emerald-300">ROUND():</a></li>
+<li class="ml-4"><a href="#like" class="hover:text-ifsc-green dark:hover:text-emerald-300">LIKE:</a></li>
+<li class="ml-4"><a href="#resumindo-dados-funcoes-de-agregacao-e-group-by" class="hover:text-ifsc-green dark:hover:text-emerald-300">Resumindo Dados: Funções de Agregação e GROUP BY</a></li>
+<li class="ml-4"><a href="#logica-condicional-classificando-dados-com-case-when" class="hover:text-ifsc-green dark:hover:text-emerald-300">Lógica Condicional: Classificando Dados com CASE WHEN</a></li>
+<li class="ml-4"><a href="#unindo-tabelas-a-clausula-join" class="hover:text-ifsc-green dark:hover:text-emerald-300">Unindo Tabelas: A Cláusula JOIN</a></li>
+<li class="ml-4"><a href="#primeiros-exemplos-praticos" class="hover:text-ifsc-green dark:hover:text-emerald-300">Primeiros Exemplos Práticos</a></li>
+<li class="ml-4"><a href="#operadores-de-comparacao" class="hover:text-ifsc-green dark:hover:text-emerald-300">Operadores de Comparação</a></li>
+<li class="ml-4"><a href="#ordenando-os-resultados-a-clausula-order-by" class="hover:text-ifsc-green dark:hover:text-emerald-300">Ordenando os Resultados: A Cláusula ORDER BY</a></li>
+<li class="ml-4"><a href="#5-limitando-a-quantidade-de-resultados-a-clausula-limit" class="hover:text-ifsc-green dark:hover:text-emerald-300">5. Limitando a Quantidade de Resultados: A Cláusula LIMIT</a></li>
+<li class="ml-4"><a href="#6-funcoes-agregadas-resumindo-informacoes" class="hover:text-ifsc-green dark:hover:text-emerald-300">6. Funções Agregadas: Resumindo Informações</a></li>
+<li class="ml-4"><a href="#7-combinando-dados-de-multiplas-tabelas-juncoes-joins" class="hover:text-ifsc-green dark:hover:text-emerald-300">7. Combinando Dados de Múltiplas Tabelas: Junções (JOINs)</a></li>
+<li class="ml-4"><a href="#8-opcional-neste-capitulo-ou-como-introducao-para-o-proximo-nocoes-de-consultas-espaciais" class="hover:text-ifsc-green dark:hover:text-emerald-300">8. (Opcional neste capítulo ou como introdução para o próximo) Noções de Consultas Espaciais</a></li>
+<li class="ml-4"><a href="#funcoes-espaciais" class="hover:text-ifsc-green dark:hover:text-emerald-300">Funções espaciais</a></li>
+</ul></nav>
+                </div>
+            </aside>
+            <article class="lg:col-span-9">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Capítulo 5: Os Subconjuntos da Linguagem SQL: DDL, DML e DQL</h1>
+                    
+                </header>
+                <div class="prose prose-lg max-w-none prose-slate dark:prose-invert prose-justificado prose-indent">
+                
+
+<p>A linguagem SQL, apesar de ser tratada como uma coisa só, é na
+verdade organizada em subconjuntos lógicos de comandos, agrupados de acordo com
+a sua função principal. Compreender essa divisão torna o aprendizado muito mais
+estruturado, pois entendemos o propósito de cada comando que usamos. Os três
+principais subconjuntos que abordaremos são DDL, DML e DQL.</p>
+
+<h2 id="ddl-data-definition-language-linguagem-de-definicao-de-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.1 DDL – Data Definition Language (Linguagem de Definição de Dados)</h2>
+
+<p>A DDL é o conjunto de comandos responsável por definir
+e gerenciar a <b>estrutura</b> dos objetos no banco de dados. Pense na DDL como
+a &quot;planta baixa&quot; de um projeto: ela não lida com os dados em si, mas
+com os &quot;recipientes&quot; que irão armazená-los. É com a DDL que criamos,
+modificamos e excluímos as tabelas, definimos suas colunas, os tipos de dados e
+as restrições de integridade.</p>
+
+<p>Os principais comandos DDL são:</p>
+
+<h3 id="o-comando-create-table" class="mt-8 scroll-mt-24 text-xl font-semibold">5.1.1 O Comando CREATE TABLE</h3>
+
+<p>Este é o comando fundamental da DDL. Sua função é criar
+uma nova tabela no banco de dados. Ao executar CREATE TABLE, devemos
+especificar não apenas o nome da tabela, mas também todas as suas colunas, os
+tipos de dados de cada coluna e as restrições de integridade que se aplicam a
+elas.</p>
+
+<p><b>Sintaxe Básica:</b></p>
+
+<p>CREATETABLE nome_da_tabela (</p>
+
+<p>&nbsp;
+&nbsp; nome_coluna1 TIPO_DE_DADO RESTRICOES,</p>
+
+<p>&nbsp;
+&nbsp; nome_coluna2 TIPO_DE_DADO RESTRICOES,</p>
+
+<p>&nbsp;
+&nbsp; ...</p>
+
+<p>&nbsp;
+&nbsp; nome_colunaN TIPO_DE_DADO RESTRICOES</p>
+
+<p>);</p>
+
+<p>Ø&nbsp; <b>nome_da_tabela</b>:
+O nome que você dará à sua tabela (ex: locais_coleta).</p>
+
+<p>Ø&nbsp; <b>nome_colunaX</b>:
+O nome de cada campo da tabela (ex: municipio).</p>
+
+<p>Ø&nbsp; <b>TIPO_DE_DADO</b>:
+O tipo de informação que a coluna armazenará (ex: TEXT, INTEGER, DATE).</p>
+
+<p>Ø&nbsp; <b>RESTRICOES</b>: As
+regras que se aplicam àquela coluna (ex: PRIMARY KEY, NOT NULL).</p>
+
+<p><b>Exemplo Prático:</b></p>
+
+<p>Vamos escrever o comando para criar nossa tabela
+locais_coleta, que irá armazenar a parte espacial dos dados. Por ser uma tabela
+de locais, é uma boa prática ter um identificador único para cada local.</p>
+
+<p>-- Cria a tabela para
+armazenar os locais de coleta de forma estruturada</p>
+
+<p>CREATETABLE locais_coleta (</p>
+
+<p>&nbsp;
+&nbsp; id_ponto INTEGERPRIMARY KEY, &nbsp; -- Define um ID numérico como chave primária</p>
+
+<p>&nbsp;
+&nbsp; municipio TEXTNOT NULL, &nbsp; &nbsp; &nbsp; &nbsp;-- O nome do município é um texto e
+obrigatório</p>
+
+<p>&nbsp;
+&nbsp; nome_local TEXTNOT NULL, &nbsp; &nbsp; &nbsp; -- O nome do local (praia/rio) é obrigatório</p>
+
+<p>&nbsp;
+&nbsp; geometria GEOMETRY(Point, 4674) -- Coluna espacial para o ponto (SIRGAS 2000)</p>
+
+<p>);</p>
+
+<p>Neste exemplo, estamos criando uma tabela chamada locais_coleta
+com quatro colunas, aplicando os conceitos de tipos de dados e restrições que
+já vimos.</p>
+
+<h3 id="comando-alter-table" class="mt-8 scroll-mt-24 text-xl font-semibold">5.1.2 Comando ALTER TABLE</h3>
+
+<p>E se, depois de criar a tabela, percebermos que
+esquecemos uma coluna? O comando ALTER TABLE serve para modificar a estrutura
+de uma tabela já existente. Sua aplicação mais comum é adicionar, remover ou
+modificar colunas.</p>
+
+<p><b>Sintaxe (para adicionar uma coluna):</b></p>
+
+<p>ALTERTABLE nome_da_tabela</p>
+
+<p>ADD COLUMN
+nome_da_nova_coluna TIPO_DE_DADO;</p>
+
+<p><b>Exemplo Prático:</b></p>
+
+<p>Vamos supor que decidimos adicionar uma coluna em
+locais_coleta para registrar quem foi o responsável pelo cadastro daquele
+ponto.</p>
+
+<p>-- Adiciona uma nova
+coluna 'responsavel' à tabela existente</p>
+
+<p>ALTERTABLE locais_coleta</p>
+
+<p>ADD COLUMN responsavel TEXT;</p>
+
+<h3 id="o-comando-drop-table" class="mt-8 scroll-mt-24 text-xl font-semibold">5.1.3 O Comando DROP TABLE</h3>
+
+<p>Este é o comando mais perigoso da DDL. O DROP TABLE
+remove permanentemente uma tabela inteira, incluindo sua estrutura, todos os
+seus dados e índices. Uma vez executado, não há como voltar atrás.</p>
+
+<p><b>Sintaxe:</b></p>
+
+<p>DROPTABLE nome_da_tabela;</p>
+
+<p><b>Exemplo Prático:</b></p>
+
+<p>Se quiséssemos apagar completamente a tabela
+locais_coleta:</p>
+
+<p>-- CUIDADO: Este
+comando apaga a tabela e todos os seus dados de forma irreversível!</p>
+
+<p>DROPTABLE locais_coleta;</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image061.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<h2 id="dml-na-pratica-inserindo-atualizando-e-removendo-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.2 DML na Prática: Inserindo, Atualizando e Removendo Dados</h2>
+
+<p>Com a estrutura das tabelas definida pela DDL, o próximo passo é
+populá-las e gerenciá-las. É aqui que entra a DML, o conjunto de comandos para
+manipular os registros (as linhas) dentro das tabelas. Estas são as operações
+do dia a dia em um banco de dados, correspondendo ao Criar, Atualizar e Apagar
+do conceito CRUD.</p>
+
+<h3 id="o-comando-insert-into-adicionando-novos-dados" class="mt-8 scroll-mt-24 text-xl font-semibold">5.2.1 O Comando INSERT INTO: Adicionando Novos Dados</h3>
+
+<p>O comando INSERT INTO é utilizado para adicionar um ou
+mais registros novos a uma tabela. É a forma como &quot;alimentamos&quot; o
+banco com informações.</p>
+
+<p><b>Sintaxe Básica:</b></p>
+
+<p>INSERT INTO nome_da_tabela
+(coluna1, coluna2, ..., colunaN)</p>
+
+<p>VALUES (valor1, valor2,
+..., valorN);</p>
+
+<p>Ø&nbsp; nome_da_tabela: A
+tabela que receberá o novo registro.</p>
+
+<p>Ø&nbsp; (coluna1, coluna2,
+...): A lista de colunas que você irá preencher.</p>
+
+<p>Ø&nbsp; VALUES (valor1,
+valor2, ...): Os valores correspondentes a cada coluna, na mesma ordem em que
+as colunas foram listadas.</p>
+
+<p><b>Exemplo Prático:</b></p>
+
+<p>Vamos inserir nosso primeiro registro na tabela
+locais_coleta, que criamos na seção anterior.</p>
+
+<p>-- Insere o Ponto de
+Coleta da Praia de Canasvieiras, em Florianópolis</p>
+
+<p>INSERT
+INTO
+locais_coleta (id_ponto, municipio, nome_local, geometria)</p>
+
+<p>VALUES (</p>
+
+<p>&nbsp;
+&nbsp; 1,</p>
+
+<p>&nbsp;
+&nbsp; 'Florianópolis',</p>
+
+<p>&nbsp;
+&nbsp; 'Praia
+de Canasvieiras',</p>
+
+<p>&nbsp;
+&nbsp; ST_GeomFromText('POINT(-48.4349 -27.4297)', 4674)</p>
+
+<p>);</p>
+
+<p>Neste comando, estamos inserindo uma linha com id_ponto
+igual a 1, municipio &quot;Florianópolis&quot;, e assim por diante. Note que
+para a coluna geometria, utilizamos uma <b>função espacial</b>
+(ST_GeomFromText) para criar um dado do tipo Ponto a partir de um texto.
+Veremos mais sobre funções espaciais em capítulos futuros.</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image062.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<h4>5.2.1.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+O Comando UPDATE: Modificando Dados Existentes</h4>
+
+<p>O comando UPDATE é utilizado para alterar valores em registros
+que já existem na tabela. É uma ferramenta poderosa para corrigir erros ou
+atualizar informações que mudaram com o tempo.</p>
+
+<div>
+
+<p><b>Atenção:</b> O uso da cláusula WHERE no comando
+UPDATE é <b>crucial</b>. Se você esquecer a cláusula WHERE, o comando será
+aplicado a <b>TODAS as linhas da tabela</b>, o que pode levar à perda de dados
+em massa.</p>
+
+</div>
+
+<p><b>Sintaxe Básica:</b></p>
+
+<p>UPDATE nome_da_tabela</p>
+
+<p>SET coluna1 =
+novo_valor1, coluna2 = novo_valor2</p>
+
+<p>WHERE condicao;</p>
+
+
+
+<p>Ø&nbsp; SET: Indica quais
+colunas serão atualizadas e seus novos valores.</p>
+
+<p>Ø&nbsp; WHERE: Especifica <b>qual(is)
+registro(s)</b> devem ser modificados.</p>
+
+<p><b>Exemplo Prático:</b></p>
+
+<p>Suponha que digitamos o nome do local errado no registro
+anterior. Vamos corrigi-lo.</p>
+
+<p>--
+Altera o valor da coluna 'nome_local' APENAS para o registro onde o id_ponto é
+1</p>
+
+<p>UPDATE locais_coleta</p>
+
+<p>SET nome_local = 'Praia de
+Canasvieiras - Ponto Central'</p>
+
+<p>WHERE id_ponto = 1;</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image063.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<h4>5.2.1.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+O Comando DELETE FROM: Removendo Dados</h4>
+
+<p>O comando DELETE FROM é usado para remover um ou mais registros
+de uma tabela. Assim como o UPDATE, ele é extremamente poderoso e deve ser
+usado com máximo cuidado.</p>
+
+<div>
+
+<p>Atenção: A cláusula WHERE é ainda mais crítica no
+comando DELETE. Se você omitir a cláusula WHERE, TODOS os dados da tabela serão
+apagados permanentemente.</p>
+
+</div>
+
+<p><b>Sintaxe Básica:</b></p>
+
+<p>DELETEFROM nome_da_tabela</p>
+
+<p>WHERE condicao;</p>
+
+
+
+<p><b>Exemplo Prático:</b></p>
+
+<p>Vamos remover o ponto de coleta que acabamos de criar.</p>
+
+<p>--
+CUIDADO: Remove permanentemente o registro onde o id_ponto é 1</p>
+
+<p>DELETEFROM locais_coleta</p>
+
+<p>WHERE id_ponto = 1;</p>
+
+<p><b>&nbsp;</b></p>
+
+<p><img src="imagens/capitulos/capitulo-05/image064.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<h2 id="dql-na-pratica-consultando-os-dados-com-select" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.3 DQL na Prática: Consultando os Dados com SELECT</h2>
+
+<p>Chegamos à parte mais utilizada e
+poderosa do SQL para um técnico em geoprocessamento: a DQL (Linguagem de
+Consulta de Dados). É através do seu único comando, SELECT, que fazemos
+&quot;perguntas&quot; ao banco de dados para extrair, filtrar, ordenar e visualizar
+as informações que precisamos. Dominar o SELECT é a habilidade que transforma
+dados brutos em respostas e análises.</p>
+
+<h3 id="a-estrutura-essencial-select-e-from" class="mt-8 scroll-mt-24 text-xl font-semibold">5.3.1 A Estrutura Essencial: SELECT e FROM</h3>
+
+<p>Toda consulta começa com duas
+perguntas básicas: <b>O que</b> eu quero ver? E <b>de onde</b>?</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SELECT:
+Especifica as <b>colunas</b> que você deseja exibir no resultado.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM:
+Especifica a <b>tabela</b> da qual os dados serão extraídos.</p>
+
+<p><b>Sintaxe para ver todas as colunas:</b>
+Para visualizar todas as colunas de uma tabela, usamos o asterisco (*), um
+atalho muito útil para uma exploração inicial.</p>
+
+<p>SELECT * FROM nome_da_tabela;</p>
+
+<p><b>Sintaxe para ver colunas
+específicas:</b> Para um resultado mais limpo e eficiente, você pode listar
+exatamente quais colunas deseja ver, separando-as por vírgula.</p>
+
+<p>SELECT coluna1, coluna2,
+... FROM nome_da_tabela;</p>
+
+<p><b>Exemplo Prático:</b> Vamos
+visualizar o município, o ponto de coleta e a data de todos os registros em
+nossa tabela relatorio_balneabilidade.</p>
+
+<p>SELECT Municipio, &quot;Ponto de
+Coleta&quot;, DataFROM relatorio_balneabilidade</p>
+
+<div>
+
+<p>Nota: Se o nome de uma coluna tiver espaços ou
+caracteres especiais, como &quot;Ponto de Coleta&quot;, é uma boa prática
+colocá-lo entre aspas duplas.</p>
+
+</div>
+
+<h3 id="filtrando-resultados" class="mt-8 scroll-mt-24 text-xl font-semibold">5.3.2 Filtrando Resultados</h3>
+
+<p>Raramente queremos ver todos os dados de uma tabela. A<b>
+cláusula WHERE é usada para filtrar os registros e retornar apenas aqueles que
+atendem a uma ou mais condições específicas.</b> É aqui que usamos os
+operadores de comparação:</p>
+
+<p>Os operadores de comparação são a base para construir a
+maioria das condições na cláusula WHERE. Eles permitem comparar os valores de
+uma coluna com um valor específico ou com os valores de outra coluna,
+resultando em uma expressão que é verdadeira ou falsa para cada registro.</p>
+
+<p><a name="_Toc206575358">Tabela </a>4&#8209;1
+: Operadores de Comparação</p>
+
+<div align=center>
+
+<table class="min-w-full border border-slate-300 my-6">
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>Operador</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>Descrição</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>Exemplo</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>=</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Igual a</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>WHERE Municipio = 'Bombinhas'</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>!= ou &lt;&gt;</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Diferente de</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>WHERE Condição != 'Própria'</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>&gt;&nbsp;</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Maior que</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>WHERE &quot;Temp Água&quot; &gt; 25</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>&lt;&nbsp;</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Menor que</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>WHERE &quot;E. Coli NMP*/100ml&quot; &lt; 200</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>&gt;=</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Maior ou igual a</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>WHERE &quot;Temp Ar&quot; &gt;= 30</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>&lt;=</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Menor ou igual a</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>WHERE &quot;Resultado_Ecoli&quot; &lt;= 800</p>
+  </td>
+ </tr>
+</table>
+
+</div>
+
+<p><b>Exemplo Prático:</b> Vamos
+selecionar todos os relatórios do município de Florianópolis onde a condição da
+água era 'Imprópria'.</p>
+
+<p>SELECT * FROM
+relatorio_balneabilidade</p>
+
+<p>WHERE Municipio = 'Florianópolis'AND Condição = 'Imprópria';</p>
+
+<h3 id="combinando-filtros-operadores-logicos-and-or-e-not" class="mt-8 scroll-mt-24 text-xl font-semibold">5.3.3 Combinando Filtros: Operadores Lógicos AND, OR e NOT</h3>
+
+<p>Para criar filtros mais complexos,
+combinamos condições usando operadores lógicos:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>AND</b>:
+Retorna o registro se <b>todas</b> as condições forem verdadeiras.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>OR</b>:
+Retorna o registro se <b>pelo menos uma</b> das condições for verdadeira.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>NOT</b>:
+Nega a condição, retornando os registros que <b>não</b> atendem ao critério.</p>
+
+<p>É uma boa prática usar
+parênteses () para garantir que as condições sejam avaliadas na ordem que você
+deseja.</p>
+
+<p><b>Exemplo Prático:</b>
+Queremos ver os registros de 'Bombinhas' OU 'Porto Belo' onde a temperatura da
+água estava acima de 22 graus.</p>
+
+<p>SELECT&quot;Balneário&quot;, &quot;Ponto de
+Coleta&quot;, &quot;Temp Água&quot;</p>
+
+<p>FROM
+relatorio_balneabilidade</p>
+
+<p>WHERE (Balneário = 'Bombinhas'OR Balneário = 'Porto Belo') AND&quot;Temp
+Água&quot;
+&gt; 22;</p>
+
+<h3 id="ordenando-os-resultados-a-clausula-order-by" class="mt-8 scroll-mt-24 text-xl font-semibold">5.3.4 Ordenando os Resultados: A Cláusula ORDER BY</h3>
+
+<p>A cláusula ORDER BY é usada para
+organizar a visualização dos resultados da sua consulta com base em uma ou mais
+colunas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>ASC</b>:
+Ordem ascendente (do menor para o maior, A-Z). Este é o padrão.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>DESC</b>:
+Ordem descendente (do maior para o menor, Z-A).</p>
+
+<p><b>Exemplo Prático:</b> Vamos listar
+todos os resultados, ordenando pelos maiores valores de E. Coli primeiro e, em
+caso de empate, pelo nome do município em ordem alfabética.</p>
+
+<p>SELECT Municipio, &quot;Ponto de
+Coleta&quot;, &quot;E. Coli NMP*/100ml&quot;</p>
+
+<p>FROM
+relatorio_balneabilidade</p>
+
+<p>ORDER BY&quot;E. Coli
+NMP*/100ml&quot;DESC, Municipio ASC;</p>
+
+<h3 id="limitando-o-numero-de-resultados-a-clausula-limit" class="mt-8 scroll-mt-24 text-xl font-semibold">5.3.5 Limitando o Número de Resultados: A Cláusula LIMIT</h3>
+
+<p>Quando uma tabela tem
+milhares de registros, é útil limitar a quantidade de linhas no resultado. O <b>LIMIT</b>
+faz exatamente isso.</p>
+
+<p><b>Exemplo Prático:</b> Para
+ver os 5 registros com a maior temperatura do ar registrada:</p>
+
+<p>SELECT&quot;Data&quot;, Municipio, &quot;Temp Ar&quot;</p>
+
+<p>FROM
+relatorio_balneabilidade</p>
+
+<p>ORDER BY&quot;Temp Ar&quot;DESC</p>
+
+<p>LIMIT5;</p>
+
+
+
+<h2 id="dql-analises-e-transformacoes-de-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.4 DQL: Análises e Transformações de Dados</h2>
+
+<p>Além de simplesmente buscar e filtrar dados, o SQL permite
+transformá-los, limpá-los e resumi-los para gerar novos <i>insights</i>. Esta
+seção aborda as funções e cláusulas que elevam suas consultas de uma simples
+busca para uma poderosa ferramenta de análise.</p>
+
+<h3 id="funcoes-de-manipulacao-de-texto" class="mt-8 scroll-mt-24 text-xl font-semibold">5.4.1 Funções de Manipulação de Texto</h3>
+
+<p>Dados textuais raramente são perfeitos. Podem ter maiúsculas e
+minúsculas misturadas ou caracteres indesejados. As funções de texto nos ajudam
+a padronizar e limpar esses dados durante a consulta.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>UPPER()
+e LOWER()</b>: Convertem um texto para maiúsculas ou minúsculas,
+respectivamente. Útil para padronizar dados antes de agrupar ou comparar. </p>
+
+<p><b>Exemplo</b>: SELECT
+UPPER(Municipio), ... retornaria 'FLORIANÓPOLIS'.</p>
+
+
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>REPLACE()</b>:
+Substitui todas as ocorrências de uma parte de um texto por outra. </p>
+
+<p><b>Exemplo:</b> Para
+padronizar a condição, poderíamos usar REPLACE(Condição, 'Imprópria', 'NÃO
+RECOMENDADA').</p>
+
+<h3 id="cast-convertendo-tipos-de-dados" class="mt-8 scroll-mt-24 text-xl font-semibold">5.4.2 CAST(): Convertendo Tipos de Dados</h3>
+
+<p>Muitas vezes, ao importar dados de fontes externas
+(como arquivos CSV), colunas que deveriam ser numéricas podem ser interpretadas
+como texto. Isso impede a realização de cálculos matemáticos (SUM, AVG) ou
+comparações numéricas (&gt;, &lt;). O comando CAST é a ferramenta para resolver
+isso, convertendo uma coluna de um tipo para outro durante uma consulta.</p>
+
+<p>Sintaxe: </p>
+
+<p>CAST(nome_da_coluna
+AS NOVO_TIPO_DE_DADO)</p>
+
+<p><b>Exemplo Prático: </b></p>
+
+<p>Suponha que a coluna &quot;Temp Água&quot; em nossa
+tabela relatorio_balneabilidade foi importada como TEXT. Não poderíamos
+calcular a média. Usando CAST, resolvemos o problema:</p>
+
+<p>--
+Calcula a temperatura média da água, convertendo a coluna para o tipo NUMERIC</p>
+
+<p>SELECT AVG(CAST(&quot;Temp
+Água&quot;ASNUMERIC)) AS media_temperatura</p>
+
+<p>FROM
+relatorio_balneabilidade;</p>
+
+
+
+<p>Neste exemplo, NUMERIC é um tipo de dado adequado para
+números com casas decimais.</p>
+
+<h3 id="round" class="mt-8 scroll-mt-24 text-xl font-semibold">5.4.3 ROUND():</h3>
+
+<p>Esta função é uma consequência
+natural do uso de AVG() ou de qualquer divisão. O melhor lugar para ela é na
+seção de agregações, logo após o exemplo da média.</p>
+
+<h3 id="like" class="mt-8 scroll-mt-24 text-xl font-semibold">5.4.4 LIKE:</h3>
+
+<p>Como vimos na seção de filtros, o LIKE é
+essencial para buscar padrões em texto, usando os curingas % (qualquer
+sequência de caracteres) e _ (um único caractere). </p>
+
+<p>o&nbsp;&nbsp; <b>Exemplo</b>:
+WHERE &quot;Ponto de Coleta&quot; LIKE '%Norte%' buscaria todos os pontos que
+contêm a palavra &quot;Norte&quot; no nome.</p>
+
+<h3 id="resumindo-dados-funcoes-de-agregacao-e-group-by" class="mt-8 scroll-mt-24 text-xl font-semibold">5.4.5 Resumindo Dados: Funções de Agregação e GROUP BY</h3>
+
+<p>Frequentemente, a informação mais valiosa não está nos
+registros individuais, mas no resumo de um conjunto deles. As funções de
+agregação calculam um valor único a partir de múltiplas linhas.</p>
+
+<p>Elas são quase sempre usadas com a cláusula GROUP BY,
+que agrupa as linhas com base em uma ou mais colunas, permitindo que a função
+de agregação seja calculada para cada grupo.</p>
+
+<p><b>Principais Funções de Agregação:</b></p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; COUNT():
+Conta o número de linhas. COUNT(*) conta todas as linhas;</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; COUNT(coluna)
+conta as linhas onde a coluna não é nula.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SUM():
+Soma os valores de uma coluna numérica.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AVG():
+Calcula a média de uma coluna numérica.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MIN():
+Encontra o valor mínimo em uma coluna.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MAX():
+Encontra o valor máximo em uma coluna.</p>
+
+<p><b>Exemplo Prático 1: Contar amostras por município</b>
+Qual o número total de coletas realizadas em cada município?</p>
+
+<p>SQL</p>
+
+<p>SELECT</p>
+
+<p>    Municipio,</p>
+
+<p>    COUNT(*) AS total_de_coletas</p>
+
+<p>FROM</p>
+
+<p>    relatorio_balneabilidade</p>
+
+<p>GROUP BY</p>
+
+<p>    Municipio</p>
+
+<p>ORDER BY</p>
+
+<p>    total_de_coletas DESC;</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+GROUP BY Municipio: Agrupa todas as linhas pela coluna Municipio.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+COUNT(*): Conta quantas linhas existem em cada um desses grupos.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+AS total_de_coletas: AS é um <b>alias</b>, um apelido que damos à
+coluna de resultado para que a saída seja mais legível.</p>
+
+<p><b>Exemplo Prático 2: Analisar resultados por condição</b>
+Qual a média, o mínimo e o máximo de E. Coli para as águas 'Própria' e
+'Imprópria'?</p>
+
+<p>SELECT</p>
+
+<p>&nbsp;
+&nbsp; Condição,</p>
+
+<p>&nbsp;
+&nbsp; AVG(&quot;E. Coli NMP*/100ml&quot;) AS media_ecoli,</p>
+
+<p>&nbsp;
+&nbsp; MIN(&quot;E. Coli NMP*/100ml&quot;) AS minimo_ecoli,</p>
+
+<p>&nbsp;
+&nbsp; MAX(&quot;E. Coli NMP*/100ml&quot;) AS maximo_ecoli</p>
+
+<p>FROM</p>
+
+<p>&nbsp;
+&nbsp; relatorio_balneabilidade</p>
+
+<p>GROUP BY</p>
+
+<p>&nbsp;
+&nbsp; Condição;</p>
+
+
+
+<h3 id="logica-condicional-classificando-dados-com-case-when" class="mt-8 scroll-mt-24 text-xl font-semibold">5.4.6 Lógica Condicional: Classificando Dados com CASE WHEN</h3>
+
+<p>Em geoprocessamento, frequentemente precisamos
+classificar nossos dados em categorias com base em regras ou limiares. Por
+exemplo, classificar um rio como 'Poluído' ou 'Não Poluído' com base em um
+índice, ou um talude como de 'Alto Risco' ou 'Baixo Risco' com base na
+declividade. A estrutura CASE WHEN permite criar uma lógica
+&quot;se... então... senão...&quot; diretamente dentro da sua consulta SQL para
+criar novas colunas classificadas.</p>
+
+<p>Sintaxe Básica:</p>
+
+<p>CASE</p>
+
+<p>&nbsp;
+&nbsp; WHEN condicao1 THEN resultado1</p>
+
+<p>&nbsp;
+&nbsp; WHEN condicao2 THEN resultado2</p>
+
+<p>&nbsp;
+&nbsp; ...</p>
+
+<p>&nbsp;
+&nbsp; ELSE resultado_padrao</p>
+
+<p>END</p>
+
+
+
+<p>Exemplo Prático: A legislação ambiental define que um
+ponto é 'Impróprio' se o valor de E. Coli na última amostragem for superior a
+800 NMP/100ml. Vamos criar uma consulta que não apenas mostra o valor, mas
+também cria uma nova coluna chamada classificacao_risco com base nesse
+critério.</p>
+
+<p>SELECT</p>
+
+<p>&nbsp;
+&nbsp; Municipio,</p>
+
+<p>&nbsp;
+&nbsp; &quot;Ponto
+de Coleta&quot;,</p>
+
+<p>&nbsp;
+&nbsp; &quot;E.
+Coli NMP*/100ml&quot;,</p>
+
+<p>&nbsp;
+&nbsp; CASE</p>
+
+<p>&nbsp;
+&nbsp; &nbsp; &nbsp; WHEN&quot;E. Coli NMP*/100ml&quot; &gt; 800THEN'RISCO ELEVADO (Impróprio)'</p>
+
+<p>&nbsp;
+&nbsp; &nbsp; &nbsp; WHEN&quot;E. Coli NMP*/100ml&quot; &gt; 200THEN'ESTADO DE ATENÇÃO'</p>
+
+<p>&nbsp;
+&nbsp; &nbsp; &nbsp; ELSE'NÍVEL ACEITÁVEL'</p>
+
+<p>&nbsp;
+&nbsp; ENDAS classificacao_risco</p>
+
+<p>FROM</p>
+
+<p>&nbsp;
+&nbsp; relatorio_balneabilidade</p>
+
+<p>WHERE</p>
+
+<p>&nbsp;
+&nbsp; Municipio = 'Florianópolis'</p>
+
+<p>ORDER BY</p>
+
+<p>&nbsp;
+&nbsp; &quot;E.
+Coli NMP*/100ml&quot;DESC;</p>
+
+
+
+<p><i>Nesta consulta, estamos criando dinamicamente a
+coluna </i><i>classificacao_risco.
+Esta é uma técnica extremamente útil para gerar dados para mapas temáticos no
+QGIS.</i></p>
+
+<h3 id="unindo-tabelas-a-clausula-join" class="mt-8 scroll-mt-24 text-xl font-semibold">5.4.7 Unindo Tabelas: A Cláusula JOIN</h3>
+
+<p>A verdadeira força de um banco de dados relacional está
+na capacidade de conectar informações de tabelas diferentes. O JOIN é o comando
+que nos permite fazer isso. Vamos supor que temos nossa tabela
+relatorio_balneabilidade e a tabela locais_coleta (com a geometria). Para ver
+os dados de balneabilidade no mapa, precisamos uni-las.</p>
+
+<p>O INNER JOIN (ou apenas JOIN) combina linhas de duas
+tabelas sempre que houver um valor correspondente em uma coluna em comum.</p>
+
+<p><b>Sintaxe Básica:</b></p>
+
+<p>SQL</p>
+
+<p>SELECT colunas</p>
+
+<p>FROM tabela_A AS a</p>
+
+<p>JOIN tabela_B AS b ON a.coluna_em_comum =
+b.coluna_em_comum;</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ON: Especifica a condição da junção, ou seja, qual coluna é usada
+para &quot;ligar&quot; as duas tabelas.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+AS a e AS b: São <b>aliases</b> para as tabelas, tornando a
+consulta mais curta e legível.</p>
+
+<p><b>Exemplo Prático:</b> Vamos unir nossos dados de
+relatório com os locais de coleta para obter uma tabela com a geometria e os
+resultados juntos. Assumiremos que as colunas Municipio e &quot;Ponto de
+Coleta&quot; são as chaves para a união.</p>
+
+<p>SQL</p>
+
+<p>SELECT</p>
+
+<p>    lc.geometria,</p>
+
+<p>    r.Municipio,</p>
+
+<p>    r.&quot;Ponto de Coleta&quot;,</p>
+
+<p>    r.Data,</p>
+
+<p>    r.&quot;E. Coli NMP*/100ml&quot;,</p>
+
+<p>    r.Condição</p>
+
+<p>FROM</p>
+
+<p>    relatorio_balneabilidade AS r</p>
+
+<p>JOIN</p>
+
+<p>    locais_coleta AS lc</p>
+
+<p>    ON r.Municipio = lc.municipio AND r.&quot;Ponto de
+Coleta&quot; = lc.nome_local;</p>
+
+<p>Este comando retorna uma nova tabela virtual com os
+dados combinados, pronta para ser carregada como uma camada no QGIS e
+visualizada espacialmente.</p>
+
+
+
+
+
+<h2 id="dicas-e-boas-praticas-ao-escrever-sql" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.5 Dicas e Boas Práticas ao Escrever SQL</h2>
+
+<p>* Comentários em SQL: -- Seu comentário</p>
+
+<p>* Indentação e formatação para facilitar a leitura de
+consultas longas.</p>
+
+<p>* Uso de maiúsculas e minúsculas (SQL geralmente não é
+sensível a maiúsculas/minúsculas para palavras-chave, mas pode ser para nomes
+de tabelas/colunas dependendo do SGBD e da configuração).</p>
+
+<p>* Testar consultas em pequenas partes.</p>
+
+
+
+
+
+<p><img src="imagens/capitulos/capitulo-05/image065.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Selecionar colunas específicas:</b> Quando você já sabe quais
+informações precisa, é mais eficiente e claro especificar os nomes das colunas
+desejadas, separando-os por vírgulas.</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image066.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p>Substitua nome_coluna1, nome_coluna2, etc., pelos
+nomes reais das colunas da sua tabela.</p>
+
+<p> <img src="imagens/capitulos/capitulo-05/image067.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><img src="imagens/capitulos/capitulo-05/image068.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<h3 id="primeiros-exemplos-praticos" class="mt-8 scroll-mt-24 text-xl font-semibold">5.5.1 Primeiros Exemplos Práticos</h3>
+
+<p>Vamos imaginar que temos duas tabelas em nosso banco de
+dados: uma chamada municipios e outra chamada pontos_coleta.</p>
+
+<p><b>Tabela municípios:</b> Esta tabela armazena
+informações sobre os municípios. (Campos hipotéticos: id_municipio,
+nome_municipio, uf, populacao_estimada, area_km2)</p>
+
+<p><a name="_Toc206575359">Tabela </a>4&#8209;2:
+Tabela ‘municípios’</p>
+
+<div align=center>
+
+<table class="min-w-full border border-slate-300 my-6">
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>id_municipio</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>nome_municipio</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>uf</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>populacao_estimada</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>area_km2</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>1</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Florianópolis</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>SC</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>537213</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>675.4</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>2</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>São José</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>SC</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>270295</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>150.5</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>3</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Palhoça</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>SC</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>236642</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>395.1</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>4</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Biguaçu</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>SC</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>76698</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>369.8</p>
+  </td>
+ </tr>
+</table>
+
+</div>
+
+
+
+<p><b>Tabela pontos_coleta:</b> Esta tabela armazena
+informações sobre pontos de coleta de resíduos (sem dados de geometria, por
+enquanto). (Campos hipotéticos: id_ponto, nome_ponto, tipo_material_coletado,
+endereco_completo, bairro)</p>
+
+<p><a name="_Toc206575360">Tabela </a>4&#8209;3:
+Exemplo de uma tabela ‘pontos_coleta’</p>
+
+<table class="min-w-full border border-slate-300 my-6">
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p align=center><b>id_ponto</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p align=center><b>nome_ponto</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p align=center><b>tipo_material_coletado</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p align=center><b>endereco_completo</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p align=center><b>bairro</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p align=right><b>101</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>EcoPonto Central</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Plástico, Papel,
+  Vidro</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Rua das Palmeiras,
+  123</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Centro</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p align=right><b>102</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Coleta Seletiva
+  Trindade</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Metal, Orgânicos</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Av. Principal, 456,
+  Próximo à Praça</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Trindade</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p align=right><b>103</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Ponto Verde
+  Continente</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Papelão, Plástico</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Rua das Acácias, 789</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Estreito</p>
+  </td>
+ </tr>
+</table>
+
+
+
+<p><b>Exemplo
+1: Consultar todos os dados da tabela de municípios</b></p>
+
+<p>Se quisermos ver todas as informações disponíveis para
+todos os municípios cadastrados, usaríamos:</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image069.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><i>Resultado esperado: Uma tabela com todas as colunas
+(id_municipio, nome_municipio, uf, populacao_estimada, area_km2) e todas as
+linhas (registros de municípios) da tabela municipios.</i></p>
+
+
+
+<p><b>Exemplo
+2: Consultar nome e UF dos municípios</b></p>
+
+<p>Se estivermos interessados apenas no nome do município
+e na sua respectiva Unidade Federativa (UF):</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image070.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><i>Resultado esperado: Uma tabela com duas colunas,
+nome_municipio e uf, contendo os nomes e UFs de todos os municípios.</i></p>
+
+
+
+<p><b>Exemplo
+3: Consultar todos os dados da tabela de pontos de coleta</b></p>
+
+<p>Para visualizar todas as informações sobre os pontos
+de coleta:</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image071.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><i>Resultado esperado: Uma tabela com todas as colunas
+(id_ponto, nome_ponto, tipo_material_coletado, endereco_completo, bairro) e
+todas as linhas da tabela pontos_coleta.</i></p>
+
+<p><b>&nbsp;</b></p>
+
+<p><b>Exemplo
+4: Consultar o nome do ponto de coleta e o tipo de material que ele recebe</b></p>
+
+<p>Se quisermos saber apenas o nome de cada ponto de
+coleta e o tipo de material que ele aceita:</p>
+
+<p><img src="imagens/capitulos/capitulo-05/image072.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p><i>Resultado esperado: Uma tabela com duas colunas,
+nome_ponto e tipo_material_coletado, para todos os pontos de coleta
+registrados.</i></p>
+
+
+
+<p>Estes exemplos demonstram a simplicidade e o poder das
+cláusulas SELECT e FROM. Dominar seu uso é o primeiro e mais crucial passo para
+interagir efetivamente com bancos de dados SQL e extrair as informações
+necessárias para suas análises e aplicações. Nas próximas seções, exploraremos
+como refinar essas consultas para obter resultados ainda mais específicos.</p>
+
+<h3 id="operadores-de-comparacao" class="mt-8 scroll-mt-24 text-xl font-semibold">5.5.2 Operadores de Comparação</h3>
+
+<p>Os operadores de comparação são a base para construir a
+maioria das condições na cláusula WHERE. Eles permitem comparar os valores de
+uma coluna com um valor específico ou com os valores de outra coluna,
+resultando em uma expressão que é verdadeira ou falsa para cada registro.</p>
+
+
+
+<p><b>Exemplos Práticos com Operadores de Comparação:</b></p>
+
+<p><b>Selecionar
+todos os municípios cuja população estimada seja superior a 500.000 habitantes:</b></p>
+
+<p>SELECT
+nome_municipio, populacao_estimada</p>
+
+<p>FROM
+municipios</p>
+
+<p>WHERE
+populacao_estimada &gt; 500000;</p>
+
+
+
+
+
+<p><b>Listar
+os pontos de coleta que não estão no bairro &quot;Centro&quot;:</b></p>
+
+<p>SELECT
+nome_ponto, bairro, endereco_completo</p>
+
+<p>FROM
+pontos_coleta</p>
+
+<p>WHERE
+bairro != 'Centro';</p>
+
+
+
+
+
+<p>Esses operadores são aplicáveis a diversos tipos de
+dados, incluindo números, textos e datas, embora a forma de especificar os
+valores para comparação possa variar (por exemplo, textos e datas geralmente
+são colocados entre aspas simples).</p>
+
+<h4>5.5.2.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Trabalhando com Textos</h4>
+
+<p>Frequentemente, ao filtrar dados, precisamos comparar
+ou buscar por valores textuais. A cláusula WHERE oferece operadores específicos
+para lidar com strings (textos), permitindo desde comparações exatas até buscas
+por padrões.</p>
+
+<p><b>Comparação Exata de Strings</b></p>
+
+<p>Para encontrar registros onde uma coluna de texto
+corresponde exatamente a um valor específico, utilizamos o operador de
+igualdade (=). O valor de texto que você está procurando deve, geralmente, ser
+colocado entre aspas simples (' ').</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Exemplo:</b> Selecionar todos os municípios do estado de Santa
+Catarina (SC) da tabela municipios.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SELECT *</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+FROM municipios</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WHERE uf = 'SC';</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;</p>
+
+
+
+<p><i>Resultado Esperado:</i> Retornaria todas as colunas
+dos municípios onde a coluna uf é exatamente &quot;SC&quot;.</p>
+
+<p>É importante notar que, em muitos SGBDs, a comparação
+exata com = é sensível a maiúsculas e minúsculas (case-sensitive). Portanto, uf
+= 'sc' poderia não retornar os mesmos resultados que uf = 'SC', dependendo da
+configuração do banco de dados.</p>
+
+<p><b>O Operador LIKE para Busca de Padrões (com % e _)</b></p>
+
+<p>Quando você não sabe o valor exato de um texto ou
+precisa encontrar registros que sigam um determinado padrão, o operador LIKE é
+a ferramenta ideal. Ele é usado em conjunto com caracteres curinga:</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>% (Porcentagem):</b> Representa zero, um ou múltiplos
+caracteres quaisquer.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>_ (Sublinhado):</b> Representa um único caractere qualquer.</p>
+
+<p><i>Exemplos com %:</i></p>
+
+<p>1.&nbsp;&nbsp;&nbsp; <b>Selecionar
+municípios cujos nomes começam com &quot;Flor&quot;:</b></p>
+
+<p>2.&nbsp;&nbsp;&nbsp; SELECT
+nome_municipio, uf</p>
+
+<p>3.&nbsp;&nbsp;&nbsp; FROM municipios</p>
+
+<p>4.&nbsp;&nbsp;&nbsp; WHERE
+nome_municipio LIKE 'Flor%';</p>
+
+<p>5.&nbsp;&nbsp;&nbsp; &nbsp;</p>
+
+
+
+<p>6.&nbsp;&nbsp;&nbsp; <b>Encontrar
+pontos de coleta cujo endereço contenha a palavra &quot;Avenida&quot;:</b></p>
+
+<p>7.&nbsp;&nbsp;&nbsp; SELECT
+nome_ponto, endereco_completo</p>
+
+<p>8.&nbsp;&nbsp;&nbsp; FROM
+pontos_coleta</p>
+
+<p>9.&nbsp;&nbsp;&nbsp; WHERE
+endereco_completo LIKE '%Avenida%';</p>
+
+<p>10.&nbsp;</p>
+
+
+
+<p><i>Exemplos com _:</i></p>
+
+<p>1.&nbsp;&nbsp;&nbsp; <b>Selecionar
+municípios cuja UF comece com &quot;S&quot; e tenha um segundo caractere
+qualquer:</b></p>
+
+<p>2.&nbsp;&nbsp;&nbsp; SELECT
+nome_municipio, uf</p>
+
+<p>3.&nbsp;&nbsp;&nbsp; FROM municipios</p>
+
+<p>4.&nbsp;&nbsp;&nbsp; WHERE uf LIKE
+'S_';</p>
+
+<p>5.&nbsp;&nbsp;&nbsp; &nbsp;</p>
+
+
+
+<p>Uma característica importante do operador LIKE no SQLite
+(base do GeoPackage) é que, por padrão, ele é insensível a maiúsculas e
+minúsculas para caracteres ASCII.</p>
+
+<h4>5.5.2.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Combinando Condições com Operadores Lógicos</h4>
+
+<p>Muitas vezes, uma única condição não é suficiente para
+filtrar os dados da maneira que precisamos. Nesses casos, podemos combinar
+múltiplas condições usando operadores lógicos. Os principais operadores lógicos
+são AND, OR e NOT.</p>
+
+<p><b>Operador AND</b></p>
+
+<p>O operador AND é usado para combinar duas ou mais
+condições. Para que um registro seja incluído no resultado, <b>todas as
+condições</b> ligadas por AND devem ser verdadeiras.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Sintaxe:</b> WHERE condicao1 AND condicao2</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Exemplo:</b> Selecionar todos os municípios de Santa Catarina
+('SC') que tenham uma população estimada maior que 200.000 habitantes.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SELECT nome_municipio, uf, populacao_estimada</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+FROM municipios</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WHERE uf = 'SC' AND populacao_estimada &gt; 200000;</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;</p>
+
+
+
+<p>Neste caso, um município só aparecerá no resultado se
+AMBAS as condições (ser de SC E ter população &gt; 200.000) forem satisfeitas.</p>
+
+<p><b>Operador OR</b></p>
+
+<p>O operador OR também combina duas ou mais condições.
+No entanto, para um registro ser incluído no resultado, <b>pelo menos uma das
+condições</b> ligadas por OR deve ser verdadeira.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Sintaxe:</b> WHERE condicao1 OR condicao2</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Exemplo:</b> Listar os pontos de coleta que estão localizados
+no bairro 'Centro' OU cujo tipo de material coletado inclua 'Vidro'.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SELECT nome_ponto, bairro, tipo_material_coletado</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+FROM pontos_coleta</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WHERE bairro = 'Centro' OR tipo_material_coletado LIKE '%Vidro%';</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;</p>
+
+
+
+<p>Aqui, um ponto de coleta será listado se estiver no
+Centro, ou se coletar Vidro, ou ambos.</p>
+
+<p><b>Operador NOT</b></p>
+
+<p>O operador NOT é usado para negar uma condição, ou
+seja, para selecionar registros que <b>não</b> satisfazem a condição
+especificada.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Sintaxe:</b> WHERE NOT condicao</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Exemplo:</b> Selecionar todos os municípios de Santa Catarina
+('SC'), exceto 'Florianópolis'.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SELECT nome_municipio, uf</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+FROM municipios</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WHERE uf = 'SC' AND NOT nome_municipio = 'Florianópolis';</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;</p>
+
+
+
+<p>Isso é equivalente a usar o operador de diferença:
+WHERE uf = 'SC' AND nome_municipio != 'Florianópolis';</p>
+
+<p><b>Uso de Parênteses para Controlar a Ordem de
+Avaliação</b></p>
+
+<p>Quando você combina múltiplos operadores lógicos (AND,
+OR) em uma única cláusula WHERE, a ordem em que eles são avaliados pode afetar
+o resultado. Assim como na matemática, você pode usar parênteses () para
+agrupar condições e controlar a ordem de precedência, garantindo que a lógica
+da sua consulta seja interpretada corretamente.</p>
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Exemplo:</b> Selecionar municípios que sejam de Santa Catarina
+('SC') OU do Paraná ('PR') E que tenham uma população estimada menor que
+100.000 habitantes.</p>
+
+<p>Sem parênteses, a consulta WHERE uf = 'SC' OR uf =
+'PR' AND populacao_estimada &lt; 100000 poderia ser interpretada de forma
+ambígua (normalmente, AND tem precedência sobre OR). Com parênteses, a intenção
+fica clara:</p>
+
+<p>SELECT nome_municipio, uf, populacao_estimada</p>
+
+<p>FROM municipios</p>
+
+<p>WHERE (uf = 'SC' OR uf = 'PR') AND populacao_estimada
+&lt; 100000;</p>
+
+
+
+
+
+<p>Neste caso, primeiro avalia-se se o município é de SC
+ou PR. Se essa condição for verdadeira, então verifica-se se a população é
+menor que 100.000.</p>
+
+<p>A combinação inteligente de operadores de comparação e
+lógicos, juntamente com o uso adequado de parênteses, permite construir filtros
+extremamente específicos e poderosos em suas consultas SQL.</p>
+
+
+
+<h3 id="ordenando-os-resultados-a-clausula-order-by" class="mt-8 scroll-mt-24 text-xl font-semibold">5.5.3 Ordenando os Resultados: A Cláusula ORDER BY</h3>
+
+<p>* Objetivo: Apresentar os dados de forma organizada.</p>
+
+<p>* Ordenação ascendente (padrão): ASC</p>
+
+<p>* Ordenação descendente: DESC</p>
+
+<p>* Ordenando por uma ou múltiplas colunas.</p>
+
+<p>* Exemplos práticos:</p>
+
+<p>* Listar municípios por nome em ordem alfabética.</p>
+
+<p>* Mostrar as medições da mais recente para a mais antiga.</p>
+
+<h3 id="5-limitando-a-quantidade-de-resultados-a-clausula-limit" class="mt-8 scroll-mt-24 text-xl font-semibold">5.5.4 5. Limitando a Quantidade de Resultados: A Cláusula LIMIT</h3>
+
+<p>* Utilidade: Visualizar apenas um subconjunto dos dados
+(útil para tabelas grandes).</p>
+
+<p>* LIMIT numero_de_linhas</p>
+
+<p>* (Opcional, dependendo da profundidade): OFFSET para
+paginação.</p>
+
+<p>* Exemplos práticos:</p>
+
+<p>* Mostrar apenas os 10 primeiros registros de uma consulta.</p>
+
+<h3 id="6-funcoes-agregadas-resumindo-informacoes" class="mt-8 scroll-mt-24 text-xl font-semibold">5.5.5 6. Funções Agregadas: Resumindo Informações</h3>
+
+<p>* O que são funções agregadas?</p>
+
+<p>* COUNT(): Contar o número de registros (ou valores não
+nulos).</p>
+
+<p>* SUM(): Somar valores de uma coluna numérica.</p>
+
+<p>* AVG(): Calcular a média de valores de uma coluna numérica.</p>
+
+<p>* MIN(): Encontrar o menor valor em uma coluna.</p>
+
+<p>* MAX(): Encontrar o maior valor em uma coluna.</p>
+
+<p>* A Cláusula GROUP BY: Agrupando dados antes de aplicar
+funções agregadas.</p>
+
+<p>* Fundamental para obter estatísticas por categoria.</p>
+
+<p>* Exemplos práticos:</p>
+
+<p>* Contar quantos pontos de coleta existem em cada município.</p>
+
+<p>* Calcular a média de um parâmetro de medição.</p>
+
+<p>* Encontrar a data da medição mais antiga e mais recente.</p>
+
+<h3 id="7-combinando-dados-de-multiplas-tabelas-juncoes-joins" class="mt-8 scroll-mt-24 text-xl font-semibold">5.5.6 7. Combinando Dados de Múltiplas Tabelas: Junções (JOINs)</h3>
+
+<p>* Revisão: O conceito de chaves primárias e estrangeiras e
+como elas relacionam tabelas.</p>
+
+<p>* A necessidade de combinar dados que estão em tabelas
+separadas.</p>
+
+<p>* INNER JOIN (ou simplesmente JOIN):</p>
+
+<p>* Como funciona: Seleciona registros que têm valores
+correspondentes em ambas as tabelas.</p>
+
+<p>* Sintaxe: FROM tabelaA JOIN tabelaB ON tabelaA.coluna_chave
+= tabelaB.coluna_chave</p>
+
+<p>* Uso de AS (apelidos) para nomes de tabelas e colunas para
+simplificar e clarificar as consultas.</p>
+
+<p>* (Opcional, para um curso mais aprofundado): LEFT JOIN,
+RIGHT JOIN, FULL OUTER JOIN. Para iniciantes, INNER JOIN é o mais crucial.</p>
+
+<p>* Exemplos práticos:</p>
+
+<p>* Juntar dados de uma tabela de &quot;pontos de coleta&quot;
+com uma tabela de &quot;medições&quot; para ver todos os dados de uma coleta
+específica.</p>
+
+<p>* Combinar uma camada de &quot;escolas&quot; com uma tabela
+de &quot;número de alunos&quot; por escola.</p>
+
+<h3 id="8-opcional-neste-capitulo-ou-como-introducao-para-o-proximo-nocoes-de-consultas-espaciais" class="mt-8 scroll-mt-24 text-xl font-semibold">5.5.7 8. (Opcional neste capítulo ou como introdução para o próximo) Noções de Consultas Espaciais</h3>
+
+<p>* Breve menção de que bancos de dados espaciais (como
+GeoPackage com extensões espaciais ou PostGIS) possuem funções SQL específicas
+para analisar relações espaciais (proximidade, intersecção, área, etc.).</p>
+
+<p>* Exemplos muito simples, se o ambiente GeoPackage/SQLite
+permitir de forma fácil, ou apenas citar nomes de funções comuns em PostGIS
+como ST_Intersects, ST_Distance, ST_Area.</p>
+
+<p>* Este tópico pode ser mais aprofundado num capítulo
+dedicado a funções espaciais, como o &quot;Capítulo 4 – Funções espaciais
+básicas&quot; que já existe no esboço da tua apostila.</p>
+
+
+
+<p>Exercícios Práticos ao Longo do Capítulo:</p>
+
+<p>* Após cada conceito importante, incluir pequenos exercícios
+para os alunos praticarem.</p>
+
+<p>* No final do capítulo, propor um ou dois desafios mais
+completos que envolvam vários dos conceitos aprendidos.</p>
+
+<h2 id="funcoes-espaciais-basicas" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.6 Funções espaciais básicas</h2>
+
+<h3 id="funcoes-espaciais" class="mt-8 scroll-mt-24 text-xl font-semibold">5.6.1 Funções espaciais</h3>
+
+<p>Linguagem SQL para medições - ST_Transform</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+É usada para projetar os dados geográficos em outras projeções.</p>
+
+<p>Sintaxe</p>
+
+<p>ST_Transform(geomA,srid)</p>
+
+
+
+<p>Exemplo de consulta com ST_DWithin para verificar
+proximidade entre pontos:</p>
+
+<p>SELECT *<br>
+FROM pontos_interesse<br>
+WHERE ST_DWithin(geom, ST_SetSRID(ST_Point(-48.55, -27.60), 4326), 500);</p>
+
+
+
+
+
+<h2 id="camada-virtual-x-consulta" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.7 Camada Virtual X Consulta</h2>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Embora as <b>camadas virtuais</b> sejam uma ótima ferramenta para
+montar consultas rápidas e dinâmicas dentro do QGIS, na prática, <b>elas têm
+causado travamentos com mais frequência</b>.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Esses travamentos ocorrem principalmente porque a camada virtual
+depende que as outras camadas estejam carregadas no projeto.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Em contrapartida, quando utiliza-se a  consulta SQL (“Carregar
+como Camada”), o QGIS trata o resultado como uma camada comum — mesmo que seja
+fruto de uma junção ou filtro — e <b>trabalha com muito mais estabilidade</b>.
+A performance melhora, e o risco de congelamento ou falhas diminui.</p>
+
+<h2 id="criando-uma-consulta" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.8 Criando uma Consulta</h2>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&#128736;&#65039;
+<b>Abra o DB Manager: </b>No QGIS, vá em Banco de Dados &gt; DB Manager.</p>
+
+<p>•&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&#128221;
+<b>Selecione o banco de dados GeoPackage: </b>Navegue até o seu arquivo .gpkg.</p>
+
+<p>&#128187;
+<b>Clique em “Executar”: </b>Execute a consulta SQL desejada.</p>
+
+<p>&#128065;&#65039;
+<b>Visualize os dados: </b>confira o resultado na tabela para garantir que a
+união foi feita corretamente.</p>
+
+<p>SELECT *  </p>
+
+<p>FROM Locais_Coleta as l </p>
+
+<p>JOIN Relatorio_Balneabilidade_2024 as r </p>
+
+<p>ON l.MUNICIPIO = r.MUNICIPIO </p>
+
+<p>            AND l.PONTO_NOME = r.PONTO_NOME</p>
+
+
+
+<h2 id="criando-a-camada" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">5.9 Criando a Camada</h2>
+
+
+
+<br
+clear=all>
+
+
+
+
+
+                </div>
+                <div class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                    <a href="index.html" class="text-slate-500 hover:underline">Sumário</a>
+                    <div class="flex gap-3">
+                        <a href="capitulo-04.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">← Fundamentos do SQL</a>
+                        <a href="capitulo-06.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">Padronizar Campos em Banco de Dados →</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+            <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+            <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+            <p class="text-sm">Professor responsável: Arthur Berbert</p>
+            <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="main.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

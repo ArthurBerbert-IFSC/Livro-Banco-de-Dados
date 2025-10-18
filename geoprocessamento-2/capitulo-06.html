@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Padronizar Campos em Banco de Dados — Geoprocessamento 2</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+    <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
+        <div class="border-b border-slate-200/60 dark:border-slate-700/60">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                    <img src="https://placehold.co/100x40/1B5E20/FFFFFF?text=IFSC" alt="Logotipo do IFSC" class="h-10 w-auto opacity-80" onerror="this.style.display='none'">
+                </div>
+                <div class="flex items-center gap-3 justify-center md:justify-end">
+                    <div class="text-center md:text-right">
+                        <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+                    </div>
+                    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Alternar tema">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="mb-6 text-slate-500 dark:text-slate-400"><a href="index.html" class="text-sm hover:underline">← Sumário</a> · <a href="capitulo-05.html" class="text-sm hover:underline">← Cap. anterior: Os Subconjuntos da Linguagem SQL: DDL, DML e DQL</a> · <a href="capitulo-07.html" class="text-sm hover:underline">Próx. capítulo: Banco de Dados com PostGIS →</a></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-3 hidden lg:block">
+                <div class="sticky top-24 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/60 dark:bg-slate-900/40">
+                    <nav class="text-sm">
+<p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Neste capítulo</p>
+<ul class="space-y-1">
+<li class="ml-0"><a href="#dados-existentes" class="hover:text-ifsc-green dark:hover:text-emerald-300">Dados existentes</a></li>
+<li class="ml-0"><a href="#restringir-novos-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">Restringir novos dados</a></li>
+<li class="ml-4"><a href="#padronizar-o-nome-dos-campos" class="hover:text-ifsc-green dark:hover:text-emerald-300">Padronizar o nome dos campos</a></li>
+<li class="ml-4"><a href="#restricoes-via-formularios-de-atributos-no-qgis" class="hover:text-ifsc-green dark:hover:text-emerald-300">Restrições via Formulários de Atributos no QGIS</a></li>
+<li class="ml-4"><a href="#validacao-de-dados-no-qgis-com-dominios-de-campo" class="hover:text-ifsc-green dark:hover:text-emerald-300">Validação de Dados no QGIS com Domínios de Campo</a></li>
+<li class="ml-4"><a href="#validacao-de-dados-via-sql" class="hover:text-ifsc-green dark:hover:text-emerald-300">Validação de Dados via SQL</a></li>
+<li class="ml-4"><a href="#comparativo-entre-tipos-de-restricao" class="hover:text-ifsc-green dark:hover:text-emerald-300">Comparativo entre Tipos de Restrição</a></li>
+<li class="ml-4"><a href="#proximos-passos" class="hover:text-ifsc-green dark:hover:text-emerald-300">Próximos passos</a></li>
+</ul></nav>
+                </div>
+            </aside>
+            <article class="lg:col-span-9">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Capítulo 6: Padronizar Campos em Banco de Dados</h1>
+                    
+                </header>
+                <div class="prose prose-lg max-w-none prose-slate dark:prose-invert prose-justificado prose-indent">
+                
+
+<h2 id="dados-existentes" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">6.1 Dados existentes</h2>
+
+<h3 id="padronizar-o-nome-dos-campos" class="mt-8 scroll-mt-24 text-xl font-semibold">6.1.1 Padronizar o nome dos campos</h3>
+
+
+
+
+
+<p><img src="imagens/capitulos/capitulo-06/image073.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p>Clique com o botão direito sobre o campo&gt; Renomear
+campo...</p>
+
+<p>Dica: ajuste os campos para eu fiquem iguais aos da
+outra tabela, assim facilita o relacionamento.</p>
+
+<br
+clear=all>
+
+
+
+
+<h2 id="restringir-novos-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">6.2 Restringir novos dados</h2>
+
+<h3 id="restricoes-via-formularios-de-atributos-no-qgis" class="mt-8 scroll-mt-24 text-xl font-semibold">6.2.1 Restrições via Formulários de Atributos no QGIS</h3>
+
+<p><img src="imagens/capitulos/capitulo-06/image074.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><img src="imagens/capitulos/capitulo-06/image075.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-right ml-4" />O QGIS oferece um sistema bastante flexível
+para personalização de formulários de atributos. Por meio das propriedades da
+camada, é possível configurar como os campos serão exibidos durante a edição
+dos dados. Entre as opções estão o uso de listas suspensas, definição de
+valores padrão, inserção de dicas informativas, aplicação de máscaras de
+preenchimento e condições para exibir ou ocultar determinados campos.</p>
+
+<p>Essa abordagem é fácil de utilizar e bastante didática,
+pois permite guiar o preenchimento dos dados de forma amigável, sem exigir
+conhecimentos em SQL. Isso é especialmente útil em situações onde se busca
+facilitar a interação com o banco de dados.</p>
+
+<div>
+
+<p>Contudo, é fundamental compreender que essas restrições
+pertencem ao projeto do QGIS e não à estrutura do banco de dados em si. Em
+outras palavras, são restrições não permanentes: elas funcionam apenas dentro
+do projeto onde foram configuradas. Caso esse banco de dados seja aberto em
+outro projeto do QGIS ou em um software diferente, as restrições não estarão
+mais visíveis ou ativas.</p>
+
+</div>
+
+<p>Portanto, ainda que o QGIS permita configurar formulários que
+limitem os valores aceitos por campo (como no caso de listas suspensas), é
+importante lembrar que tais validações não fazem parte do banco. Isso significa
+que os dados podem ser editados fora do QGIS sem qualquer validação,
+comprometendo a integridade da informação se não houver regras aplicadas
+diretamente no banco de dados por meio de comandos SQL.</p>
+
+<h3 id="validacao-de-dados-no-qgis-com-dominios-de-campo" class="mt-8 scroll-mt-24 text-xl font-semibold">6.2.2 Validação de Dados no QGIS com Domínios de Campo</h3>
+
+<p>O QGIS possui um recurso chamado &quot;Field Domains&quot;
+(Domínios de Campo), que permite adicionar regras de validação para os dados
+diretamente dentro do banco de dados, especialmente em arquivos do tipo
+GeoPackage. Esse recurso é utilizado para restringir os valores permitidos em
+determinados campos de uma tabela, de forma que os formulários de atributos no
+QGIS possam guiar o usuário durante a edição dos dados.</p>
+
+<div>
+
+<p>Diferentemente das restrições SQL (como CHECK ou
+FOREIGN KEY), os domínios de campo não são regras aplicadas por todo e qualquer
+software. </p>
+
+</div>
+
+<p>Eles funcionam dentro do ecossistema do QGIS, que os
+interpreta e os utiliza para configurar automaticamente os formulários de
+atributos. Com isso, ao abrir uma tabela com domínio definido, o QGIS exibirá
+listas suspensas e validadores que ajudam a prevenir erros de entrada.</p>
+
+<p>Os domínios de campo podem ser de três tipos
+principais:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Intervalo Numérico</b> (Intervalo de domínio): Define um valor mínimo
+e máximo aceito para campos numéricos (INTEGER, REAL). Exemplo: valores de
+temperatura entre 0 e 100 graus.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Valor Predefinido</b> (domínio de valores codificados): Aplica-se a
+campos de texto. Define uma lista fechada de opções, como por exemplo
+'Ausente', 'Fraca', 'Moderada', 'Forte'. Ao editar esse campo, o usuário verá
+uma lista suspensa com essas opções no formulário de atributos.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Domínio Global</b> (Globally Scoped)3F<a href="#_ftn5" name="_ftnref5"
+title="">[5]</a>:
+Pode ser aplicado a várias tabelas dentro do mesmo banco de dados. Apesar do
+potencial de reutilização, esse tipo de domínio é limitado: não permite
+expressar relacionamentos entre tabelas, como garantir que um campo de uma
+tabela faça referência a valores existentes em outra (como uma chave
+estrangeira faria).</p>
+
+<p align=center><img src="imagens/capitulos/capitulo-06/image076.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+<p>É possível realizar algumas configurações avançadas
+nos campos de domínios pois a janela de configuração de domínios de campo no
+QGIS oferece algumas opções:</p>
+
+<p>Gerais:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Nome do Domínio</b>: É o identificador do domínio, como por exemplo
+dominio_chuva. Esse nome é usado para associar o domínio aos campos desejados.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Descrição</b>: Um texto explicativo sobre o que representa o domínio.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Tipo do Campo</b>: Define o tipo de dado do campo a que se aplica
+(TEXT, INTEGER, REAL, BOOLEAN).</p>
+
+
+
+<p>Políticas:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="imagens/capitulos/capitulo-06/image077.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><b>Política de Divisão</b>: Usada quando uma feição
+com valor associado é dividida. Define o comportamento do campo durante esse
+processo:</p>
+
+<p>a.&nbsp;&nbsp;&nbsp;&nbsp; <b>Valor
+Padrão:</b> Mantém o comportamento padrão.</p>
+
+<p>b.&nbsp;&nbsp;&nbsp; <b>Duplicar</b>:
+Duplica o valor original para ambas as partes.</p>
+
+<p>c.&nbsp;&nbsp;&nbsp;&nbsp; <b>Proporção
+das Geometrias</b>: Divide o valor proporcionalmente à área.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Política de União</b>: Define o comportamento ao unir feições:</p>
+
+<p>a.&nbsp;&nbsp;&nbsp;&nbsp; <b>Valor
+Padrão:</b> Mantém o comportamento padrão.</p>
+
+<p>b.&nbsp;&nbsp;&nbsp; <b>Soma</b>:
+Soma os valores.</p>
+
+<p>c.&nbsp;&nbsp;&nbsp;&nbsp; <b>Média
+ponderada das Geometrias</b>: Calcula a média ponderada dos valores em relação
+á area.</p>
+
+<p>Valores: </p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Intervalo</b>: exclusivo do <b>Intervalo de domínio</b></p>
+
+<p>a.&nbsp;&nbsp;&nbsp;&nbsp; Mínimo:
+Define o valor mínimo a ser aceito</p>
+
+<p>b.&nbsp;&nbsp;&nbsp; Máximo: define o
+valor máximo a ser aceito</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Valores</b>: exclusivo do <b>domínio de valores codificados</b></p>
+
+<p>a.&nbsp;&nbsp;&nbsp;&nbsp; Código:
+inserir código para abreviar o valor.</p>
+
+<p>b.&nbsp;&nbsp;&nbsp; Valor: define o
+valor a ser inserido.</p>
+
+<p>c.&nbsp;&nbsp;&nbsp;&nbsp; Utilize os
+botões  + e – para adicionar ou remover linhas</p>
+
+<p>Os domínios de campo oferecem uma maneira eficaz de
+orientar os usuários durante a entrada de dados, sem exigir o uso de SQL.
+Contudo, é essencial entender que essa validação ocorre apenas no ambiente do
+QGIS. Qualquer manipulação dos dados feita fora dele não estará sujeita a essas
+regras. Para projetos mais exigentes ou multiusuários, onde a integridade dos
+dados é crítica, é altamente recomendada a utilização de restrições no próprio
+banco de dados, via comandos SQL.</p>
+
+<p>De qualquer forma, os domínios de campo são uma
+excelente porta de entrada para boas práticas de validação de dados e podem ser
+utilizados em conjunto com os formulários personalizados para criar uma
+experiência de edição mais segura e didaticamente orientada.</p>
+
+<h3 id="validacao-de-dados-via-sql" class="mt-8 scroll-mt-24 text-xl font-semibold">6.2.3 Validação de Dados via SQL</h3>
+
+<p>A validação de dados via SQL consiste em configurar
+regras de integridade diretamente no banco de dados, utilizando comandos como
+`CHECK`, `UNIQUE`, `NOT NULL` e chaves estrangeiras (`FOREIGN KEY`). </p>
+
+<p><img src="imagens/capitulos/capitulo-06/image078.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /></p>
+
+<p>Vantagen</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Integridade Garantida em Todo Lugar</b>: Como as regras são definidas
+no próprio banco, elas funcionam independentemente da ferramenta usada. Isso
+significa que, seja no QGIS, seja em outro programa, esses critérios
+permanecerão ativos.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Menos Erros e Redundâncias</b>: Restrições como `UNIQUE` e `CHECK`
+ajudam a evitar duplicações e valores fora do padrão. Dessa forma, minimizam
+inconsistências que podem comprometer análises e relatórios.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Proteção em Ambientes Multiusuários</b>: Em projetos colaborativos, é
+mais seguro confiar em regras centralizadas, pois cada usuário manipula dados
+de acordo com as mesmas políticas de integridade.</p>
+
+
+
+<p>Desafios no QGIS:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+I.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Falta de Mensagens de Erro Detalhadas</b>: Se uma regra é violada, o
+QGIS não mostra ao usuário o motivo exato. O salvamento simplesmente não
+ocorre, podendo parecer um “bug” ou falha inexplicável.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+II.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Curva de Aprendizado</b>: Em contextos educacionais, esse
+comportamento do QGIS dificulta a compreensão do que houve de errado, pois não
+há retorno imediato indicando qual regra foi violada.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+III.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Necessidade de SQL</b>: Para criar e manter essas restrições no
+banco, é preciso familiaridade com comandos SQL, algo que pode ser mais
+complexo para quem se limita à interface gráfica.</p>
+
+<p>Apesar dessas dificuldades, definir as validações
+diretamente no banco é essencial em muitos cenários profissionais. Essa prática
+garante que o conjunto de dados mantenha alta qualidade e consistência, mesmo
+quando diferentes pessoas ou sistemas estejam envolvidos. Além disso, quando
+combinado com práticas de documentação e orientação dos usuários, o uso de
+restrições em nível de banco de dados melhora significativamente a
+confiabilidade das informações, que é um fator determinante no sucesso de
+qualquer projeto de geoprocessamento.</p>
+
+<h3 id="comparativo-entre-tipos-de-restricao" class="mt-8 scroll-mt-24 text-xl font-semibold">6.2.4 Comparativo entre Tipos de Restrição</h3>
+
+<table class="min-w-full border border-slate-300 my-6">
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>Tipo de Restrição</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>Aplicada via</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>Persistente no banco?</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>Visível no QGIS</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p><b>Reutilizável </b></p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>CHECK (SQL)</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>SQL</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Sim</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Não totalmente</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Sim</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>Field
+  Domain</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>QGIS
+  Interface</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Sim
+  (GeoPackage)</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Sim</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Sim
+  (GeoPackage)</p>
+  </td>
+ </tr>
+ <tr>
+  <td class="border border-slate-300 p-2">
+  <p><b>Formulário de Atributo</b></p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>QGIS Interface</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Não</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Sim</p>
+  </td>
+  <td class="border border-slate-300 p-2">
+  <p>Não</p>
+  </td>
+ </tr>
+</table>
+
+
+
+<p>Este comparativo mostra que, enquanto o CHECK garante
+uma validação robusta e duradoura, ele é mais difícil de interpretar
+visualmente no QGIS. Os Field Domains têm um papel intermediário, sendo úteis
+para restrições simples e com bom suporte visual, enquanto os formulários
+oferecem o máximo de controle visual, mas não protegem os dados fora do
+projeto.</p>
+
+<h3 id="proximos-passos" class="mt-8 scroll-mt-24 text-xl font-semibold">6.2.5 Próximos passos</h3>
+
+<p>Durante as primeiras aulas da disciplina, daremos
+preferência ao uso da interface do QGIS e aos formulários de atributos, pois
+facilitam o aprendizado e permitem que os alunos compreendam os conceitos sem
+depender diretamente de códigos SQL. No entanto, à medida que avançarmos na
+disciplina, passaremos a utilizar comandos SQL para definir restrições reais no
+banco de dados, aumentando a confiabilidade e o controle sobre os dados.</p>
+
+<p>Este aprendizado gradual culminará no estudo do PostGIS,
+que permite a criação de bancos de dados espaciais robustos, multiusuários e
+com suporte total a chaves estrangeiras, índices espaciais e gatilhos
+(triggers). Em momento oportuno, aprenderemos o que são triggers e como eles
+permitem automatizar operações no banco, como por exemplo preencher
+automaticamente a data de edição ou impedir a exclusão de dados que estão em
+uso.</p>
+
+<br
+clear=all>
+
+
+
+
+
+                </div>
+                <div class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                    <a href="index.html" class="text-slate-500 hover:underline">Sumário</a>
+                    <div class="flex gap-3">
+                        <a href="capitulo-05.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">← Os Subconjuntos da Linguagem SQL: DDL, DML e DQL</a>
+                        <a href="capitulo-07.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">Banco de Dados com PostGIS →</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+            <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+            <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+            <p class="text-sm">Professor responsável: Arthur Berbert</p>
+            <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="main.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
