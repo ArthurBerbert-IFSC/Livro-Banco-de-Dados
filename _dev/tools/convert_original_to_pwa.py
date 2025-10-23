@@ -16,10 +16,10 @@ import shutil
 from html import escape
 import unicodedata
 
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-ORIGINAL_HTML = os.path.join(REPO_ROOT, 'Original', 'Apostila Geoprocessamento 2 vs2.3.htm')
-ORIGINAL_ASSETS_DIR = os.path.join(REPO_ROOT, 'Original', 'Apostila Geoprocessamento 2 vs2.3_arquivos')
-OUTPUT_DIR = os.path.join(REPO_ROOT, 'geoprocessamento-2')
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+ORIGINAL_HTML = os.path.join(REPO_ROOT, '_dev', 'Original', 'Apostila Geoprocessamento 2 vs2.3.htm')
+ORIGINAL_ASSETS_DIR = os.path.join(REPO_ROOT, '_dev', 'Original', 'Apostila Geoprocessamento 2 vs2.3_arquivos')
+OUTPUT_DIR = REPO_ROOT
 OUTPUT_IMG_BASE = os.path.join(OUTPUT_DIR, 'imagens', 'capitulos')
 
 

@@ -6,32 +6,37 @@ Este projeto é um livro digital interativo da disciplina **Geoprocessamento 2 (
 
 ## Estrutura do Projeto
 
-O projeto é organizado da seguinte forma:
+O projeto está organizado como uma Progressive Web App (PWA) na raiz do repositório:
 
 ```
-geoprocessamento-2
-├── index.html                # Página principal com o sumário do livro
-├── capitulo-01.html         # Conteúdo do Capítulo 1
-├── capitulo-02.html         # Conteúdo do Capítulo 2
-├── capitulo-03.html         # Conteúdo do Capítulo 3
-├── capitulo-04.html         # Conteúdo do Capítulo 4
-├── capitulo-05.html         # Conteúdo do Capítulo 5
-├── estilos.css               # Estilos CSS para o PWA
-├── main.js                   # Lógica principal do JavaScript
-├── scripts                   # Scripts adicionais
-│   ├── sql.js-wasm          # WebAssembly para SQL.js
-│   ├── sql-playground.js     # Lógica do playground SQL
-│   └── svg-interactions.js   # Interatividade de elementos SVG
-├── dados                     # Dados utilizados no projeto
-│   └── banco_exemplo.sqlite   # Banco de dados SQLite de exemplo
-├── imagens                   # Imagens utilizadas no projeto
-│   ├── logotipos             # Logotipos da instituição
-│   └── capitulos             # Imagens dos capítulos
+/
+├── index.html                # Página principal com o sumário
+├── capitulo-01.html         # Capítulo 1: Fundamentos de Bancos de Dados
+├── capitulo-02.html         # Capítulo 2: Modelagem de Dados
+├── capitulo-03.html         # Capítulo 3: Bancos de Dados GeoPackage
+├── capitulo-04.html         # Capítulo 4: Fundamentos do SQL
+├── capitulo-05.html         # Capítulo 5: Banco de Dados com PostGIS
+├── capitulo-06.html         # Capítulo 6: Padronizar Campos
+├── capitulo-07.html         # Capítulo 7: PostGIS Avançado
+├── estilos.css               # Estilos CSS customizados
+├── main.js                   # JavaScript principal (tema, scrollspy)
+├── service-worker.js         # Service Worker para cache offline
 ├── manifest.webmanifest      # Manifesto da PWA
-├── service-worker.js         # Lógica de cache para funcionalidade offline
-├── icons                     # Ícones da PWA
-│   └── .gitkeep              # Placeholder para controle de versão
-└── Original                  # Diretório com os arquivos originais
+├── imagens/                  # Recursos visuais
+│   ├── logotipos/           # Logos IFSC e da disciplina
+│   └── capitulos/           # Imagens organizadas por capítulo
+├── scripts/                  # Scripts adicionais
+│   ├── sql.js-wasm          # WebAssembly para SQL.js
+│   ├── sql-playground.js     # Playground SQL interativo
+│   └── svg-interactions.js   # Interatividade com mapas SVG
+├── dados/                    # Bancos de dados de exemplo
+│   └── banco_exemplo.sqlite
+├── icons/                    # Ícones da PWA (vários tamanhos)
+├── _dev/                     # Arquivos de desenvolvimento
+│   ├── Original/            # Arquivo-fonte Word exportado
+│   └── tools/               # Scripts de conversão (Python)
+├── AGENTS.md                 # Documentação para desenvolvimento
+└── README.md                 # Este arquivo
 ```
 
 ## Funcionalidades
@@ -46,8 +51,46 @@ geoprocessamento-2
 1. **Clone o repositório**:
    ```bash
    git clone <URL do repositório>
-   cd geoprocessamento-2
+   cd Livro-Banco-de-Dados
    ```
+
+2. **Abra o arquivo `index.html`** diretamente no navegador ou use um servidor local:
+   ```bash
+   # Python 3
+   python -m http.server 8000
+   
+   # Ou com Node.js
+   npx serve
+   ```
+
+3. **Acesse no navegador**: 
+   - Diretamente: `file:///caminho/para/index.html`
+   - Com servidor: `http://localhost:8000`
+
+4. **Instale como PWA** (opcional): 
+   - No Chrome/Edge, clique no ícone de instalação na barra de endereços
+   - A aplicação ficará disponível offline após a primeira visita
+
+## Para Desenvolvedores
+
+### Regenerar Capítulos
+
+Se você precisar regenerar os capítulos a partir do arquivo-fonte:
+
+```bash
+# Ative o ambiente virtual Python (se necessário)
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Linux/Mac
+
+# Execute o conversor
+python _dev/tools/convert_original_to_pwa.py
+```
+
+O script irá:
+- Ler o arquivo `_dev/Original/Apostila Geoprocessamento 2 vs2.3.htm`
+- Dividir por capítulos (tags `<h1>`)
+- Copiar e otimizar imagens para `imagens/capitulos/`
+- Gerar os arquivos `capitulo-XX.html` na raiz com layout PWA completo
 
 2. **Abra o arquivo `index.html` em um navegador** para acessar o sumário e navegar pelos capítulos.
 
