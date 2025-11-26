@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Atividade Prática: Balneabilidade no PostGIS — Geoprocessamento 2</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+    <header class="bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
+        <div class="border-b border-slate-200/60 dark:border-slate-700/60">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                    <img src="imagens/logotipos/Logo_Disciplina_5.png" alt="Logo da Disciplina" class="h-16 md:h-18 lg:h-20 w-auto opacity-100 drop-shadow-sm" onerror="this.style.display='none'">
+                    <img src="imagens/logotipos/florianopolis_horizontal_marca2015_PNG.png" alt="IFSC Florianópolis" class="h-10 w-auto opacity-80" onerror="this.style.display='none'">
+                </div>
+                <div class="flex items-center gap-3 justify-center md:justify-end">
+                    <div class="text-center md:text-right">
+                        <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+                    </div>
+                    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Alternar tema">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="mb-6 text-slate-500 dark:text-slate-400"><a href="index.html" class="text-sm hover:underline">← Sumário</a> · <a href="capitulo-07.html" class="text-sm hover:underline">← Cap. anterior: CONSTRUÇÃO DE BANCO DE DADOS ESPACIAIS</a></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-3 hidden lg:block">
+                <div class="sticky top-24 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/60 dark:bg-slate-900/40">
+                    <nav class="text-sm">
+                        <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Neste capítulo</p>
+                        <ul class="space-y-1">
+                            <li class="ml-0"><a href="#contexto-do-projeto" class="hover:text-ifsc-green dark:hover:text-emerald-300">Contexto do Projeto</a></li>
+                            <li class="ml-0"><a href="#organizacao-dos-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">Organização dos Dados</a></li>
+                            <li class="ml-0"><a href="#etapa-0-preparacao-ambiente" class="hover:text-ifsc-green dark:hover:text-emerald-300">Etapa 0: Preparação do Ambiente</a></li>
+                            <li class="ml-0"><a href="#etapa-1-criacao-tabelas" class="hover:text-ifsc-green dark:hover:text-emerald-300">Etapa 1: Criação de Tabelas</a></li>
+                            <li class="ml-0"><a href="#etapa-2-higienizacao" class="hover:text-ifsc-green dark:hover:text-emerald-300">Etapa 2: Higienização de Dados</a></li>
+                            <li class="ml-0"><a href="#etapa-3-join-atributos" class="hover:text-ifsc-green dark:hover:text-emerald-300">Etapa 3: Join de Atributos</a></li>
+                            <li class="ml-0"><a href="#etapa-4-join-espacial" class="hover:text-ifsc-green dark:hover:text-emerald-300">Etapa 4: Join Espacial</a></li>
+                            <li class="ml-0"><a href="#etapa-5-consultas-tematicas" class="hover:text-ifsc-green dark:hover:text-emerald-300">Etapa 5: Consultas Temáticas</a></li>
+                            <li class="ml-0"><a href="#troubleshooting" class="hover:text-ifsc-green dark:hover:text-emerald-300">Troubleshooting</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+            <article class="lg:col-span-9">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Capítulo 8: Atividade Prática Supervisionada</h1>
+                    <p class="text-xl text-slate-600 dark:text-slate-400">Balneabilidade no PostGIS</p>
+                </header>
+                <div class="prose prose-lg max-w-none prose-slate dark:prose-invert prose-justificado prose-indent">
+
+<div class="border-l-4 border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-900/40 rounded-xl p-6 my-8 not-prose">
+    <div class="flex items-start gap-4">
+        <i data-lucide="target" class="w-6 h-6 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-1"></i>
+        <div>
+            <p class="font-semibold text-sky-900 dark:text-sky-100 mb-2">Objetivo da Atividade</p>
+            <p class="text-sky-800 dark:text-sky-200 mb-3">Atuar como <strong>Analista GIS</strong> organizando dados de balneabilidade de Florianópolis e integrando-os com a demografia local via SQL Espacial.</p>
+            <p class="text-sky-800 dark:text-sky-200 mb-3">O trabalho será individual e realizado inteiramente no banco de dados PostgreSQL/PostGIS, a partir de dados oficiais.</p>
+            <p class="text-sky-800 dark:text-sky-200 m-0">Cada estudante será responsável por limpar, padronizar e analisar medições de balneabilidade cruzando-as com a densidade demográfica setorial (Geoportal — Censo IBGE 2022), garantindo consistência entre atributos e geometrias.</p>
+        </div>
+    </div>
+</div>
+
+<h2 id="contexto-do-projeto" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1. Contexto do Projeto</h2>
+
+<p>O banco de dados espacial PostgreSQL/PostGIS é a ferramenta central desta atividade. Você trabalhará a partir de dados oficiais "brutos" (<em>raw</em>), realizando todo o ciclo de inteligência geográfica: <strong>extração</strong>, <strong>tratamento</strong>, <strong>análise</strong> e <strong>cruzamento</strong> de informações.</p>
+
+<p>O trabalho é <strong>individual</strong> e deve ser realizado estritamente dentro do seu <strong>Schema pessoal</strong>.</p>
+
+<h2 id="organizacao-dos-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">2. Organização dos Dados</h2>
+
+<p>No servidor, você encontrará um schema público (somente leitura) contendo as seguintes tabelas de origem:</p>
+
+<ul class="not-prose space-y-2">
+    <li><code class="text-sm font-mono px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">public.pontos_coleta_raw</code> — Pontos geográficos de coleta</li>
+    <li><code class="text-sm font-mono px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">public.balneabilidade_2024_raw</code> — Planilha de medições (sem geometria)</li>
+    <li><code class="text-sm font-mono px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">public.densidade_demografica_raw</code> — Polígonos censitários</li>
+</ul>
+
+<p class="mt-4 text-slate-700 dark:text-slate-300"><strong>Importante:</strong> Você não deve alterar nada em <code class="text-sm">public.*</code>. Sempre copie os dados para o seu schema <code class="text-sm">bal_seunome</code> usando <code class="text-sm">CREATE TABLE AS</code> antes de higienizar ou editar. Suas tabelas de trabalho devem seguir nomes claros como <code class="text-sm">pontos_coleta</code>, <code class="text-sm">densidade_demografica</code> e <code class="text-sm">relatorio_balneabilidade</code>.</p>
+
+<h2 id="etapa-0-preparacao-ambiente" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">Etapa 0: Preparação do Ambiente</h2>
+
+<p>Antes de manipular dados, precisamos garantir que sua "mesa de trabalho" (Schema) esteja pronta. No <strong>QGIS DB Manager</strong>, execute <strong>um bloco por vez</strong> para evitar travamentos.</p>
+
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">Requisitos:</h3>
+
+<ol>
+    <li>Crie seu schema pessoal no banco seguindo o padrão: <code class="text-sm">bal_seunome</code>.</li>
+    <li>Verifique suas permissões de escrita criando e apagando uma tabela de teste.</li>
+</ol>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">Roteiro de Comandos SQL</h3>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Passo 1: Criar o seu espaço de trabalho (Schema)</p>
+
+<pre><code class="language-sql">-- Substitua 'seunome' pelo seu usuário real. Ex: bal_joao
+CREATE SCHEMA bal_seunome;</code></pre>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Passo 2: Testar permissão de escrita (Criar tabela temporária)</p>
+
+<pre><code class="language-sql">-- Tente criar uma tabela simples para ver se funciona
+CREATE TABLE bal_seunome.teste_permissao (
+    id INTEGER,
+    nome VARCHAR(50)
+);</code></pre>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Passo 3: Limpeza (Apagar tabela de teste)</p>
+
+<pre><code class="language-sql">-- Se o passo anterior funcionou, remova a tabela de teste
+DROP TABLE bal_seunome.teste_permissao;</code></pre>
+
+<h2 id="etapa-1-criacao-tabelas" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">Etapa 1: Criação de Tabelas de Trabalho</h2>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">Teoria: Independência dos Dados</h3>
+
+<p>Vamos utilizar a técnica <strong>Snapshot</strong> (Cópia Estática). Ao contrário de uma View, que é uma janela dinâmica para o dado original, o comando <code class="text-sm">CREATE TABLE AS</code> cria uma cópia física independente.</p>
+
+<div class="border-l-4 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/40 rounded-xl p-6 my-8 not-prose">
+    <div class="flex items-start gap-4">
+        <i data-lucide="book-open" class="w-6 h-6 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-1"></i>
+        <div>
+            <p class="font-semibold text-purple-900 dark:text-purple-100 mb-3">Conceitos Fundamentais</p>
+            <ul class="space-y-3 text-purple-800 dark:text-purple-200 m-0">
+                <li><strong>Snapshot (Fotografia):</strong> Ao criar uma tabela (ex: <code>florianopolis_bairros</code>) a partir da original (ex: <code>sc_bairros</code>), você registra os dados daquele exato momento. Futuras atualizações na tabela de Santa Catarina não afetam a sua. O vínculo dinâmico deixa de existir.</li>
+                <li><strong>Independência:</strong> Com a tabela exclusiva no seu schema, é possível editar geometrias, adicionar ou remover atributos e ajustar campos conforme necessário (algo impossível numa view de leitura).</li>
+                <li><strong>Desempenho:</strong> Consultar apenas dados de Florianópolis torna o processamento espacial drasticamente mais rápido do que filtrar toda a tabela estadual a cada movimento do mapa.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="border-l-4 border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/40 rounded-xl p-6 my-8 not-prose">
+    <p class="font-semibold text-blue-900 dark:text-blue-100 mb-2">Convenção de Nomes (snake_case)</p>
+    <p class="text-blue-800 dark:text-blue-200 m-0">Para evitar problemas com aspas e compatibilidade, adote sempre o padrão <strong>snake_case</strong> (letras minúsculas, sem acentos, separadas por <em>underline</em>) para schemas, tabelas e colunas.</p>
+    <p class="text-blue-800 dark:text-blue-200 mt-2 text-sm font-mono">Exemplos: florianopolis_demografia, relatorio_balneabilidade, pontos_coleta, codigo_setor, nome_ponto.</p>
+</div>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">Prática: A Lógica SQL</h3>
+
+<p>A estrutura lógica abaixo é um <strong>modelo</strong> que deve ser adaptado à estrutura real das tabelas de origem (nomes de colunas, filtros, etc.). Confira sempre os nomes exatos no DB Manager antes de rodar.</p>
+
+<pre><code class="language-sql">CREATE TABLE bal_seunome.pontos_balneabilidade AS
+SELECT
+    coluna_tx_BAIRRO_2020        AS id_ponto,  -- Nome original não padronizado; renomeado para 'id_ponto' em snake_case, seguindo o padrão do banco
+    "BAIRRO_TEXTO_RUIM_ORIGINAL" AS bairro,    -- Nome original pouco legível; renomeado para 'bairro' em snake_case para facilitar leitura e consultas
+    geom                                      -- Coluna de geometria mantida; 'geom' é o nome padrão adotado para a geometria
+FROM
+    public.tabela_gigante_origem
+WHERE
+    municipio ILIKE 'Florianópolis';          -- Filtro textual com ILIKE para considerar variações de maiúsculas/minúsculas;
+                                              -- ATENÇÃO: se a coluna foi criada como "MUNICIPIO" (com aspas e em MAIÚSCULAS),
+                                              -- será necessário escrever "MUNICIPIO" em vez de municipio neste WHERE.</code></pre>
+
+<div class="border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-xl p-6 my-6 not-prose">
+    <p class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Conceito: Nomes de Colunas vs. Valores</p>
+    <ul class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2">
+        <li><strong>Nomes de Colunas:</strong> No PostgreSQL, <code class="text-sm">municipio</code> (sem aspas) é armazenado em minúsculas. Já <code class="text-sm">"MUNICIPIO"</code> (com aspas) preserva maiúsculas e exigirá aspas para sempre nas consultas.</li>
+        <li><strong>Valores de Texto:</strong> O conteúdo da célula (ex: 'Florianópolis') pode variar (FLORIANOPOLIS, Florianopolis, etc.). O filtro <code class="text-sm">WHERE</code> atua sobre o <strong>valor</strong>, não sobre o nome da coluna.</li>
+    </ul>
+</div>
+
+<p class="text-slate-700 dark:text-slate-300 mb-6"><i data-lucide="search" class="inline w-4 h-4 text-sky-500 mr-1"></i> <strong>Dica Prática:</strong> Antes de filtrar, execute <code class="text-sm bg-slate-100 dark:bg-slate-800 px-1 rounded">SELECT DISTINCT municipio FROM public.tabela_gigante_origem;</code> para identificar todas as variações de escrita (maiúsculas, sem acento, espaços extras) e decidir se usará apenas <code class="text-sm">ILIKE</code> ou funções de limpeza.</p>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">Engenharia de Prompt (Uso de IA)</h3>
+
+<p>Use os modelos abaixo para gerar suas queries na IA. Não esqueça de mencionar para a IA criar no schema <code class="text-sm">bal_seunome</code>.</p>
+
+<div class="border border-dashed border-sky-400 dark:border-sky-600 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 my-8 not-prose">
+    <p class="font-semibold text-sky-600 dark:text-sky-400 mb-3"><i data-lucide="sparkles" class="inline w-5 h-5"></i> Dica de Prompt: Tabela Demografia</p>
+    <p class="text-slate-700 dark:text-slate-300 text-sm m-0">"Aja como especialista PostGIS. Tenho uma tabela de origem chamada <code>[NOME_DA_RAW_AQUI]</code>.<br><br>
+    Gere o SQL para criar a tabela <code>florianopolis_demografia</code> no meu schema (use o placeholder bal_seunome).<br>
+    <strong>Requisitos:</strong><br>
+    1. Filtre onde 'nm_mun' é Florianópolis.<br>
+    2. Selecione: 'cd_setor' (como codigo_setor), 'nm_bairro' (como bairro), 'v0001...' (como populacao) e a 'geom'.<br>
+    3. Use CREATE TABLE AS SELECT."</p>
+</div>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">O "Pulo do Gato": PK e Índices</h3>
+
+<p>Tabelas criadas assim nascem "mortas" para edição no QGIS (sem Chave Primária, o QGIS não permite salvar edições) e lentas (sem Índice Espacial, o desempenho de pan/zoom e joins degrada rapidamente).</p>
+
+<p><strong>Execute os passos abaixo separadamente para cada tabela criada:</strong></p>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><span class="inline-block bg-sky-500 text-white text-xs font-bold px-2 py-1 rounded mr-2">Passo 1</span>Adicionar Chave Primária (PK)</p>
+
+<pre><code class="language-sql">ALTER TABLE bal_seunome.sua_tabela ADD COLUMN id SERIAL PRIMARY KEY;</code></pre>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><span class="inline-block bg-sky-500 text-white text-xs font-bold px-2 py-1 rounded mr-2">Passo 2</span>Adicionar Índice Espacial</p>
+
+<pre><code class="language-sql">CREATE INDEX idx_nome_geom ON bal_seunome.sua_tabela USING GIST (geom);</code></pre>
+
+<p class="text-sm text-slate-600 dark:text-slate-400 mt-3">* Repita esses dois passos para a tabela de <em>demografia</em>, <em>pontos</em> e <em>histórico</em> (na de histórico, pule o índice espacial pois ela não tem mapa).</p>
+
+<h2 id="etapa-2-higienizacao" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">Etapa 2: Higienização de Dados</h2>
+
+<p>Dados importados de planilhas frequentemente chegam como TEXTO. Antes de alterar a tabela, inspecione os valores com um <code class="text-sm">SELECT DISTINCT</code> e teste suas expressões de limpeza (ex: <code class="text-sm">SELECT REPLACE(temperatura, ',', '.')::NUMERIC FROM ... LIMIT 20</code>).</p>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">2.1 Conversão de Tipos (Casting)</h3>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Exemplo 1: Convertendo Data (De Texto 'DD/MM/YYYY' para DATE)</p>
+
+<pre><code class="language-sql">ALTER TABLE bal_seunome.relatorio_balneabilidade 
+ALTER COLUMN data_coleta TYPE DATE 
+USING TO_DATE(data_coleta, 'DD/MM/YYYY');</code></pre>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Exemplo 2: Limpando Números (Trocando vírgula por ponto)</p>
+
+<pre><code class="language-sql">-- Necessário para cálculos de estatística
+ALTER TABLE bal_seunome.relatorio_balneabilidade 
+ALTER COLUMN temperatura TYPE NUMERIC 
+USING REPLACE(temperatura, ',', '.')::NUMERIC;</code></pre>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Exemplo 3: Removendo símbolos (Ex: '< 10' vira 10)</p>
+
+<pre><code class="language-sql">-- Limpeza da coluna de bactérias
+UPDATE bal_seunome.relatorio_balneabilidade 
+SET ecoli = REGEXP_REPLACE(ecoli, '[^0-9]', '', 'g')::INTEGER;</code></pre>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">2.2 Padronização de SRID (Sistema de Coordenadas)</h3>
+
+<p>Para realizar cruzamentos espaciais, as tabelas de mapa devem "falar a mesma língua" métrica (UTM 22S - SIRGAS 2000).</p>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Passo 1: Verificar o SRID atual</p>
+
+<pre><code class="language-sql">SELECT ST_SRID(geom) FROM bal_seunome.densidade_demografica LIMIT 1;</code></pre>
+
+<p class="font-semibold text-sky-600 dark:text-sky-400 mt-6 mb-3"><i data-lucide="circle-dot" class="inline w-4 h-4"></i> Passo 2: Transformar para UTM 22S (Metros)</p>
+
+<pre><code class="language-sql">ALTER TABLE bal_seunome.densidade_demografica 
+ALTER COLUMN geom TYPE geometry(MultiPolygon, 31982) 
+USING ST_Transform(geom, 31982);</code></pre>
+
+<h2 id="etapa-3-join-atributos" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">Etapa 3: Join de Atributos (Table to Table)</h2>
+
+<p><strong>Objetivo:</strong> Criar uma <strong>VIEW</strong> que una os dados de qualidade da água (Tabela) com a geometria (Ponto).</p>
+
+<div class="border-l-4 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/40 rounded-xl p-6 my-8 not-prose">
+    <div class="flex items-start gap-4">
+        <i data-lucide="lightbulb" class="w-6 h-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-1"></i>
+        <div>
+            <p class="font-semibold text-emerald-900 dark:text-emerald-100 mb-2">💡 Dica de Ouro</p>
+            <p class="text-emerald-800 dark:text-emerald-200 m-0">Use <code>TRIM()</code> e <code>UPPER()</code> para evitar que espaços extras ou diferenças de caixa (maiúscula/minúscula) quebrem o vínculo entre os nomes.</p>
+        </div>
+    </div>
+</div>
+
+<pre><code class="language-sql">CREATE VIEW bal_seunome.vw_balneabilidade_mapa AS
+SELECT
+    h.data_coleta,
+    h.condicao,
+    h.ecoli,
+    p.geom       -- Trazendo a geometria da tabela de pontos
+FROM
+    bal_seunome.relatorio_balneabilidade h
+JOIN
+    bal_seunome.pontos_coleta p
+ON
+    -- Higienização "on-the-fly" para garantir o vínculo
+    TRIM(UPPER(h.nome_ponto)) = TRIM(UPPER(p.nome_local));</code></pre>
+
+<h2 id="etapa-4-join-espacial" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">Etapa 4: Join Espacial (Spatial Join)</h2>
+
+<p><strong>Objetivo:</strong> Descobrir em qual <strong>Setor Censitário</strong> cada ponto de coleta está localizado.</p>
+
+<h3 class="text-xl font-semibold text-slate-700 dark:text-slate-200 mt-6">Requisito Crítico: SRID</h3>
+
+<p>Use <code class="text-sm">ST_Transform</code> para garantir que o ponto (geralmente em graus/4326) esteja em metros (31982) igual à demografia.</p>
+
+<pre><code class="language-sql">CREATE VIEW bal_seunome.vw_pontos_com_demografia AS
+SELECT
+    p.nome_local,
+    d.bairro,
+    d.populacao_total,
+    d.densidade_ha
+FROM
+    bal_seunome.pontos_coleta p
+JOIN
+    bal_seunome.densidade_demografica d
+ON
+    -- A mágica espacial: Verdadeiro se o Ponto P estiver DENTRO do Polígono D
+    ST_Within( ST_Transform(p.geom, 31982), d.geom );</code></pre>
+
+<h2 id="etapa-5-consultas-tematicas" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">Etapa 5: Consultas Temáticas</h2>
+
+<p>Agora que temos Views poderosas integrando Balneabilidade, Localização e Demografia, escolha um foco para extrair inteligência dos dados.</p>
+
+<div class="grid md:grid-cols-2 gap-6 my-8">
+    <div class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-6">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mt-0 mb-3"><i data-lucide="map-pin" class="inline w-5 h-5 text-sky-500"></i> Foco Turístico</h3>
+        <p class="text-slate-700 dark:text-slate-300 mb-3">Liste praias que mantiveram condição "Própria" consistentemente e estão próximas a áreas densamente povoadas.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 m-0"><strong>Dica:</strong> Use <code>GROUP BY</code> e <code>AVG(ecoli)</code>.</p>
+    </div>
+    <div class="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-6">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mt-0 mb-3"><i data-lucide="clipboard-check" class="inline w-5 h-5 text-emerald-500"></i> Foco Fiscal</h3>
+        <p class="text-slate-700 dark:text-slate-300 mb-3">Quais micro-regiões (Setores) possuem a maior quantidade de praias "Impróprias"? Cruzamento direto entre resultado ruim e bairro.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 m-0"><strong>Dica:</strong> Filtre por condição e conte por bairro.</p>
+    </div>
+</div>
+
+<h2 id="troubleshooting" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">Troubleshooting: Por que meu SQL falhou?</h2>
+
+<p>Checklist de sobrevivência para erros comuns no PostGIS.</p>
+
+<div class="space-y-6 my-8">
+    <div class="border-l-4 border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-900/20 rounded-r-xl p-6">
+        <h3 class="text-lg font-bold text-red-800 dark:text-red-200 mt-0 mb-2">1. O Erro das Aspas</h3>
+        <p class="text-red-700 dark:text-red-300 mb-3">Comum em dados importados de GPKG ou planilhas que criam colunas com acentos/maiúsculas. Esse comportamento obriga o uso de aspas duplas para referenciar a coluna (veja a nota conceitual na Etapa 1).</p>
+        <div class="space-y-2 text-sm">
+            <p class="m-0"><code class="bg-red-100 dark:bg-red-950 px-2 py-1 rounded">SELECT Municipio FROM ...</code> ❌ Erro</p>
+            <p class="m-0"><code class="bg-red-100 dark:bg-red-950 px-2 py-1 rounded">SELECT "Município" FROM ...</code> ✅ Certo</p>
+        </div>
+    </div>
+
+    <div class="border-l-4 border-orange-400 dark:border-orange-600 bg-orange-50 dark:bg-orange-900/20 rounded-r-xl p-6">
+        <h3 class="text-lg font-bold text-orange-800 dark:text-orange-200 mt-0 mb-2">2. O Erro do Ponto vs Vírgula</h3>
+        <p class="text-orange-700 dark:text-orange-300 mb-3">O banco de dados fala inglês (ponto decimal). Se você tentar somar <code class="text-sm">'12,5'</code>, ele falha.</p>
+        <p class="text-sm text-orange-800 dark:text-orange-200 m-0"><strong>Solução:</strong> Use <code>REPLACE(coluna, ',', '.')</code> antes do CAST.</p>
+    </div>
+
+    <div class="border-l-4 border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-r-xl p-6">
+        <h3 class="text-lg font-bold text-blue-800 dark:text-blue-200 mt-0 mb-2">3. O Vazio Espacial</h3>
+        <p class="text-blue-700 dark:text-blue-300 mb-3">Seu JOIN espacial rodou mas retornou 0 linhas? Verifique o SRID.</p>
+        <p class="text-sm text-blue-700 dark:text-blue-300 mb-2"><code class="bg-blue-100 dark:bg-blue-950 px-2 py-1 rounded">SELECT ST_SRID(geom) ...</code></p>
+        <p class="text-sm text-blue-800 dark:text-blue-200 m-0">Se um for 4326 (Graus) e o outro 31982 (Metros), eles nunca vão se cruzar. Use <code>ST_Transform</code>.</p>
+    </div>
+
+    <div class="border-l-4 border-purple-400 dark:border-purple-600 bg-purple-50 dark:bg-purple-900/20 rounded-r-xl p-6">
+        <h3 class="text-lg font-bold text-purple-800 dark:text-purple-200 mt-0 mb-2">4. O Fantasma do Espaço em Branco</h3>
+        <p class="text-purple-700 dark:text-purple-300 mb-3"><code class="text-sm">'Canasvieiras'</code> é diferente de <code class="text-sm">'Canasvieiras '</code> (com espaço no final).</p>
+        <p class="text-sm text-purple-800 dark:text-purple-200 m-0"><strong>Solução:</strong> Sempre use <code>TRIM()</code> ao fazer joins de texto.</p>
+    </div>
+</div>
+
+<div class="border-t border-slate-300 dark:border-slate-700 pt-8 mt-12 text-center">
+    <p class="text-slate-600 dark:text-slate-400 mb-2">Fim da Atividade Prática</p>
+    <p class="text-sm text-slate-500 dark:text-slate-500">Gere seus mapas no QGIS conectando-se às Views criadas.</p>
+</div>
+
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+            <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+            <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+            <p class="text-sm">Professor responsável: Arthur Berbert</p>
+            <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="main.js"></script>
+    <script>
+        lucide.createIcons();
+        if (typeof Prism !== 'undefined') {
+            Prism.highlightAll();
+        }
+    </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
-  "name": "Geoprocessamento 2",
+  "name": "Geoprocessamento 2 - Bancos de Dados Espaciais",
   "short_name": "Geo2",
-  "description": "Livro Digital de Geoprocessamento 2 - PWA",
+  "description": "Livro Digital de Geoprocessamento 2 com teoria, exemplos práticos e atividades avaliativas - PWA Offline",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#E6F4EA",

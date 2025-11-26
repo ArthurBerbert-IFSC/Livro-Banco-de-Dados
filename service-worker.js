@@ -1,5 +1,5 @@
 self.addEventListener('install', (event) => {
-    const PRECACHE = 'geoprocessamento-v3';
+    const PRECACHE = 'geoprocessamento-v4';
     event.waitUntil(
         caches.open(PRECACHE).then((cache) => {
             return cache.addAll([
@@ -12,6 +12,7 @@ self.addEventListener('install', (event) => {
                 './capitulo-05.html',
                 './capitulo-06.html',
                 './capitulo-07.html',
+                './capitulo-08.html',
                 './estilos.css',
                 './main.js',
                 './scripts/sql.js-wasm',
@@ -32,7 +33,7 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(req).then((cached) => cached || fetch(req).then((resp) => {
                 const clone = resp.clone();
-                caches.open('geoprocessamento-v3').then((c) => c.put(req, clone));
+                caches.open('geoprocessamento-v4').then((c) => c.put(req, clone));
                 return resp;
             }))
         );
@@ -45,7 +46,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    const cacheWhitelist = ['geoprocessamento-v3'];
+    const cacheWhitelist = ['geoprocessamento-v4'];
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
