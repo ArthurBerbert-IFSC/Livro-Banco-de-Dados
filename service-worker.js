@@ -1,11 +1,12 @@
 self.addEventListener('install', (event) => {
-    const PRECACHE = 'geoprocessamento-v4';
+    const PRECACHE = 'geoprocessamento-v5';
     event.waitUntil(
         caches.open(PRECACHE).then((cache) => {
             return cache.addAll([
                 './',
                 './index.html',
                 './capitulo-01.html',
+                './capitulo-01-quiz.html',
                 './capitulo-02.html',
                 './capitulo-03.html',
                 './capitulo-04.html',
@@ -33,7 +34,7 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(req).then((cached) => cached || fetch(req).then((resp) => {
                 const clone = resp.clone();
-                caches.open('geoprocessamento-v4').then((c) => c.put(req, clone));
+                caches.open('geoprocessamento-v5').then((c) => c.put(req, clone));
                 return resp;
             }))
         );
@@ -46,7 +47,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    const cacheWhitelist = ['geoprocessamento-v4'];
+    const cacheWhitelist = ['geoprocessamento-v5'];
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(

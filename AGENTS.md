@@ -83,6 +83,43 @@ Além dos blocos padrão (Dica, Atenção, Conceito), adicione estes:
 | Caixa de Consulta | border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-900/40 rounded-xl | file-code | Um contêiner para apresentar exemplos de código SQL. |
 | Resultado da Consulta | font-mono text-xs bg-slate-100 dark:bg-slate-800 p-4 rounded-lg overflow-x-auto | table-2 | Ideal para mostrar o output de uma query em formato de tabela ou texto. |
 Flexibilidade dos Blocos: Lembre-se que estes são pontos de partida. Você pode combinar estilos (ex: uma "Dica" com um exemplo de "Consulta" dentro) ou criar novas variações conforme o conteúdo exigir. O importante é manter a consistência visual.
+5.3. Padrão Oficial de Tabelas (obrigatório)
+Para manter consistência visual entre capítulos, toda tabela de conteúdo didático deve seguir o padrão aplicado nas Tabelas 1‑1 e 1‑2 do `capitulo-01.html`.
+
+Estrutura mínima obrigatória:
+ * Classe da tabela: `tabela-alegre min-w-full border border-slate-300 my-6 border-collapse w-full my-4 text-sm`
+ * Cabeçalho com `<thead>` e linha: `bg-slate-100 dark:bg-slate-800/70`
+ * Cabeçalho com `<th>` no formato: `border border-slate-300 px-3 py-2 text-left font-semibold`
+ * Corpo com `<tbody>` e linhas alternadas usando: `linha-alegre-1`, `linha-alegre-2`, `linha-alegre-3`, `linha-alegre-4` (repetir ciclo)
+ * Células `<td>` no formato: `border border-slate-300 px-3 py-2 align-top` e, quando necessário, `font-semibold` na primeira coluna.
+
+Regras de manutenção:
+ * Não usar estilos inline (`style="..."`) em tabelas.
+ * Não usar classes redundantes como `p-2` junto com `px-3 py-2`.
+ * Ao converter tabela legada, preservar 100% do conteúdo textual; alterar apenas estrutura/estilo.
+ * Antes de encerrar, validar legibilidade em tema claro/escuro e responsividade horizontal.
+
+Snippet de referência:
+```html
+<table class="tabela-alegre min-w-full border border-slate-300 my-6 border-collapse w-full my-4 text-sm">
+  <thead>
+    <tr class="bg-slate-100 dark:bg-slate-800/70">
+      <th class="border border-slate-300 px-3 py-2 text-left font-semibold">Coluna A</th>
+      <th class="border border-slate-300 px-3 py-2 text-left font-semibold">Coluna B</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="linha-alegre-1">
+      <td class="border border-slate-300 px-3 py-2 align-top font-semibold">Linha 1</td>
+      <td class="border border-slate-300 px-3 py-2 align-top">Conteúdo</td>
+    </tr>
+    <tr class="linha-alegre-2">
+      <td class="border border-slate-300 px-3 py-2 align-top font-semibold">Linha 2</td>
+      <td class="border border-slate-300 px-3 py-2 align-top">Conteúdo</td>
+    </tr>
+  </tbody>
+</table>
+```
 6. Recursos Interativos (Offline-First)
 A abordagem PWA permite interatividade rica, desde que todos os recursos sejam cacheados pelo service-worker.js.
 6.1. SQL Playground Offline com sql.js

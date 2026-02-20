@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<title>Quiz — Capítulo 1 — Geoprocessamento 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet"/>
+<link href="estilos.css" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="site-shell bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+<header class="site-header bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
+<div class="border-b border-slate-200/60 dark:border-slate-700/60">
+<div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+<div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+<img alt="Logo da Disciplina" class="my-4 rounded-lg shadow-sm" onerror="this.style.display='none'" src="imagens/logotipos/Logo_Disciplina_5.png"/>
+<img alt="IFSC Florianópolis" class="my-4 rounded-lg shadow-sm" onerror="this.style.display='none'" src="imagens/logotipos/florianopolis_horizontal_marca2015_PNG.png"/>
+</div>
+<div class="flex items-center gap-3 justify-center md:justify-end">
+<div class="text-center md:text-right">
+<p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+<p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+</div>
+<button aria-label="Alternar tema" class="theme-toggle" id="theme-toggle" type="button">
+<i class="sun-icon" data-lucide="sun"></i>
+<i class="moon-icon" data-lucide="moon"></i>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="container mx-auto px-6 py-8">
+<div class="mb-6 text-slate-500 dark:text-slate-400"><a class="text-sm hover:underline" href="index.html">← Sumário</a> · <a class="text-sm hover:underline" href="capitulo-01.html">← Voltar ao Capítulo 1</a></div>
+<article class="max-w-4xl mx-auto">
+<header class="mb-8">
+<h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Quiz de Fixação — Capítulo 1</h1>
+<p class="text-slate-600 dark:text-slate-300">Responda às 30 questões para revisar os conceitos fundamentais de bancos de dados no geoprocessamento. As respostas ficam salvas localmente neste navegador.</p>
+</header>
+<section class="not-prose" id="quiz-de-fixacao">
+<form class="quiz-form" id="quiz-cap1">
+<div class="quiz-questions" id="quiz-cap1-questions"></div>
+<div class="quiz-actions">
+<button class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800" type="submit">Corrigir respostas</button>
+<button class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800" id="quiz-cap1-reset" type="button">Limpar respostas</button>
+</div>
+<p class="quiz-result" id="quiz-cap1-result" role="status" aria-live="polite"></p>
+</form>
+</section>
+<div class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+<a class="text-slate-500 hover:underline" href="capitulo-01.html">← Retornar ao Capítulo 1</a>
+<a class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800" href="capitulo-02.html">Ir para o Capítulo 2 →</a>
+</div>
+</article>
+</main>
+<footer class="site-footer mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+<div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+<p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+<p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+<p class="text-sm">Professor responsável: Arthur Berbert</p>
+<p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
+</div>
+</footer>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="main.js"></script>
+<script>
+lucide.createIcons();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const quizData = [
+    { q: 'Qual afirmação define melhor “dado”?', o: ['Resultado de análise concluída', 'Valor bruto sem contexto', 'Relatório final validado', 'Decisão tomada'], a: 1 },
+    { q: 'Informação surge quando...', o: ['os dados são apagados', 'os dados são organizados e contextualizados', 'há apenas números', 'não existe comparação'], a: 1 },
+    { q: 'No princípio “garbage in, garbage out”, o problema principal é:', o: ['Interface gráfica', 'Baixa qualidade dos dados de entrada', 'Excesso de usuários', 'Falta de mapas'], a: 1 },
+    { q: 'No geoprocessamento, bancos de dados são essenciais para:', o: ['Apenas desenhar mapas', 'Guardar imagens sem consulta', 'Consultas, cruzamentos e análises espaciais', 'Substituir SIG completamente'], a: 2 },
+    { q: 'SGBD significa:', o: ['Sistema Geral de Banco de Dados', 'Software de Geometria de Banco de Dados', 'Sistema de Gerenciamento de Banco de Dados', 'Serviço Geoespacial de Base de Dados'], a: 2 },
+    { q: 'Uma função central do SGBD é:', o: ['Imprimir mapas em papel', 'Gerenciar acesso e integridade dos dados', 'Substituir o QGIS', 'Eliminar tabelas'], a: 1 },
+    { q: 'Exemplo de banco em arquivo muito usado no curso:', o: ['Oracle Spatial', 'GeoPackage/SQLite', 'MongoDB', 'Redis'], a: 1 },
+    { q: 'PostGIS é uma extensão de:', o: ['QGIS', 'PostgreSQL', 'SQLite', 'MySQL'], a: 1 },
+    { q: 'Qual cenário favorece PostgreSQL/PostGIS?', o: ['Projeto individual simples offline', 'Ambiente colaborativo multiusuário', 'Arquivo único portátil', 'Sem necessidade de servidor'], a: 1 },
+    { q: 'Qual cenário favorece GeoPackage?', o: ['Alta concorrência de escrita em rede', 'Infraestrutura corporativa complexa', 'Portabilidade e simplicidade em projeto local', 'Processamento distribuído avançado obrigatório'], a: 2 },
+    { q: 'No modelo relacional, os dados são organizados em:', o: ['Grafos e arestas apenas', 'Documentos JSON exclusivamente', 'Tabelas com linhas e colunas', 'Arquivos de texto livre'], a: 2 },
+    { q: 'Chave primária serve para:', o: ['Identificar unicamente um registro', 'Criar mapas temáticos', 'Definir projeção cartográfica', 'Aumentar redundância'], a: 0 },
+    { q: 'Chave estrangeira é usada para:', o: ['Definir simbologia', 'Relacionar tabelas', 'Apagar dados antigos', 'Exportar shapefiles'], a: 1 },
+    { q: 'NoSQL geralmente prioriza:', o: ['Rigidez máxima de esquema', 'Flexibilidade e escalabilidade', 'Proibição de dados semiestruturados', 'Somente SQL padrão ANSI'], a: 1 },
+    { q: 'Exemplo de modelo NoSQL citado:', o: ['Documento', 'Hipertexto', 'Raster puro', 'Planilha'], a: 0 },
+    { q: 'Integridade de dados significa:', o: ['Dados sempre duplicados', 'Garantia de dados confiáveis e consistentes', 'Ausência de regras', 'Apenas backups'], a: 1 },
+    { q: 'Controle de concorrência trata de:', o: ['Uso simultâneo por múltiplos usuários', 'Cor de fundo do mapa', 'Compressão de imagens', 'Licenciamento de software'], a: 0 },
+    { q: 'No comparativo do capítulo, QGIS se destaca em:', o: ['Visualização espacial integrada', 'Escalabilidade distribuída nativa de banco', 'DDL avançada obrigatória', 'Administração de cluster SQL'], a: 0 },
+    { q: 'PgAdmin/PostGIS se destaca em:', o: ['Edição visual básica sem SQL', 'Robustez de regras e consultas SQL', 'Uso sem servidor', 'Substituição de SIG desktop'], a: 1 },
+    { q: 'Qual sequência conceitual foi enfatizada?', o: ['Conhecimento → dado → decisão', 'Dado → informação → conhecimento → decisão', 'Informação → dado → mapa', 'Decisão → dado → conhecimento'], a: 1 },
+    { q: 'Em análise espacial, “achismo” deve ser substituído por:', o: ['Opinião pessoal', 'Evidência baseada em dados', 'Aproximação visual sem validação', 'Intuição exclusivamente'], a: 1 },
+    { q: 'Uma limitação do GeoPackage em geral é:', o: ['Portabilidade', 'Uso em projeto educacional', 'Concorrência multiusuário simultânea', 'Armazenamento de atributos'], a: 2 },
+    { q: 'Uma vantagem do PostGIS é:', o: ['Dispensa configuração sempre', 'Análises espaciais avançadas e multiusuário', 'Formato único de arquivo portátil', 'Ausência de SQL'], a: 1 },
+    { q: 'No contexto do capítulo, SIG deve:', o: ['Apenas produzir mapas bonitos', 'Responder perguntas e apoiar decisões', 'Eliminar banco de dados', 'Evitar tabelas relacionais'], a: 1 },
+    { q: 'Qual item pertence à arquitetura de um SGBD?', o: ['Somente ícones', 'Hardware, software, dados, usuários e procedimentos', 'Apenas banco em nuvem', 'Somente front-end'], a: 1 },
+    { q: 'Dados espaciais e atributos devem ser:', o: ['Mantidos separados sem relação', 'Organizados e relacionados', 'Descartados após mapa', 'Armazenados apenas em planilha'], a: 1 },
+    { q: 'Em banco relacional, redundância excessiva tende a:', o: ['Aumentar consistência', 'Criar inconsistências e problemas de manutenção', 'Melhorar integridade automaticamente', 'Reduzir erros'], a: 1 },
+    { q: 'No capítulo, a progressão didática do curso é:', o: ['Começar com PostGIS avançado e ignorar GeoPackage', 'Começar com GeoPackage/SQLite e depois avançar para PostGIS', 'Usar apenas NoSQL', 'Evitar SQL'], a: 1 },
+    { q: 'Consulta e recuperação rápidas dependem de:', o: ['Dados desorganizados', 'Estrutura e gerenciamento adequados', 'Ausência de índice e chave', 'Mapa sem atributos'], a: 1 },
+    { q: 'A decisão técnica entre ferramentas depende de:', o: ['Somente preferência pessoal', 'Objetivo, escala, equipe e infraestrutura do projeto', 'Cor do tema da aplicação', 'Tamanho do monitor'], a: 1 }
+  ];
+
+  const quizRoot = document.getElementById('quiz-cap1-questions');
+  const quizForm = document.getElementById('quiz-cap1');
+  const resultEl = document.getElementById('quiz-cap1-result');
+  const resetBtn = document.getElementById('quiz-cap1-reset');
+  const storageKey = 'cap1_quiz_respostas_v1';
+
+  if (!quizRoot || !quizForm || !resultEl || !resetBtn) return;
+
+  const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
+
+  quizRoot.innerHTML = quizData.map((item, idx) => {
+    const qid = `q${idx + 1}`;
+    const options = item.o.map((opt, optIdx) => `
+      <label class="quiz-option">
+        <input type="radio" name="${qid}" value="${optIdx}" ${saved[qid] == optIdx ? 'checked' : ''}>
+        ${opt}
+      </label>
+    `).join('');
+    return `
+      <fieldset class="quiz-question" data-answer="${item.a}">
+        <legend>${idx + 1}. ${item.q}</legend>
+        ${options}
+      </fieldset>
+    `;
+  }).join('');
+
+  quizRoot.querySelectorAll('input[type="radio"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      data[input.name] = Number(input.value);
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    });
+  });
+
+  quizForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fieldsets = Array.from(quizRoot.querySelectorAll('.quiz-question'));
+    let answered = 0;
+    let correct = 0;
+
+    fieldsets.forEach((fieldset) => {
+      const selected = fieldset.querySelector('input[type="radio"]:checked');
+      const expected = Number(fieldset.dataset.answer);
+      if (selected) {
+        answered += 1;
+        if (Number(selected.value) === expected) correct += 1;
+      }
+    });
+
+    const percentual = Math.round((correct / quizData.length) * 100);
+    resultEl.textContent = `Resultado: ${correct}/${quizData.length} acertos (${percentual}%). Respondidas: ${answered}/${quizData.length}.`;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    quizForm.reset();
+    localStorage.removeItem(storageKey);
+    resultEl.textContent = 'Respostas limpas. Você pode refazer o quiz.';
+  });
+});
+</script>
+</body>
+</html>
