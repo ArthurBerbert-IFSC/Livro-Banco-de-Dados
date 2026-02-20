@@ -1,0 +1,553 @@
+/* Estilos customizados para Pico.css + Geoprocessamento 2 PWA */
+
+:root {
+    --ifsc-green: #1B5E20;
+    --ifsc-soft: #E6F4EA;
+    --ifsc-gray: #374151;
+    color-scheme: light;
+}
+
+/* Light mode (default) */
+html[data-theme="light"] {
+    color-scheme: light;
+    --bg-light: #F9FAFB;
+    --bg-dark: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --surface: rgba(255, 255, 255, 0.95);
+}
+
+/* Dark mode */
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg-light: #0f172a;
+    --bg-dark: #1a1a2e;
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --border: #374151;
+    --surface: rgba(15, 23, 42, 0.95);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    background: var(--bg-light);
+    color: var(--text-primary);
+}
+
+/* ========== Header Override ========== */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--surface);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--border);
+}
+
+.site-header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    gap: 2rem;
+}
+
+.site-header nav ul {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-header nav ul li {
+    margin: 0;
+    padding: 0;
+}
+
+.site-header img {
+    height: 45px;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .site-header img {
+        background: rgba(30, 41, 59, 0.8);
+    }
+}
+html[data-theme="dark"] .site-header img {
+    background: rgba(30, 41, 59, 0.8);order: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+    .theme-toggle:hover {
+html[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+/* ========== Main Layout ========== */
+main.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* ========== Sidebar for TOC ========== */
+.pico-sidebar {
+    position: sticky;
+    top: 120px;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+}
+
+@media (prefers-color-var(--border);
+    border-radius: 0.5rem;
+}
+
+html[data-theme="dark"] .pico-sidebar {
+    background: rgba(20, 20, 30, 0.6);ont-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .pico-sidebar p {
+        color: #aaa;
+    }
+}
+html[data-theme="dark"] .pico-sidebar p {
+    color: #aaa;adding: 0;
+    margin: 0;
+}
+
+.pico-sidebar ul li {
+    margin: 0.5rem 0;
+}
+
+.pico-sidebar a {
+    color: var(--ifsc-green);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.pico-sidebar a:hover {
+    text-decoration: underline;
+}
+
+/* ========== Chapter Lead ========== */
+.chapter-lead {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: #475569;
+    margin-top: 0.7rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .chapter-lead {
+        color: #cbd5e0;
+    }
+}
+
+.keyword {
+html[data-theme="dark"] .chapter-lead {
+    color: #cbd5e0;ont-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+    .keyword {
+        background: rgba(76, 175, 80, 0.2);
+    }
+}
+
+/* ========== Didactic Blocks ========== */
+html[data-theme="dark"] .keyword {
+    background: rgba(76, 175, 80, 0.2);adding: 1.5rem;
+    margin: 1.5rem 0;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+    .didactic-block {
+        background: #1a1a2e;
+        border-color: #444;
+    }
+}
+
+.didactic-block:hover {
+    transform: translateX(5px);
+html[data-theme="dark"] .didactic-block {
+    background: #1a1a2e;
+    border-color: #444;ont-weight: bold;
+    color: var(--ifsc-green);
+    margin-top: -1.2rem;
+    display: inline-block;
+    background: inherit;
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .didactic-title {
+        color: #4caf50;
+    }
+}
+
+/* Variantes de blocos */
+.bloco-conceito {
+html[data-theme="dark"] .didactic-title {
+    color: #4caf50;
+@media (prefers-color-scheme: dark) {
+    .bloco-conceito {
+        border-color: #2d6a4f;
+        background: rgba(45, 106, 79, 0.15);
+    }
+}
+
+.bloco-atencao {
+    border-color: #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+html[data-theme="dark"] .bloco-conceito {
+    border-color: #2d6a4f;
+    background: rgba(45, 106, 79, 0.15);
+}
+
+.bloco-atencao {
+    border-color: #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+}
+
+html[data-theme="dark"] .bloco-atencao {
+    border-color: #c89500;
+    background: rgba(200, 149, 0, 0.15);
+}
+
+.bloco-analogia {
+    border-color: #a78bfa;
+    background: rgba(167, 139, 250, 0.08);
+}
+
+html[data-theme="dark"] .bloco-analogia {
+    border-color: #6b5ff0;
+    background: rgba(107, 95, 240, 0.15);
+}
+
+.bloco-insight {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.08);
+}
+
+html[data-theme="dark"] .bloco-insight {
+    border-color: #1d7ac0;
+    background: rgba(29, 122, 192, 0.15);
+}
+
+.bloco-dica {
+    border-color: #34d399;
+    background: rgba(52, 211, 153, 0.08);
+}
+
+html[data-theme="dark"] .bloco-dica {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.15);line-box {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.timeline-box::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #86efac, #60a5fa);
+}
+
+.timeline-item {
+    position: relative;
+    margin: 2rem 0 2rem 4rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e0e0e0;
+    border-radius: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .timeline-item {
+        background: rgba(30, 41, 59, 0.8);
+        border-color: #444;
+    }
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.2rem;
+    top: 1.5rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    background: var(--var(--border);
+    border-radius: 0.75rem;
+}
+
+html[data-theme="dark"] .timeline-item {
+    background: rgba(30, 41, 59, 0.8);   border-color: #1a1a2e;
+    }
+}
+
+.timeline-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.timeline-head i {
+    font-size: 1.5rem;
+}
+
+.timeline-text {
+    color: #555;
+html[data-theme="dark"] .timeline-item::before {
+    border-color: #1a1a2e;a (prefers-color-scheme: dark) {
+    .timeline-text {
+        color: #aaa;
+    }
+}
+
+/* ========== VS Grid Cards ========== */
+.vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+@media (max-width: 900px) {
+    .vs-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.vs-card {
+html[data-theme="dark"] .timeline-text {
+    color: #aaa;
+
+.vs-card h3 {
+    margin-top: 0;
+    font-size: 1.3rem;
+}
+
+.vs-qgis {
+    background: linear-gradient(135deg, rgba(156, 163, 175, 0.1), rgba(99, 102, 241, 0.1));
+}
+
+.vs-postgis {
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.1));
+}
+
+@media (prefers-color-scheme: dark) {
+    .vs-qgis {
+        background: linear-gradient(135deg, rgba(75, 85, 99, 0.2), rgba(99, 102, 241, 0.2));
+    }
+
+    .vs-postgis {
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(34, 197, 94, 0.2));
+    }var(--border)
+}
+
+.vs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.vs-list li {
+    display: flex;
+html[data-theme="dark"] .vs-qgis {
+    background: linear-gradient(135deg, rgba(75, 85, 99, 0.2), rgba(99, 102, 241, 0.2));
+}
+
+html[data-theme="dark"] .vs-postgis {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(34, 197, 94, 0.2));
+
+@media (prefers-color-scheme: dark) {
+    .vs-good {
+        color: #4ade80;
+    }
+}
+
+.vs-caution {
+    color: #ea580c;
+}
+
+@media (prefers-color-scheme: dark) {
+    .vs-caution {
+        color: #fb923c;
+    }
+}
+
+/* ========== Reading Progress Bar ========== */
+.reading-progress {
+    position: fixed;
+    top: 73px;
+    left: 0;
+    right: 0;
+    height: 4px;
+html[data-theme="dark"] .vs-good {
+    color: #4ade80;
+}
+
+.vs-caution {
+    color: #ea580c;
+}
+
+html[data-theme="dark"] .vs-caution {
+    color: #fb923c;iv[style*="grid-template-columns: 1fr 2fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pico-sidebar {
+        display: none;
+    }
+}
+
+/* ========== Footer ========== */
+.site-footer {
+    background: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 3rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .site-footer {
+        background: rgba(15, 23, 42, 0.95);
+        border-color: #444;
+    }
+}
+
+.site-footer p {
+    margin: 0.5rem 0;
+}
+
+/* ========== Pico Overrides ========== */
+article {
+    padding: 0;
+}
+
+h1,
+h2,
+h3,var(--surface);
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: #4caf50;
+    }
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.95rem;
+}
+
+table thead tr {
+    background: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+    table thead tr {
+        background: #2a3f35;
+    }
+}
+
+table td,
+table th {
+    border: 1px solid #d0d0d0;
+    padding: 0.75rem;
+    text-align: left;
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+    color: #4caf50;
+a {
+    color: var(--ifsc-green);
+}
+
+@media (prefers-color-scheme: dark) {
+    a {
+        color: #4caf50;
+    }
+}
+
+/* ========== Utilities ========== */
+.next-step {
+html[data-theme="dark"] table thead tr {
+    background: #2a3f35;
+}
+
+table td,
+table th {
+    border: 1px solid #d0d0d0;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+html[data-theme="dark"] table td,
+html[data-theme="dark"] table th {
+    border-color: #444;
+html[data-theme="dark"] a {
+    color: #4caf50;osition: relative;
+}
+
+.checklist-box li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--ifsc-green);
+    font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+    .checklist-box li::before {
+        color: #4caf50;
+    }
+}

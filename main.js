@@ -76,5 +76,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Reading progress bar
+    const progressBar = document.getElementById('reading-progress-bar');
+    if (progressBar) {
+        const updateProgress = () => {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+            progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+        };
+
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        window.addEventListener('resize', updateProgress);
+        updateProgress();
+    }
+
     // Additional interactive functionalities can be added here
 });

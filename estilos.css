@@ -517,17 +517,24 @@ footer p {
 .didactic-block {
     margin: 1.25rem 0;
     padding: 1rem 1rem 0.85rem;
-    border-radius: 0.9rem;
+    border-radius: 0.75rem;
     border: 1px solid transparent;
-    border-left-width: 6px;
+    border-left-width: 4px;
     box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.didactic-block:hover {
+    transform: translateX(5px);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.1);
+    filter: saturate(1.03);
 }
 
 .didactic-title {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin: 0 0 0.65rem;
+    margin: -1.2rem 0 0.65rem 0.4rem;
     padding: 0.2rem 0.55rem;
     border-radius: 9999px;
     font-weight: 700;
@@ -556,7 +563,7 @@ footer p {
 }
 
 .bloco-conceito {
-    background: #ecfdf3;
+    background: linear-gradient(135deg, #ecfdf3, #f6fffb);
     border-color: #86efac;
 }
 
@@ -566,7 +573,7 @@ footer p {
 }
 
 .bloco-analogia {
-    background: #f5f3ff;
+    background: linear-gradient(135deg, #f5f3ff, #faf7ff);
     border-color: #c4b5fd;
 }
 
@@ -576,7 +583,7 @@ footer p {
 }
 
 .bloco-dica {
-    background: #eff6ff;
+    background: linear-gradient(135deg, #eff6ff, #f8fbff);
     border-color: #93c5fd;
 }
 
@@ -586,7 +593,7 @@ footer p {
 }
 
 .bloco-atencao {
-    background: #fff7ed;
+    background: linear-gradient(135deg, #fff7ed, #fffaf4);
     border-color: #fdba74;
 }
 
@@ -596,7 +603,7 @@ footer p {
 }
 
 .bloco-insight {
-    background: #fef9c3;
+    background: linear-gradient(135deg, #fef9c3, #fffce2);
     border-color: #facc15;
 }
 
@@ -632,7 +639,7 @@ footer p {
 }
 
 .dark .bloco-conceito {
-    background: rgba(20, 83, 45, 0.35);
+    background: linear-gradient(135deg, rgba(20, 83, 45, 0.45), rgba(21, 128, 61, 0.28));
     border-color: #22c55e;
 }
 
@@ -642,7 +649,7 @@ footer p {
 }
 
 .dark .bloco-analogia {
-    background: rgba(76, 29, 149, 0.28);
+    background: linear-gradient(135deg, rgba(76, 29, 149, 0.42), rgba(91, 33, 182, 0.24));
     border-color: #a78bfa;
 }
 
@@ -652,7 +659,7 @@ footer p {
 }
 
 .dark .bloco-dica {
-    background: rgba(30, 64, 175, 0.25);
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.38), rgba(29, 78, 216, 0.23));
     border-color: #60a5fa;
 }
 
@@ -662,7 +669,7 @@ footer p {
 }
 
 .dark .bloco-atencao {
-    background: rgba(124, 45, 18, 0.35);
+    background: linear-gradient(135deg, rgba(124, 45, 18, 0.44), rgba(154, 52, 18, 0.25));
     border-color: #fb923c;
 }
 
@@ -672,8 +679,210 @@ footer p {
 }
 
 .dark .bloco-insight {
-    background: rgba(113, 63, 18, 0.35);
+    background: linear-gradient(135deg, rgba(113, 63, 18, 0.44), rgba(133, 77, 14, 0.24));
     border-color: #fbbf24;
+}
+
+@media (min-width: 1024px) {
+    .didactic-note {
+        max-width: 26rem;
+    }
+
+    .didactic-note--right {
+        margin-left: auto;
+    }
+}
+
+.chapter-lead {
+    margin-top: 0.7rem;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: #475569;
+}
+
+.dark .chapter-lead {
+    color: #cbd5e1;
+}
+
+.keyword {
+    display: inline;
+    padding: 0 0.2em;
+    border-radius: 0.2rem;
+    background: linear-gradient(transparent 52%, rgba(250, 204, 21, 0.38) 0);
+    font-weight: 700;
+}
+
+.reading-progress {
+    position: sticky;
+    top: 73px;
+    z-index: 35;
+    width: 100%;
+    height: 4px;
+    background: rgba(148, 163, 184, 0.25);
+}
+
+.reading-progress-bar {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    transition: width 0.08s linear;
+}
+
+.dark .reading-progress {
+    background: rgba(51, 65, 85, 0.85);
+}
+
+.timeline-box {
+    position: relative;
+    margin: 1rem 0 1.4rem;
+    padding-left: 1.1rem;
+}
+
+.timeline-box::before {
+    content: "";
+    position: absolute;
+    left: 0.2rem;
+    top: 0.2rem;
+    bottom: 0.2rem;
+    width: 2px;
+    background: linear-gradient(180deg, #86efac, #60a5fa);
+}
+
+.timeline-item {
+    position: relative;
+    margin: 0 0 0.9rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.8rem;
+    background: #ffffff;
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -1rem;
+    top: 1rem;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 9999px;
+    background: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+}
+
+.timeline-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.35rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.timeline-head i {
+    width: 1rem;
+    height: 1rem;
+    color: #166534;
+}
+
+.timeline-text {
+    margin: 0;
+}
+
+.vs-grid {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0.95rem 0 1.1rem;
+}
+
+@media (min-width: 900px) {
+    .vs-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.vs-card {
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.9rem;
+    background: #ffffff;
+    padding: 0.9rem 1rem;
+}
+
+.vs-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.08rem;
+    color: #0f172a;
+}
+
+.vs-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.vs-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    margin: 0;
+}
+
+.vs-list i {
+    width: 0.95rem;
+    height: 0.95rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.vs-good i {
+    color: #16a34a;
+}
+
+.vs-caution i {
+    color: #ea580c;
+}
+
+.vs-qgis {
+    background: linear-gradient(135deg, #eef7ff, #f8fbff);
+}
+
+.vs-postgis {
+    background: linear-gradient(135deg, #ecfdf3, #f5fff9);
+}
+
+.dark .timeline-box::before {
+    background: linear-gradient(180deg, #22c55e, #38bdf8);
+}
+
+.dark .timeline-item {
+    background: rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.dark .timeline-head {
+    color: #e2e8f0;
+}
+
+.dark .timeline-head i {
+    color: #86efac;
+}
+
+.dark .vs-card {
+    background: rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.dark .vs-card h3 {
+    color: #f8fafc;
+}
+
+.dark .vs-qgis {
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.22), rgba(15, 23, 42, 0.76));
+}
+
+.dark .vs-postgis {
+    background: linear-gradient(135deg, rgba(22, 101, 52, 0.24), rgba(15, 23, 42, 0.76));
 }
 
 .dark .bloco-insight .didactic-title {
@@ -707,18 +916,38 @@ footer p {
     hanging-punctuation: first last;
     text-wrap: pretty;
 }
-.prose-justificado :where(p){
-    text-align: justify;
-    text-justify: inter-word;
+.prose-editorial,
+.prose.prose-justificado.prose-indent {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
-@media (min-width: 768px){
-    .prose-indent :where(p){
-        text-indent: 1.25rem;
-        margin-top: 0.4rem;
+
+@media (min-width: 1024px) {
+    .prose-editorial,
+    .prose.prose-justificado.prose-indent {
+        max-width: 88ch;
     }
-    .prose-indent :where(h2 + p, h3 + p, h4 + p, blockquote + p, figure + p, table + p){
-        text-indent: 0;
-    }
+}
+
+.prose-editorial :where(p),
+.prose.prose-justificado.prose-indent :where(p) {
+    text-align: left;
+    text-indent: 0;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+    color: #334155;
+}
+
+.dark .prose-editorial :where(p),
+.dark .prose.prose-justificado.prose-indent :where(p) {
+    color: #cbd5e1;
+}
+
+.prose-editorial :where(h2 + p, h3 + p, h4 + p, blockquote + p, figure + p, table + p),
+.prose.prose-justificado.prose-indent :where(h2 + p, h3 + p, h4 + p, blockquote + p, figure + p, table + p) {
+    margin-top: 0.2rem;
 }
 .prose :where(strong){
     color: var(--ifsc-green);
