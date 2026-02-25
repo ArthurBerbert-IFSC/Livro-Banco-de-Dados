@@ -1,938 +1,1402 @@
 <!DOCTYPE html>
-
-<html class="scroll-smooth" lang="pt-BR">
-
+<html lang="pt-BR" class="scroll-smooth">
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <link href="manifest.webmanifest" rel="manifest" />
-  <title>Fundamentos de Bancos de Dados — Geoprocessamento 2</title>
-  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
-  <link href="estilos.css" rel="stylesheet" />
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#1B5E20">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Fundamentos de Bancos de Dados — Geoprocessamento 2</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.v2.css">
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: { 'ifsc-green': '#1B5E20', 'ifsc-soft': '#E6F4EA', 'ifsc-gray': '#374151' }
+          }
         }
       }
-    }
-  </script>
+    </script>
 </head>
-
-<body class="site-shell bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
-  <header class="site-header bg-white/95 backdrop-blur shadow-sm sticky top-0 z-40 dark:bg-slate-900/90">
-    <div class="border-b border-slate-200/60 dark:border-slate-700/60">
-      <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
-          <img alt="Logo da Disciplina" class="my-4 rounded-lg shadow-sm" onerror="this.style.display='none'"
-            src="imagens/logotipos/Logo_Disciplina_5.png" />
-          <img alt="IFSC Florianópolis" class="my-4 rounded-lg shadow-sm" onerror="this.style.display='none'"
-            src="imagens/logotipos/florianopolis_horizontal_marca2015_PNG.png" />
-        </div>
-        <div class="flex items-center gap-3 justify-center md:justify-end">
-          <div class="text-center md:text-right">
-            <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
-            <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
-          </div>
-          <button aria-label="Alternar tema" class="theme-toggle" id="theme-toggle" type="button">
-            <i class="sun-icon" data-lucide="sun"></i>
-            <i class="moon-icon" data-lucide="moon"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
-  <div class="reading-progress" aria-hidden="true">
-    <div class="reading-progress-bar" id="reading-progress-bar"></div>
-  </div>
-  <main class="container mx-auto px-6 py-8">
-    <div class="mb-6 text-slate-500 dark:text-slate-400"><a class="text-sm hover:underline" href="index.html">←
-        Sumário</a> · <a class="text-sm hover:underline" href="capitulo-02.html">Próx. capítulo: MODELAGEM DE DADOS
-        →</a></div>
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <aside class="lg:col-span-3 hidden lg:block">
-        <div
-          class="sticky top-24 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white/60 dark:bg-slate-900/40">
-          <nav class="text-sm">
-            <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Neste capítulo</p>
-            <ul class="space-y-1">
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#dados-e-informacoes-o-ponto-de-partida">Dados e Informações: o ponto de partida</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#o-que-e-um-banco-de-dados">O que é um banco de dados?</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#a-evolucao-dos-bancos-de-dados">A evolução dos bancos de dados:</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#exemplos-de-aplicacoes-de-bancos-de-dados-em-geoprocessamento">Exemplos de aplicações de bancos
-                  de dados em geoprocessamento:</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#sistemas-de-gerenciamento-de-bancos-de-dados-sgbd">Sistemas de Gerenciamento de Bancos de Dados
-                  (SGBD).</a></li>
-              <li class="ml-4"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#funcoes-de-um-sgbd">Funções de um SGBD:</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#arquitetura-de-um-sgbd">A Arquitetura de um SGBD: O Ecossistema dos Dados</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#tipos-de-sgbd-e-suas-caracteristicas">Tipos de SGBD e suas características:</a></li>
-              <li class="ml-4"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#sgbds-relacionais-estrutura-e-organizacao-dos-dados">SGBDs Relacionais: Estrutura e Organização
-                  dos Dados</a></li>
-              <li class="ml-4"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#sgbds-nao-relacionais-flexibilidade-e-escalabilidade">SGBDs Não Relacionais: Flexibilidade e
-                  Escalabilidade</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#banco-de-dados-no-contexto-do-geoprocessamento">Banco de dados no contexto do
-                  geoprocessamento</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#comparativo-de-manipulacao-de-dados-espaciais">Comparativo de Abordagens: Interface Gráfica vs.
-                  SQL Direto</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="capitulo-01-quiz.html">Quiz de Fixação</a></li>
-              <li class="ml-0"><a class="hover:text-ifsc-green dark:hover:text-emerald-300"
-                  href="#checklist-aprendizado">Checklist do Capítulo</a></li>
-            </ul>
-          </nav>
-        </div>
-      </aside>
-      <article class="lg:col-span-9">
-        <header class="mb-8">
-          <h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Capítulo 1: Fundamentos de Bancos de
-            Dados</h1>
-          <p class="chapter-lead">Neste capítulo, você vai consolidar os conceitos que sustentam todo o curso: diferença
-            entre dado e informação, papel do <span class="keyword">SGBD</span>, fundamentos de <span
-              class="keyword">SQL</span> e critérios para decidir entre soluções como GeoPackage e PostGIS com <span
-              class="keyword">integridade</span> e clareza técnica.</p>
-        </header>
-        <div class="prose prose-lg max-w-4xl mx-auto prose-slate dark:prose-invert prose-editorial">
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="dados-e-informacoes-o-ponto-de-partida">1.1 Dados e Informações: o ponto de partida</h2>
-          <p>Antes de estudarmos os bancos de dados espaciais, é fundamental compreender a diferença entre
-            <strong>dado</strong> e <strong>informação</strong>, pois ela orienta a forma como interpretamos a realidade
-            geográfica.</p>
-
-          <p>Um <strong>dado</strong> é um valor isolado e bruto, como "E. Coli = 800 NMP/100ml" em uma amostra de água
-            ou "temperatura = 32°C". Esses números, sozinhos, não respondem a perguntas analíticas. Já a
-            <strong>informação</strong> surge quando os dados são organizados e contextualizados, permitindo concluir,
-            por exemplo, que "a praia de Canasvieiras apresentou nível de E. Coli de 800 NMP/100ml, o que conforme a
-            Resolução CONAMA 274/2000 a classifica como Imprópria para banho". Essa transformação de números brutos em
-            relações mensuráveis e decisões concretas é exatamente o que torna possível a análise geográfica.</p>
-
-          <div class="didactic-block bloco-conceito">
-            <p class="didactic-title"><i data-lucide="book-open"></i>Conceito</p>
-            <p><strong>Dado:</strong> um valor isolado e bruto, sem contexto analítico.</p>
-            <p><strong>Informação:</strong> dados organizados, contextualizados e inter-relacionados que permitem
-              respostas a perguntas e análises significativas.</p>
-            <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-              <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-                src="imagens/capitulos/capitulo-01/image002.jpg" />
-              <p>O papel dos bancos de dados é justamente <strong>transformar dados dispersos em informação
-
-                  estruturada</strong>. No geoprocessamento, trabalhamos com grandes
-
-                volumes de registros — coordenadas, atributos, imagens e medições ambientais.
-
-                Sem organização, esses dados seriam apenas fragmentos soltos. O banco de dados
-
-                fornece a base para consultas, cruzamentos e análises que dão sentido ao
-
-                material coletado. </p>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4 my-6">
-            <img class="rounded-lg shadow-sm md:w-96 md:shrink-0" src="imagens/capitulos/capitulo-01/piramide-dados.png"
-              alt="Pirâmide hierárquica: Dado → Informação → Conhecimento → Decisão" />
-            <p>Essa transformação segue uma hierarquia conceitual bastante utilizada: <strong>dado → informação →
-                conhecimento → decisão</strong>. Em cada etapa, os registros brutos ganham significado, permitindo
-              testar hipóteses e chegar a decisões fundamentadas.</p>
-          </div>
-
-          <div class="didactic-block bloco-dica my-4">
-            <p class="didactic-title"><i data-lucide="lightbulb"></i>Essencial</p>
-            <p><strong>Esse processo é essencial para superar o "achismo".</strong></p>
-          </div>
-
-          <p>Afirmações como "a região Norte é mais populosa que a região Sul" ou "o Rio Itacorubi é o mais poluído"
-            permanecem como opiniões até serem confrontadas com números. O banco de dados possibilita verificar tais
-            hipóteses com evidências, transformando especulação em conhecimento fundamentado.</p>
-
-          <div class="didactic-block bloco-atencao">
-            <p class="didactic-title"><i data-lucide="alert-triangle"></i>Atenção</p>
-            <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-              <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-                src="imagens/capitulos/capitulo-01/image003.jpg" />
-              <p>É importante destacar também o princípio conhecido como <strong>“garbage in, garbage out” (ou, em
-                  tradução livre,
-
-                  lixo que entra, lixo que sai)</strong>. Isso significa que, se os dados
-
-                inseridos no banco forem incorretos, incompletos ou mal coletados, as
-
-                informações e decisões resultantes também serão comprometidas. A qualidade da
-
-                informação depende diretamente da qualidade dos dados de origem. </p>
-            </div>
-          </div>
-          <p>Portanto, um Sistema de Informação Geográfica (SIG)
-
-            vai além da elaboração de mapas atrativos. Sua função central é <strong>responder questões e apoiar
-              decisões</strong>,
-
-            como: quais áreas apresentam risco de inundação? Em qual bairro há maior
-
-            incidência de casos de dengue? Qual trajeto de transporte público é mais
-
-            eficiente?</p>
-          <p>Todas essas análises dependem de dados organizados em
-
-            bancos. É essa estrutura que sustenta a produção de informações confiáveis e
-
-            relevantes.</p>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="o-que-e-um-banco-de-dados">1.2 O que é um banco de dados?</h2>
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-            <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-              src="imagens/capitulos/capitulo-01/image004.png" />
-            <p>Em sua forma mais simples, um banco de dados é uma coleção organizada
-
-              de informações. No contexto do geoprocessamento, isso significa organizar dados
-
-              espaciais (vetoriais, Raster e\ou atributos). Assim como organizamos dados no
-
-              nosso dia a dia — como listas de compras, contatos no celular ou uma planilha
-
-              de gastos — os bancos de dados digitais fazem isso em escala muito maior,
-
-              permitindo armazenar, acessar e analisar grandes volumes de informações com
-
-              eficiência.</p>
-          </div>
-          <p>Para quem trabalha com geoprocessamento, imagine um mapa
-
-            digital com diversas camadas: ruas, rios, bairros, áreas verdes. Cada uma
-
-            dessas camadas contém atributos (como o nome de uma rua ou o tipo de
-
-            vegetação), que precisam ser organizados de forma estruturada para que possamos
-
-            fazer consultas, cruzar dados e gerar análises espaciais. O banco de dados é o
-
-            sistema que torna tudo isso possível.</p>
-          <div class="didactic-block bloco-conceito">
-            <p class="didactic-title"><i data-lucide="book-open"></i>Conceito</p>
-            <p>Definição formal: Um banco de dados é um conjunto de
-
-              dados inter-relacionados, armazenados de forma organizada e controlada, para
-
-              atender a um ou mais propósitos específicos.</p>
-          </div>
-          <p><b>Analogias com sistemas de organização do mundo real:</b></p>
-
-          <section class="space-y-6" aria-label="Analogias com sistemas de organização do mundo real">
-            <article class="didactic-block bloco-analogia">
-              <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-                <div class="md:flex-1">
-                  <p><b>Biblioteca geográfica</b>:</p>
-                  <p>Assim como uma biblioteca organiza livros por tema, autor e localização nas estantes, um banco de
-                    dados organiza dados espaciais por tipo (rios, estradas, edificações), localização (coordenadas
-                    geográficas) e atributos (nome, classificação, data de atualização), facilitando a busca e o
-                    cruzamento dessas informações.</p>
+<body class="bg-slate-50 dark:bg-slate-950 text-ifsc-gray dark:text-slate-300 antialiased">
+    <div id="reading-progress" class="fixed top-0 left-0 h-1 w-full bg-ifsc-green/80 scale-x-0 transition-transform duration-200 origin-left z-50"></div>
+    <header class="bg-white/95 backdrop-blur shadow-md sticky top-0 z-40 dark:bg-slate-900/90">
+        <div class="border-b border-slate-200/60 dark:border-slate-700/60">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                    <img src="imagens/logotipos/Logo_Disciplina_5.png" alt="Logo da Disciplina" class="h-16 md:h-18 lg:h-20 w-auto opacity-100 drop-shadow-sm" onerror="this.style.display='none'">
+                    <img src="imagens/logotipos/florianopolis_horizontal_marca2015_PNG.png" alt="IFSC Florianópolis" class="h-10 w-auto opacity-80" onerror="this.style.display='none'">
                 </div>
-                <figure class="md:w-72 md:shrink-0">
-                  <img class="my-4 rounded-lg shadow-sm md:my-0" src="imagens/capitulos/capitulo-01/image005.jpg"
-                    alt="Organização de dados espaciais como em uma biblioteca." />
-                </figure>
-              </div>
-            </article>
-
-            <article class="didactic-block bloco-analogia">
-              <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-                <div class="md:flex-1">
-                  <p><b>Camadas de um mapa digital</b>:</p>
-                  <p>Imagine um mapa no QGIS contendo diferentes camadas — uma com escolas, outra com vias, outra com
-                    zonas de risco. Cada camada representa uma tabela com informações geográficas e descritivas. O banco
-                    de dados permite gerenciar todas essas camadas de forma organizada, associando dados e permitindo
-                    análises integradas, como “quais escolas estão em área de risco?”.</p>
+                <div class="flex items-center gap-3 justify-center md:justify-end">
+                    <div class="text-center md:text-right">
+                        <p class="text-lg font-semibold text-ifsc-green dark:text-emerald-300">GE2014902 - Geoprocessamento 2</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-300/80">Versão 2026.1</p>
+                    </div>
+                    <div class="font-size-widget" role="group" aria-label="Controle de tamanho do texto">
+                        <button id="font-decrease" type="button" aria-label="Diminuir tamanho do texto">A-</button>
+                        <span class="font-size-widget-divider" aria-hidden="true"></span>
+                        <button id="font-increase" type="button" aria-label="Aumentar tamanho do texto">A+</button>
+                        <span class="font-size-widget-label" data-font-label aria-live="polite">Padrão</span>
+                    </div>
+                    <button id="theme-toggle" type="button" class="theme-toggle" aria-label="Alternar tema">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
                 </div>
-                <figure class="md:w-72 md:shrink-0">
-                  <img class="my-4 rounded-lg shadow-sm md:my-0" src="imagens/capitulos/capitulo-01/image006.jpg"
-                    alt="Camadas de mapa integradas para análise espacial." />
-                </figure>
-              </div>
-            </article>
+            </div>
+        </div>
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center text-sm font-medium">
+            <a href="index.html#capitulos" class="text-gray-600 hover:text-ifsc-green transition-colors dark:text-slate-300/80">&larr; Capítulos</a>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="index.html" class="py-2 px-3 text-gray-700 hover:text-ifsc-green transition-colors dark:text-slate-200">Início</a>
+                <a href="index.html#capitulos" class="py-2 px-3 text-gray-700 hover:text-ifsc-green transition-colors dark:text-slate-200">Capítulos</a>
+                <a href="index.html#sobre" class="py-2 px-3 text-gray-700 hover:text-ifsc-green transition-colors dark:text-slate-200">Sobre</a>
+            </div>
+        </nav>
+    </header>
 
-            <article class="didactic-block bloco-analogia">
-              <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-                <div class="md:flex-1">
-                  <p><b>Cadastro técnico urbano:</b></p>
-                  <p>Prefeituras utilizam sistemas de banco de dados para gerenciar informações sobre imóveis,
-                    logradouros, redes de drenagem, arborização e muito mais. Cada elemento é cadastrado em uma base de
-                    dados espacial, com atributos como tipo, estado de conservação, localização e vínculo com outras
-                    estruturas. Isso permite consultas rápidas e tomadas de decisão fundamentadas.</p>
+    <main class="container mx-auto px-6 py-12">
+        <div class="mb-6 text-slate-500 dark:text-slate-400"><a href="index.html" class="text-sm hover:underline">← Sumário</a> · <a href="capitulo-02.html" class="text-sm hover:underline">Próx. capítulo: MODELAGEM DE DADOS →</a></div>
+        <div class="flex flex-col gap-10 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
+            <aside class="order-2 lg:order-1 hidden lg:block">
+                <div class="sticky top-32 space-y-6 rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-md backdrop-blur dark:border-slate-700/60 dark:bg-slate-900/60">
+                    <h2 class="flex items-center gap-3 text-lg font-semibold text-ifsc-green dark:text-emerald-300">Navegue pelo conteúdo</h2>
+                    <nav class="text-sm">
+<p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Neste capítulo</p>
+<ul class="space-y-1">
+<li class="ml-0"><a href="#dados-e-informacoes-o-ponto-de-partida" class="hover:text-ifsc-green dark:hover:text-emerald-300">Dados e Informações: o ponto de partida</a></li>
+<li class="ml-0"><a href="#o-que-e-um-banco-de-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">O que é um banco de dados?</a></li>
+<li class="ml-0"><a href="#a-evolucao-dos-bancos-de-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">A evolução dos bancos de dados:</a></li>
+<li class="ml-0"><a href="#exemplos-de-aplicacoes-de-bancos-de-dados-em-geoprocessamento" class="hover:text-ifsc-green dark:hover:text-emerald-300">Exemplos de aplicações de bancos de dados em geoprocessamento:</a></li>
+<li class="ml-0"><a href="#sistemas-de-gerenciamento-de-bancos-de-dados-sgbd" class="hover:text-ifsc-green dark:hover:text-emerald-300">Sistemas de Gerenciamento de Bancos de Dados (SGBD).</a></li>
+<li class="ml-0"><a href="#arquitetura-de-um-sgbd" class="hover:text-ifsc-green dark:hover:text-emerald-300">Arquitetura de um SGBD:</a></li>
+<li class="ml-0"><a href="#tipos-de-sgbd-e-suas-caracteristicas" class="hover:text-ifsc-green dark:hover:text-emerald-300">Tipos de SGBD e suas características:</a></li>
+<li class="ml-0"><a href="#banco-de-dados-no-contexto-do-geoprocessamento" class="hover:text-ifsc-green dark:hover:text-emerald-300">Banco de dados no contexto do geoprocessamento</a></li>
+<li class="ml-0"><a href="#comparativo-de-manipulacao-de-dados-espaciais" class="hover:text-ifsc-green dark:hover:text-emerald-300">Comparativo de Manipulação de Dados Espaciais</a></li>
+<li class="ml-4"><a href="#funcoes-de-um-sgbd" class="hover:text-ifsc-green dark:hover:text-emerald-300">Funções de um SGBD:</a></li>
+<li class="ml-4"><a href="#sgbds-relacionais-estrutura-e-organizacao-dos-dados" class="hover:text-ifsc-green dark:hover:text-emerald-300">SGBDs Relacionais: Estrutura e Organização dos Dados</a></li>
+<li class="ml-4"><a href="#sgbds-nao-relacionais-flexibilidade-e-escalabilidade" class="hover:text-ifsc-green dark:hover:text-emerald-300">SGBDs Não Relacionais: Flexibilidade e Escalabilidade</a></li>
+</ul></nav>
                 </div>
-                <figure class="md:w-72 md:shrink-0">
-                  <img class="my-4 rounded-lg shadow-sm md:my-0" src="imagens/capitulos/capitulo-01/image007.jpg"
-                    alt="Representação do cadastro técnico urbano e seus atributos." />
-                </figure>
-              </div>
+            </aside>
+            <article class="order-1 lg:order-2 rounded-3xl border border-slate-200/80 bg-white/95 shadow-xl backdrop-blur dark:border-slate-700/60 dark:bg-slate-900/80">
+                <div class="space-y-12 p-6 md:p-10">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-bold text-ifsc-green dark:text-emerald-300 mb-2">Capítulo 1: Fundamentos de Bancos de Dados</h1>
+                    
+                </header>
+                <div class="prose prose-lg max-w-none prose-slate dark:prose-invert prose-justificado prose-indent">
+                
+
+
+
+<h2 id="dados-e-informacoes-o-ponto-de-partida" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.1 Dados e Informações: o ponto de partida</h2>
+
+
+
+<p>Antes de estudarmos os bancos de dados espaciais, é
+
+fundamental compreender a diferença entre <strong>dado</strong> e <strong>informação</strong>,
+
+pois ela orienta a forma como interpretamos a realidade geográfica. </p>
+
+
+
+<p>Um <strong>dado</strong>
+
+é um valor isolado e bruto, como &quot;população = 5231&quot; ou
+
+&quot;temperatura = 32°C&quot;. Esses números, sozinhos, não respondem a
+
+perguntas analíticas. Já a <strong>informação</strong>
+
+surge quando os dados são organizados e contextualizados, permitindo concluir,
+
+por exemplo, que &quot;o bairro X apresenta maior densidade populacional que o
+
+bairro Y&quot;. </p>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image002.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />O papel dos bancos de dados é justamente <strong>transformar dados dispersos em informação
+
+estruturada</strong>. No geoprocessamento, trabalhamos com grandes
+
+volumes de registros — coordenadas, atributos, imagens e medições ambientais.
+
+Sem organização, esses dados seriam apenas fragmentos soltos. O banco de dados
+
+fornece a base para consultas, cruzamentos e análises que dão sentido ao
+
+material coletado. </p>
+
+
+
+<p>Essa transformação segue uma hierarquia conceitual
+
+bastante utilizada: <strong>dado </strong><strong>&#8594;</strong><strong> informa</strong><strong>çã</strong><strong>o </strong><strong>&#8594;</strong><strong> conhecimento </strong><strong>&#8594;</strong><strong> decis</strong><strong>ã</strong><strong>o</strong>. Em cada etapa, os registros brutos ganham
+
+significado, permitindo testar hipóteses e chegar a decisões fundamentadas.</p>
+
+
+
+<p>Esse processo é essencial para superar o <strong>“achismo”</strong>.</p>
+
+
+
+<div>
+
+
+
+<p>Afirmações como &quot;a região Norte é mais populosa
+
+que a região Sul&quot; ou &quot;o Rio Itacorubi é o mais poluído&quot;
+
+permanecem como opiniões até serem confrontadas com números. O banco de dados
+
+possibilita verificar tais hipóteses com evidências, transformando especulação
+
+em conhecimento fundamentado.</p>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image003.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />É importante destacar também o princípio conhecido como <strong>“garbage in, garbage out” (ou, em tradução livre,
+
+lixo que entra, lixo que sai)</strong>. Isso significa que, se os dados
+
+inseridos no banco forem incorretos, incompletos ou mal coletados, as
+
+informações e decisões resultantes também serão comprometidas. A qualidade da
+
+informação depende diretamente da qualidade dos dados de origem. </p>
+
+
+
+<p>Portanto, um Sistema de Informação Geográfica (SIG)
+
+vai além da elaboração de mapas atrativos. Sua função central é <strong>responder questões e apoiar decisões</strong>,
+
+como: quais áreas apresentam risco de inundação? Em qual bairro há maior
+
+incidência de casos de dengue? Qual trajeto de transporte público é mais
+
+eficiente?</p>
+
+
+
+<p>Todas essas análises dependem de dados organizados em
+
+bancos. É essa estrutura que sustenta a produção de informações confiáveis e
+
+relevantes.</p>
+
+
+
+<h2 id="o-que-e-um-banco-de-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.2 O que é um banco de dados?</h2>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image004.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Em sua forma mais simples, um banco de dados é uma coleção organizada
+
+de informações. No contexto do geoprocessamento, isso significa organizar dados
+
+espaciais (vetoriais, Raster e\ou atributos). Assim como organizamos dados no
+
+nosso dia a dia — como listas de compras, contatos no celular ou uma planilha
+
+de gastos — os bancos de dados digitais fazem isso em escala muito maior,
+
+permitindo armazenar, acessar e analisar grandes volumes de informações com
+
+eficiência.</p>
+
+
+
+<p>Para quem trabalha com geoprocessamento, imagine um mapa
+
+digital com diversas camadas: ruas, rios, bairros, áreas verdes. Cada uma
+
+dessas camadas contém atributos (como o nome de uma rua ou o tipo de
+
+vegetação), que precisam ser organizados de forma estruturada para que possamos
+
+fazer consultas, cruzar dados e gerar análises espaciais. O banco de dados é o
+
+sistema que torna tudo isso possível.</p>
+
+
+
+<div>
+
+
+
+<p>Definição formal: Um banco de dados é um conjunto de
+
+dados inter-relacionados, armazenados de forma organizada e controlada, para
+
+atender a um ou mais propósitos específicos.</p>
+
+
+
+</div>
+
+
+
+<p><b>Analogias com sistemas de organização do mundo real:</b></p>
+
+
+
+<p><b>&nbsp;</b></p>
+
+
+
+<table class="min-w-full border border-slate-300 my-6">
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Biblioteca
+
+  geográfica</b>:</p>
+
+  <p>Assim
+
+  como uma biblioteca organiza livros por tema, autor e localização nas
+
+  estantes, um banco de dados organiza dados espaciais por tipo (rios,
+
+  estradas, edificações), localização (coordenadas geográficas) e atributos
+
+  (nome, classificação, data de atualização), facilitando a busca e o
+
+  cruzamento dessas informações.</p>
+
+  
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image005.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  <p><a name="_Toc206575316">Figura </a>1&#8209;2
+
+  : Organização de dados espaciais como em uma biblioteca.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Camadas
+
+  de um mapa digital</b>:</p>
+
+  <p>Imagine
+
+  um mapa no QGIS contendo diferentes camadas — uma com escolas, outra com
+
+  vias, outra com zonas de risco. Cada camada representa uma tabela com
+
+  informações geográficas e descritivas. O banco de dados permite gerenciar
+
+  todas essas camadas de forma organizada, associando dados e permitindo
+
+  análises integradas, como “quais escolas estão em área de risco?”.</p>
+
+  
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><img src="imagens/capitulos/capitulo-01/image006.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  <p><a name="_Toc206575317">Figura </a>1&#8209;3
+
+  : Camadas de mapa integradas para análise espacial.</p>
+
+  
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Cadastro
+
+  técnico urbano:</b></p>
+
+  <p>Prefeituras
+
+  utilizam sistemas de banco de dados para gerenciar informações sobre imóveis,
+
+  logradouros, redes de drenagem, arborização e muito mais. Cada elemento é
+
+  cadastrado em uma base de dados espacial, com atributos como tipo, estado de
+
+  conservação, localização e vínculo com outras estruturas. Isso permite
+
+  consultas rápidas e tomadas de decisão fundamentadas.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image007.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  <p><a name="_Toc206575318">Figura </a>1&#8209;4
+
+  : Representação do cadastro técnico urbano e seus atributos</p>
+
+  
+
+  </td>
+
+ </tr>
+
+</table>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image008.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<h2 id="a-evolucao-dos-bancos-de-dados" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.3 A evolução dos bancos de dados:</h2>
+
+
+
+<p>Os bancos de dados evoluíram ao longo do tempo, desde os
+
+sistemas manuais até os sistemas digitais complexos que utilizamos hoje.</p>
+
+
+
+<p><a name="_Toc206575356">Tabela </a>1&#8209;1
+
+: Evolução dos sistemas de armazenamento de dados: dos métodos manuais aos
+
+modernos.</p>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image009.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<p>Importância dos bancos de dados no contexto atual, com
+
+ênfase no geoprocessamento:</p>
+
+
+
+<p>Os bancos de dados desempenham um papel fundamental no
+
+contexto atual, impulsionando diversas áreas do conhecimento e da atividade
+
+humana. No geoprocessamento, sua importância é ainda mais evidente, pois
+
+permitem armazenar, manipular e analisar grandes volumes de dados geográficos
+
+de forma eficiente.</p>
+
+
+
+<h2 id="exemplos-de-aplicacoes-de-bancos-de-dados-em-geoprocessamento" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.4 Exemplos de aplicações de bancos de dados em geoprocessamento:</h2>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image010.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" /><b>Armazenamento de dados de sensoriamento remoto:</b> Bancos de
+
+dados são utilizados para armazenar e gerenciar grandes volumes de imagens de
+
+satélite e outros dados de sensoriamento remoto, permitindo o acesso rápido e a
+
+análise eficiente dessas informações.</p>
+
+
+
+<p><b>Cadastro de imóveis urbanos:</b> Bancos de dados
+
+geográficos são utilizados para armazenar informações sobre a localização, as
+
+características e o histórico de imóveis urbanos, auxiliando na gestão
+
+territorial e no planejamento urbano.</p>
+
+
+
+<p><b>Gestão de recursos naturais:</b> Bancos de dados são
+
+utilizados para armazenar informações sobre a distribuição, a qualidade e a
+
+disponibilidade de recursos naturais, como água, florestas e minerais,
+
+auxiliando na gestão ambiental e na tomada de decisões. </p>
+
+
+
+<h2 id="sistemas-de-gerenciamento-de-bancos-de-dados-sgbd" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.5 Sistemas de Gerenciamento de Bancos de Dados (SGBD).</h2>
+
+
+
+<p>Um Sistema de Gerenciamento de Banco de Dados (SGBD) é um
+
+conjunto de softwares que permite aos usuários interagirem com um banco de
+
+dados. Ele atua como uma interface entre o usuário e o banco de dados,
+
+facilitando a criação, o acesso, a manipulação e o gerenciamento dos dados.0F<a
+
+href="#_ftn1" name="_ftnref1" title="">[1]</a></p>
+
+
+
+<h3 id="funcoes-de-um-sgbd" class="mt-8 scroll-mt-24 text-xl font-semibold">1.5.1 Funções de um SGBD:</h3>
+
+
+
+<p>Um SGBD desempenha diversas funções essenciais para o
+
+funcionamento eficiente e seguro de um banco de dados:</p>
+
+
+
+<table class="min-w-full border border-slate-300 my-6">
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image011.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Armazenamento de dados</b>: O SGBD é responsável por
+
+  armazenar os dados de forma organizada e eficiente, utilizando estruturas de
+
+  armazenamento adequadas ao tipo de dado. No contexto do geoprocessamento,
+
+  isso envolve armazenar tanto os dados alfanuméricos (atributos) quanto os dados
+
+  geométricos (localização, forma).</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image012.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Recuperação de dados</b>: O SGBD permite recuperar os
+
+  dados armazenados de forma rápida e eficiente, através de consultas e
+
+  filtros. No geoprocessamento, isso permite buscar informações espaciais com
+
+  base em critérios como localização, atributos geográficos ou relações
+
+  topológicas.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image013.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Atualização de dados</b>: O SGBD permite modificar os
+
+  dados armazenados, inserindo novos registros, alterando registros existentes
+
+  ou excluindo registros. No geoprocessamento, isso é fundamental para manter
+
+  os dados geográficos atualizados, refletindo as mudanças no mundo real.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image014.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Segurança de dados</b>: O SGBD oferece mecanismos para
+
+  proteger os dados contra acessos não autorizados, perdas ou danos. Isso
+
+  inclui controle de acesso, autenticação de usuários, criptografia e backups.
+
+  No geoprocessamento, a segurança dos dados geográficos é crucial, especialmente
+
+  quando se trata de informações confidenciais ou estratégicas.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image015.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Controle de concorrência</b>: O SGBD gerencia o acesso
+
+  simultâneo de múltiplos usuários aos dados, garantindo que as operações não
+
+  interfiram umas nas outras e que os dados permaneçam consistentes. No
+
+  geoprocessamento, isso é importante quando vários profissionais trabalham no
+
+  mesmo projeto, acessando e modificando os mesmos dados geográficos.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p align=center><img src="imagens/capitulos/capitulo-01/image016.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Integridade de dados</b>: O SGBD garante que os dados
+
+  armazenados sejam precisos, consistentes e confiáveis, aplicando regras e
+
+  restrições para evitar erros e inconsistências. No geoprocessamento, isso é
+
+  fundamental para garantir a qualidade dos dados geográficos e a precisão das
+
+  análises espaciais.</p>
+
+  </td>
+
+ </tr>
+
+</table>
+
+
+
+
+
+
+
+<h2 id="arquitetura-de-um-sgbd" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.6 Arquitetura de um SGBD:</h2>
+
+
+
+<p>Um SGBD é composto por diversos componentes que
+
+interagem entre si para fornecer as funcionalidades necessárias. Os principais
+
+componentes são:</p>
+
+
+
+<p><b>Hardware</b>: A infraestrutura física que suporta o
+
+SGBD, incluindo servidores, dispositivos de armazenamento e rede.</p>
+
+
+
+<p><b>Software</b>: Os programas que compõem o SGBD,
+
+incluindo o sistema de gerenciamento do banco de dados, as ferramentas de
+
+administração e as interfaces de acesso aos dados.</p>
+
+
+
+<p><b>Dados</b>: As informações armazenadas no banco de
+
+dados, incluindo os dados alfanuméricos e os dados geográficos.</p>
+
+
+
+<p><b>Usuários</b>: As pessoas que interagem com o SGBD,
+
+incluindo os administradores do banco de dados, os desenvolvedores de
+
+aplicações e os usuários finais.</p>
+
+
+
+<p><b>Procedimentos</b>: As regras e os processos que
+
+governam o uso e o gerenciamento do banco de dados.</p>
+
+
+
+<p align=left><img src="imagens/capitulos/capitulo-01/image017.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<p><a name="_Toc206575320">Figura </a>1&#8209;6:
+
+Componentes de um Banco de dados</p>
+
+
+
+<h2 id="tipos-de-sgbd-e-suas-caracteristicas" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.7 Tipos de SGBD e suas características:</h2>
+
+
+
+<p>Existem diferentes tipos de Sistemas de Gerenciamento de Bancos
+
+de Dados (SGBD), cada um com características e funcionalidades distintas,
+
+projetados para atender a diferentes necessidades de armazenamento e
+
+manipulação de dados. Podemos agrupá-los em duas categorias principais: SGBDs
+
+que seguem o modelo relacional e aqueles que adotam modelos não relacionais.</p>
+
+
+
+<h3 id="sgbds-relacionais-estrutura-e-organizacao-dos-dados" class="mt-8 scroll-mt-24 text-xl font-semibold">1.7.1 SGBDs Relacionais: Estrutura e Organização dos Dados</h3>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image018.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Os SGBDs relacionais, como PostgreSQL, MySQL e SQLite,
+
+são construídos sobre o modelo relacional, que se destaca pela organização dos
+
+dados em tabelas bem estruturadas. Imagine uma planilha eletrônica: cada tabela
+
+é composta por linhas, que representam os registros ou entidades do mundo real,
+
+como pessoas, cidades ou equipamentos, e colunas, que definem os campos ou
+
+atributos que descrevem essas entidades, como nome, localização ou data de
+
+criação. Essa forma de organização facilita a consulta, o cruzamento e a
+
+integridade dos dados, tornando o modelo relacional ideal para diversas
+
+aplicações, inclusive no geoprocessamento.</p>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image019.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-right ml-4" />A grande força dos SGBDs relacionais reside
+
+na capacidade de estabelecer relações bem definidas entre essas tabelas. Isso é
+
+feito através do uso de chaves primárias, que identificam de forma única cada
+
+registro em uma tabela, e chaves estrangeiras, que criam os vínculos entre as
+
+tabelas. Essa estrutura permite garantir a integridade dos dados, evitando
+
+inconsistências e redundâncias, e realizar consultas complexas de forma
+
+eficiente, utilizando a linguagem SQL (Structured Query Language)1F<a
+
+href="#_ftn2" name="_ftnref2" title="">[2]</a>.</p>
+
+
+
+
+
+
+
+<h3 id="sgbds-nao-relacionais-flexibilidade-e-escalabilidade" class="mt-8 scroll-mt-24 text-xl font-semibold">1.7.2 SGBDs Não Relacionais: Flexibilidade e Escalabilidade</h3>
+
+
+
+<p>Os SGBDs não relacionais, também conhecidos como NoSQL (Not Only
+
+SQL), representam uma alternativa aos SGBDs relacionais, oferecendo modelos de
+
+dados mais flexíveis e escaláveis. Em vez de tabelas, eles utilizam diferentes
+
+estruturas para armazenar as informações, como:</p>
+
+
+
+<ul type=disc>
+
+ <li><b>Chave-Valor:</b> Armazenam
+
+     dados em pares de chave e valor, de forma semelhante a um dicionário, onde
+
+     cada chave identifica um valor (ex: Redis).</li>
+
+ <li><b>Documento:</b> Armazenam
+
+     dados em documentos semiestruturados, como JSON ou XML, que podem conter
+
+     diferentes tipos de informação e ter uma estrutura mais complexa (ex:
+
+     MongoDB).</li>
+
+ <li><b>Coluna:</b> Armazenam
+
+     dados em colunas em vez de linhas, o que pode ser mais eficiente para
+
+     consultas que envolvem a recuperação de colunas específicas (ex:
+
+     Cassandra).</li>
+
+ <li><b>Grafo:</b> Armazenam
+
+     dados em nós e arestas, representando as relações entre os dados de forma
+
+     explícita, o que é útil para aplicações que exploram conexões complexas
+
+     (ex: Neo4j).</li>
+
+</ul>
+
+
+
+<p>Essa flexibilidade permite que os SGBDs não relacionais
+
+se adaptem a diferentes tipos de dados, estruturados ou não estruturados, e que
+
+escalem horizontalmente para lidar com grandes volumes de informação e alta
+
+demanda de acesso. Eles podem ser especialmente úteis em aplicações de
+
+geoprocessamento que envolvem o processamento de grandes volumes de dados não
+
+estruturados, como dados de redes sociais, dados de sensores em tempo real ou
+
+dados de modelos de terreno complexos, onde a velocidade e a escalabilidade são
+
+mais importantes que a consistência rígida dos dados.</p>
+
+
+
+<p>No entanto, é importante notar que os SGBDs não
+
+relacionais geralmente oferecem menos garantias de integridade e consistência
+
+dos dados, possuem linguagens de consulta menos padronizadas e um conjunto de
+
+ferramentas e recursos menos maduro em comparação com os SGBDs relacionais.</p>
+
+
+
+<p align=center><img src="imagens/capitulos/capitulo-01/image020.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto" /></p>
+
+
+
+<p><a name="_Toc206575321">Figura </a>1&#8209;7:
+
+Modelos NoSQL: chave-valor, documento, coluna e grafo — usados para grandes
+
+volumes de dados.</p>
+
+
+
+<h2 id="banco-de-dados-no-contexto-do-geoprocessamento" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.8 Banco de dados no contexto do geoprocessamento</h2>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image021.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Essa capacidade de estruturar e relacionar dados é
+
+fundamental. Pense em um mapa digital: ele contém diversas camadas de
+
+informação, como estradas, rios, cidades, etc. Um SGBD relacional permite
+
+armazenar cada uma dessas camadas em uma tabela, definindo os atributos
+
+relevantes para cada elemento (nome da rua, tipo de rio, população da cidade) e
+
+as relações entre eles (uma cidade pertence a um estado, uma estrada cruza um
+
+rio).</p>
+
+
+
+<p>No universo dos bancos de dados espaciais, existem
+
+diferentes caminhos que podem ser seguidos, e a escolha entre eles depende dos
+
+objetivos do projeto, da complexidade dos dados e das ferramentas disponíveis.</p>
+
+
+
+<p>Entre as opções mais utilizadas no geoprocessamento,
+
+destacam-se os bancos baseados em arquivos, como o <b>GeoPackage</b> (baseado
+
+em SQLite), e os sistemas mais robustos de banco de dados em rede, como o <b>PostgreSQL</b>
+
+com a extensão <b>PostGIS</b>. Ambos têm suas vantagens, e é importante
+
+conhecer suas diferenças para fazer escolhas conscientes.</p>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image022.png" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-right ml-4" />O <b>GeoPackage</b> é uma alternativa leve,
+
+prática e extremamente útil para projetos de pequeno e médio porte. Ele
+
+funciona como um arquivo único que armazena tanto os dados vetoriais quanto as
+
+tabelas associadas, incluindo coordenadas, atributos e estilos. Por ser baseado
+
+em <b>SQLite</b>, ele pode ser aberto e manipulado diretamente dentro do QGIS,
+
+sem a necessidade de instalação de servidores ou configurações complexas. Isso
+
+o torna ideal para quem está começando, para ambientes educacionais ou para
+
+trabalhos individuais.</p>
+
+
+
+<p><img src="imagens/capitulos/capitulo-01/image023.jpg" class="my-4 rounded-lg shadow-sm max-w-full h-auto float-left mr-4" />Já o <b>PostgreSQL</b>, especialmente quando combinado
+
+com a extensão <b>PostGIS</b>, é a escolha preferida para projetos maiores,
+
+colaborativos ou que demandam automação, segurança e desempenho em ambientes
+
+multiusuário. Com ele, é possível executar análises espaciais avançadas,
+
+realizar consultas complexas com eficiência e controlar acessos de diferentes
+
+usuários em rede. Por outro lado, exige instalação, configuração de servidor e
+
+uma curva de aprendizado um pouco maior.</p>
+
+
+
+<p>Em resumo:</p>
+
+
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<b>GeoPackage / SQLite</b>:</p>
+
+
+
+<p>o&nbsp;&nbsp; &#9989; Leve, portátil,
+
+sem necessidade de servidor</p>
+
+
+
+<p>o&nbsp;&nbsp; &#9989; Funciona bem em
+
+projetos individuais ou educacionais</p>
+
+
+
+<p>o&nbsp;&nbsp; &#128230; Armazena todas as
+
+camadas e tabelas em um único arquivo.</p>
+
+
+
+<p>o&nbsp;&nbsp; &#128279; Permite relacionar
+
+tabelas com dados espaciais e não espaciais.</p>
+
+
+
+<p>o&nbsp;&nbsp; &#129517; Suporta dados
+
+vetoriais e raster no mesmo arquivo.</p>
+
+
+
+<p>o&nbsp;&nbsp; &#128187; Funciona sem
+
+necessidade de servidor ou conexão com a internet.</p>
+
+
+
+<p>o&nbsp;&nbsp; &#127757; Compatível com
+
+padrões abertos (OGC) e com diversos softwares SIG.</p>
+
+
+
+<p>o&nbsp;&nbsp; &#128736;&#65039; É manipulado
+
+facilmente no QGIS, com recursos de edição, relacionamento e visualização.</p>
+
+
+
+<p>o&nbsp;&nbsp; &#10060; Não é ideal
+
+para múltiplos usuários simultâneos</p>
+
+
+
+<p>o&nbsp;&nbsp; &#10060; Algumas
+
+limitações em operações espaciais mais avançadas</p>
+
+
+
+<p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<b>PostgreSQL / PostGIS</b>:</p>
+
+
+
+<p>o&nbsp;&nbsp; &#9989; Potente,
+
+escalável, ideal para ambientes profissionais</p>
+
+
+
+<p>o&nbsp;&nbsp; &#9989; Suporte a
+
+múltiplos usuários e análises espaciais complexas</p>
+
+
+
+<p>o&nbsp;&nbsp; &#10060; Requer
+
+instalação, configuração e manutenção</p>
+
+
+
+<p>o&nbsp;&nbsp; &#10060; Curva de
+
+aprendizado mais elevada</p>
+
+
+
+<p>Nesta apostila, começaremos com a abordagem mais
+
+acessível, utilizando o <b>SQLite através do formato GeoPackage</b>,
+
+integrando-o ao QGIS e ao DB Browser. A construção do conhecimento será feita
+
+de forma progressiva, e posteriormente exploraremos o ambiente mais completo do
+
+<b>PostGIS</b>, para que você possa comparar as abordagens e escolher a mais
+
+adequada à sua realidade profissional.</p>
+
+
+
+<h2 id="comparativo-de-manipulacao-de-dados-espaciais" class="mt-10 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300">1.9 Comparativo de Manipulação de Dados Espaciais</h2>
+
+
+
+<p>Aqui iremos apresentar um comparativo entre ferramentas
+
+bastante utilizadas para manipular e gerenciar dados espaciais: QGIS e PgAdmin
+
+(PostGIS). O objetivo é analisar e destacar as diferenças, vantagens e
+
+limitações de cada uma dessas ferramentas ao longo das diversas etapas de
+
+trabalho com dados espaciais: criação das tabelas, inserção e edição de
+
+informações, aplicação de regras e restrições, visualização dos dados espaciais
+
+e sua integração com projetos geográficos.</p>
+
+
+
+<p>A seguir, a tabela apresenta um resumo das principais
+
+características dessas três ferramentas, ajudando você a compreender em quais
+
+contextos cada uma pode ser mais adequada para seu trabalho.</p>
+
+
+
+
+
+
+
+<p><a name="_Toc206575357">Tabela </a>1&#8209;2:
+
+Comparativo entre QGIS e PgAdmin/PostGIS quanto à criação, edição e
+
+gerenciamento de dados espaciais.</p>
+
+
+
+<div align=center>
+
+
+
+<table class="min-w-full border border-slate-300 my-6">
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Aspecto</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>QGIS</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>PgAdmin (PostGIS)</b></p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Criação de tabelas</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Interface gráfica simples, porém, limitada em regras e tipos de
+
+  dados.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Totalmente baseado em SQL, com suporte completo a tipos e
+
+  restrições avançadas.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Inserção
+
+  de dados</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Interface
+
+  amigável, porém, suscetível a erros se houver regras no banco.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Inserção
+
+  por SQL ou ferramentas auxiliares; ideal para grandes volumes de dados.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Edição de dados</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Muito prática para edição manual e visualização, com suporte a
+
+  atributos e geometria.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Edição direta via SQL; ideal para automações e ajustes
+
+  estruturados.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Regras e
+
+  restrições (CHECK, NOT NULL, FK)</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Parcialmente
+
+  suportado. Nem todas as regras são respeitadas na interface de edição.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Alta
+
+  robustez em regras, incluindo relacionamentos espaciais complexos.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Visualização espacial</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Excelente. Visualização integrada ao projeto, simbologia,
+
+  filtros e expressões.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Depende de integração com ferramentas como QGIS ou clientes GIS
+
+  web.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Integração
+
+  com arquivos espaciais</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Nativa e
+
+  ampla: suporta shapefiles, GeoPackage, GeoJSON, etc.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Alta
+
+  integração com shapefiles, GeoJSON, APIs e dados em rede.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Curva de aprendizado</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Baixa. Recomendado para iniciantes em SIG.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Alta. Recomendado para usuários avançados e administradores de
+
+  dados espaciais.</p>
+
+  </td>
+
+ </tr>
+
+ <tr>
+
+  <td class="border border-slate-300 p-2">
+
+  <p><b>Indicado
+
+  para...</b></p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Edição e
+
+  análise espacial cotidiana, criação de mapas e projetos interativos.</p>
+
+  </td>
+
+  <td class="border border-slate-300 p-2">
+
+  <p>Gerenciamento
+
+  de grandes bancos de dados espaciais multiusuários.</p>
+
+  </td>
+
+ </tr>
+
+</table>
+
+
+
+</div>
+
+
+
+
+
+
+
+<p>Neste curso, utilizaremos inicialmente a interface do
+
+QGIS para criar e editar as tabelas. Apesar de suas limitações, ela é ideal
+
+para que os alunos compreendam os fundamentos dos bancos de dados de forma
+
+visual e prática. Mais adiante, retornaremos a este tema com uma abordagem mais
+
+técnica, utilizando comandos SQL para reforçar a integridade dos dados
+
+diretamente no banco.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br
+
+clear=all>
+
+
+
+
+
+
+
+
+
+
+                </div>
+                <div class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                    <a href="index.html" class="text-slate-500 hover:underline">Sumário</a>
+                    <div class="flex gap-3">
+                        
+                        <a href="capitulo-02.html" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">MODELAGEM DE DADOS →</a>
+                    </div>
+                </div>
+                </div>
             </article>
-          </section>
-          <p><img class="my-4 rounded-lg shadow-sm" src="imagens/capitulos/capitulo-01/image008.png" /></p>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="a-evolucao-dos-bancos-de-dados">1.3 A evolução dos bancos de dados:</h2>
-
-          <p>Os bancos de dados evoluíram ao longo do tempo, desde os sistemas manuais até os sistemas digitais
-            complexos que utilizamos hoje. No contexto do geoprocessamento, essa evolução é particularmente visível:
-            começou com mapas em papel e arquivos físicos em gavetas, evoluiu para arquivos digitais soltos (como os
-            Shapefiles, que geram múltiplos arquivos — .shp, .shx, .dbf etc.) e, finalmente, chegou à centralização em
-            <strong>Sistemas de Gerenciamento de Bancos de Dados (SGBDs) relacionais com extensões espaciais</strong>.
-          </p>
-
-          <p>Essa transição é importante para você compreender. Quando trabalhava com mapas em papel ou com Shapefiles,
-            os dados geográficos e seus atributos eram "soltos", dispersos em múltiplos arquivos ou folhas. Não havia um
-            lugar centralizado que garantisse a integridade dos dados (por exemplo, se você removesse um ponto do mapa,
-            como garantir que o seu atributo correspondente também fosse removido?). Os SGBDs modernos resolvem esse
-            problema: centralizam tudo, aplicam regras de integridade e permitem consultas complexas que relacionam
-            dados espaciais com dados não-espaciais.</p>
-
-          <p>Entender essa evolução é crucial porque explica <strong>por que você está aprendendo SQL e bancos de dados
-              agora</strong>, e não apenas "como fazer um mapa no QGIS". A resposta é: porque profissionais modernos de
-            geoprocessamento precisam dominar a camada de dados subjacente para garantir qualidade, robustez e
-            escalabilidade das análises espaciais.</p>
-
-          <p class="text-sm text-slate-600 dark:text-slate-400"><a name="_Toc206575356">Linha do tempo </a>1‑1: Evolução
-            dos sistemas de armazenamento de dados: dos métodos manuais aos modernos.</p>
-          <section class="timeline-box" aria-label="Linha do tempo da evolução dos bancos de dados">
-            <article class="timeline-item">
-              <p class="timeline-head"><i data-lucide="archive"></i>Sistemas manuais</p>
-              <p class="timeline-text">Os primeiros sistemas de armazenamento de dados eram manuais, utilizando
-                registros em papel, fichários e outros métodos. Esses sistemas eram lentos, sujeitos a erros e tinham
-                capacidade limitada de armazenamento.</p>
-            </article>
-            <article class="timeline-item">
-              <p class="timeline-head"><i data-lucide="floppy-disk"></i>Sistemas de arquivos</p>
-              <p class="timeline-text">Com o surgimento dos computadores, os dados passaram a ser armazenados em
-                arquivos digitais. Apresentavam problemas como redundância, dificuldade de acesso e falta de
-                integridade. <i><strong>Integridade:</strong> garantia de que os dados são confiáveis e corretos. Bancos
-                  modernos usam chaves primárias e estrangeiras para manter essa organização.</i></p>
-            </article>
-            <article class="timeline-item">
-              <p class="timeline-head"><i data-lucide="database"></i>Sistemas de gerenciamento de bancos de dados (SGBD)
-              </p>
-              <p class="timeline-text">Surgiram como uma solução para os problemas dos sistemas de arquivos. Oferecem
-                uma forma eficiente, organizada e segura de armazenar e manipular dados.</p>
-            </article>
-            <article class="timeline-item">
-              <p class="timeline-head"><i data-lucide="cloud"></i>Bancos de dados modernos</p>
-              <p class="timeline-text">Capazes de gerenciar grandes volumes de dados (texto, imagens, áudio, vídeo).
-                Oferecem recursos avançados como segurança, controle de acesso, recuperação de dados e processamento
-                distribuído.</p>
-            </article>
-          </section>
-          <p>Importância dos bancos de dados no contexto atual, com
-
-            ênfase no geoprocessamento:</p>
-          <p>Os bancos de dados desempenham um papel fundamental no
-
-            contexto atual, impulsionando diversas áreas do conhecimento e da atividade
-
-            humana. No geoprocessamento, sua importância é ainda mais evidente, pois
-
-            permitem armazenar, manipular e analisar grandes volumes de dados geográficos
-
-            de forma eficiente.</p>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="exemplos-de-aplicacoes-de-bancos-de-dados-em-geoprocessamento">1.4 Exemplos de aplicações de bancos de
-            dados em geoprocessamento:</h2>
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-            <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-              src="imagens/capitulos/capitulo-01/image010.png" />
-            <p><b>Armazenamento de dados de sensoriamento remoto:</b> Bancos de
-
-              dados são utilizados para armazenar e gerenciar grandes volumes de imagens de
-
-              satélite e outros dados de sensoriamento remoto, permitindo o acesso rápido e a
-
-              análise eficiente dessas informações.</p>
-          </div>
-          <p><b>Cadastro de imóveis urbanos:</b> Bancos de dados
-
-            geográficos são utilizados para armazenar informações sobre a localização, as
-
-            características e o histórico de imóveis urbanos, auxiliando na gestão
-
-            territorial e no planejamento urbano.</p>
-          <p><b>Gestão de recursos naturais:</b> Bancos de dados são
-
-            utilizados para armazenar informações sobre a distribuição, a qualidade e a
-
-            disponibilidade de recursos naturais, como água, florestas e minerais,
-
-            auxiliando na gestão ambiental e na tomada de decisões. </p>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="sistemas-de-gerenciamento-de-bancos-de-dados-sgbd">1.5 Sistemas de Gerenciamento de Bancos de Dados
-            (SGBD).</h2>
-          <p>Um Sistema de Gerenciamento de Banco de Dados (SGBD) é um
-
-            conjunto de softwares que permite aos usuários interagirem com um banco de
-
-            dados. Ele atua como uma interface entre o usuário e o banco de dados,
-
-            facilitando a criação, o acesso, a manipulação e o gerenciamento dos dados.0F<a href="#_ftn1"
-              name="_ftnref1" title="">[1]</a></p>
-          <h3 class="mt-8 scroll-mt-24 text-xl font-semibold" id="funcoes-de-um-sgbd">1.5.1 Funções de um SGBD:</h3>
-          <p>Um SGBD desempenha diversas funções essenciais para o
-
-            funcionamento eficiente e seguro de um banco de dados:</p>
-          <p class="text-sm text-slate-600 dark:text-slate-400">Tabela 1‑2: Funções essenciais de um SGBD no contexto do
-            geoprocessamento.</p>
-          <table class="tabela-alegre min-w-full border border-slate-300 my-6 border-collapse w-full my-4 text-sm">
-            <tr class="bg-slate-100 dark:bg-slate-800/70">
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p align="center"><img class="my-4 rounded-lg shadow-sm"
-                    src="imagens/capitulos/capitulo-01/image011.jpg" /></p>
-              </td>
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p><b>Armazenamento de dados</b>: O SGBD é responsável por
-
-                  armazenar os dados de forma organizada e eficiente, utilizando estruturas de
-
-                  armazenamento adequadas ao tipo de dado. No contexto do geoprocessamento,
-
-                  isso envolve armazenar tanto os dados alfanuméricos (atributos) quanto os dados
-
-                  geométricos (localização, forma).</p>
-              </td>
-            </tr>
-            <tr class="linha-alegre-1">
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p align="center"><img class="my-4 rounded-lg shadow-sm"
-                    src="imagens/capitulos/capitulo-01/image012.jpg" /></p>
-              </td>
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p><b>Recuperação de dados</b>: O SGBD permite recuperar os
-
-                  dados armazenados de forma rápida e eficiente, através de consultas e
-
-                  filtros. No geoprocessamento, isso permite buscar informações espaciais com
-
-                  base em critérios como localização, atributos geográficos ou relações
-
-                  topológicas.</p>
-              </td>
-            </tr>
-            <tr class="linha-alegre-2">
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p align="center"><img class="my-4 rounded-lg shadow-sm"
-                    src="imagens/capitulos/capitulo-01/image013.jpg" /></p>
-              </td>
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p><b>Atualização de dados</b>: O SGBD permite modificar os
-
-                  dados armazenados, inserindo novos registros, alterando registros existentes
-
-                  ou excluindo registros. No geoprocessamento, isso é fundamental para manter
-
-                  os dados geográficos atualizados, refletindo as mudanças no mundo real.</p>
-              </td>
-            </tr>
-            <tr class="linha-alegre-3">
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p align="center"><img class="my-4 rounded-lg shadow-sm"
-                    src="imagens/capitulos/capitulo-01/image014.jpg" /></p>
-              </td>
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p><b>Segurança de dados</b>: O SGBD oferece mecanismos para
-
-                  proteger os dados contra acessos não autorizados, perdas ou danos. Isso
-
-                  inclui controle de acesso, autenticação de usuários, criptografia e backups.
-
-                  No geoprocessamento, a segurança dos dados geográficos é crucial, especialmente
-
-                  quando se trata de informações confidenciais ou estratégicas.</p>
-              </td>
-            </tr>
-            <tr class="linha-alegre-4">
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p align="center"><img class="my-4 rounded-lg shadow-sm"
-                    src="imagens/capitulos/capitulo-01/image015.jpg" /></p>
-              </td>
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p><b>Controle de concorrência</b>: O SGBD gerencia o acesso
-
-                  simultâneo de múltiplos usuários aos dados, garantindo que as operações não
-
-                  interfiram umas nas outras e que os dados permaneçam consistentes. No
-
-                  geoprocessamento, isso é importante quando vários profissionais trabalham no
-
-                  mesmo projeto, acessando e modificando os mesmos dados geográficos.</p>
-              </td>
-            </tr>
-            <tr class="linha-alegre-1">
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p align="center"><img class="my-4 rounded-lg shadow-sm"
-                    src="imagens/capitulos/capitulo-01/image016.jpg" /></p>
-              </td>
-              <td class="border border-slate-300 p-2 px-3 py-2 align-top">
-                <p><b>Integridade de dados</b>: O SGBD garante que os dados
-
-                  armazenados sejam precisos, consistentes e confiáveis, aplicando regras e
-
-                  restrições para evitar erros e inconsistências. No geoprocessamento, isso é
-
-                  fundamental para garantir a qualidade dos dados geográficos e a precisão das
-
-                  análises espaciais.</p>
-              </td>
-            </tr>
-          </table>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="arquitetura-de-um-sgbd">1.6 A Arquitetura de um SGBD: O Ecossistema dos Dados</h2>
-          <p>Um SGBD é uma estrutura integrada por cinco pilares essenciais. Compreender esta organização ajuda o
-            técnico a evitar falhas que podem comprometer a integridade de projetos espaciais.</p>
-
-          <h3 class="mt-6 text-lg font-semibold">I. Hardware: O Suporte Físico</h3>
-          <p>Representa a infraestrutura física (servidores, discos de armazenamento e redes). No geoprocessamento,
-            exige alto desempenho para processar cálculos espaciais complexos e permitir o acesso remoto via QGIS.</p>
-
-          <h3 class="mt-6 text-lg font-semibold">II. Software: A Inteligência do Sistema</h3>
-          <p>É a camada lógica dividida em três níveis: o Motor (ex: PostgreSQL), as Extensões (ex: PostGIS, que
-            adiciona inteligência geográfica) e as Interfaces (ex: pgAdmin para administração e QGIS para análise
-            visual).</p>
-
-          <h3 class="mt-6 text-lg font-semibold">III. Dados: A Matéria-Prima</h3>
-          <p>O componente mais valioso. Possui natureza dual: Alfanuméricos (descrições), Geográficos (geometrias e
-            coordenadas) e Metadados (histórico e autoria da camada).</p>
-
-          <h3 class="mt-6 text-lg font-semibold">IV. Usuários: O Fator Humano</h3>
-          <p>Pessoas com diferentes níveis de acesso: Administradores (DBA) cuidam da segurança, Desenvolvedores criam
-            estruturas via SQL e Técnicos GIS operam o QGIS para editar e mapear informações.</p>
-
-          <h3 class="mt-6 text-lg font-semibold">V. Procedimentos: As Regras do Jogo</h3>
-          <p>Normas que garantem a organização, como protocolos de edição (quem altera o quê), padrões de nomenclatura
-            (snake_case) e planos de backup para evitar perda de dados.</p>
-
-          <div class="didactic-block bloco-analogia mt-6">
-            <p class="didactic-title"><i data-lucide="lightbulb"></i>Dica Didática: Analogia da Biblioteca</p>
-            <ul class="list-disc pl-6">
-              <li><strong>Hardware:</strong> Prédio e estantes.</li>
-              <li><strong>Software:</strong> Sistema de busca.</li>
-              <li><strong>Dados:</strong> Livros e mapas.</li>
-              <li><strong>Usuários:</strong> Bibliotecários e leitores.</li>
-              <li><strong>Procedimentos:</strong> Regras de silêncio e prazos.</li>
-            </ul>
-          </div>
-          <p align="left"><img class="my-4 rounded-lg shadow-sm" src="imagens/capitulos/capitulo-01/image017.png" /></p>
-          <p><a name="_Toc206575320">Figura </a>1‑6:
-
-            Componentes de um Banco de dados</p>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="tipos-de-sgbd-e-suas-caracteristicas">1.7 Tipos de SGBD e suas características:</h2>
-          <p>Existem diferentes tipos de Sistemas de Gerenciamento de Bancos
-
-            de Dados (SGBD), cada um com características e funcionalidades distintas,
-
-            projetados para atender a diferentes necessidades de armazenamento e
-
-            manipulação de dados. Podemos agrupá-los em duas categorias principais: SGBDs
-
-            que seguem o modelo relacional e aqueles que adotam modelos não relacionais.</p>
-          <h3 class="mt-8 scroll-mt-24 text-xl font-semibold" id="sgbds-relacionais-estrutura-e-organizacao-dos-dados">
-            1.7.1 SGBDs Relacionais: Estrutura e Organização dos Dados</h3>
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-            <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-              src="imagens/capitulos/capitulo-01/image018.jpg" />
-            <p>Os SGBDs relacionais, como PostgreSQL, MySQL e SQLite,
-
-              são construídos sobre o modelo relacional, que se destaca pela organização dos
-
-              dados em tabelas bem estruturadas. Imagine uma planilha eletrônica: cada tabela
-
-              é composta por linhas, que representam os registros ou entidades do mundo real,
-
-              como pessoas, cidades ou equipamentos, e colunas, que definem os campos ou
-
-              atributos que descrevem essas entidades, como nome, localização ou data de
-
-              criação. Essa forma de organização facilita a consulta, o cruzamento e a
-
-              integridade dos dados, tornando o modelo relacional ideal para diversas
-
-              aplicações, inclusive no geoprocessamento.</p>
-          </div>
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-            <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-              src="imagens/capitulos/capitulo-01/image019.jpg" />
-            <p>A grande força dos SGBDs relacionais reside na capacidade de estabelecer relações bem definidas entre
-              essas tabelas. Isso é feito através do uso de <strong class="text-ifsc-green dark:text-emerald-300">chaves
-                primárias</strong>, que identificam de forma única cada registro em uma tabela, e <strong
-                class="text-ifsc-green dark:text-emerald-300">chaves estrangeiras</strong>, que criam os vínculos entre
-              as tabelas. Essa estrutura permite garantir a integridade dos dados, evitando
-
-              inconsistências e redundâncias, e realizar consultas complexas de forma
-
-              eficiente, utilizando a linguagem SQL (Structured Query Language)1F<a href="#_ftn2" name="_ftnref2"
-                title="">[2]</a>.</p>
-          </div>
-
-          <p class="didactic-note"><strong>Bancos de Dados Espaciais não são uma categoria separada</strong>, mas sim
-            <strong>extensões adicionadas aos bancos relacionais</strong>. PostGIS, por exemplo, é PostgreSQL + suporte
-            a geometrias e operações espaciais. Você aprenderá os detalhes de como essas extensões funcionam no
-            <strong>Capítulo 7</strong>. Por enquanto, compreenda que a fundamentação é sempre um SGBD relacional
-            tradicional.</p>
-
-          <h3 class="mt-8 scroll-mt-24 text-xl font-semibold" id="sgbds-nao-relacionais-flexibilidade-e-escalabilidade">
-            1.7.2 SGBDs Não Relacionais: Flexibilidade e Escalabilidade</h3>
-          <p>Os SGBDs não relacionais, também conhecidos como NoSQL (Not Only
-
-            SQL), representam uma alternativa aos SGBDs relacionais, oferecendo modelos de
-
-            dados mais flexíveis e escaláveis. Em vez de tabelas, eles utilizam diferentes
-
-            estruturas para armazenar as informações, como:</p>
-          <ul type="disc">
-            <li><strong class="text-ifsc-green dark:text-emerald-300">Chave-Valor:</strong> Armazenam dados em pares de
-              chave e valor, de forma semelhante a um dicionário, onde cada chave identifica um valor (ex: Redis).</li>
-            <li><strong class="text-ifsc-green dark:text-emerald-300">Documento:</strong> Armazenam dados em documentos
-              semiestruturados, como JSON ou XML, que podem conter diferentes tipos de informação e ter uma estrutura
-              mais complexa (ex: MongoDB).</li>
-            <li><strong class="text-ifsc-green dark:text-emerald-300">Coluna:</strong> Armazenam dados em colunas em vez
-              de linhas, o que pode ser mais eficiente para consultas que envolvem a recuperação de colunas específicas
-              (ex: Cassandra).</li>
-            <li><strong class="text-ifsc-green dark:text-emerald-300">Grafo:</strong> Armazenam dados em nós e arestas,
-              representando as relações entre os dados de forma explícita, o que é útil para aplicações que exploram
-              conexões complexas (ex: Neo4j).</li>
-          </ul>
-          <p>Essa flexibilidade permite que os SGBDs não relacionais
-
-            se adaptem a diferentes tipos de dados, estruturados ou não estruturados, e que
-
-            escalem horizontalmente para lidar com grandes volumes de informação e alta
-
-            demanda de acesso. Eles podem ser especialmente úteis em aplicações de
-
-            geoprocessamento que envolvem o processamento de grandes volumes de dados não
-
-            estruturados, como dados de redes sociais, dados de sensores em tempo real ou
-
-            dados de modelos de terreno complexos, onde a velocidade e a escalabilidade são
-
-            mais importantes que a consistência rígida dos dados.</p>
-          <p>No entanto, é importante notar que os SGBDs não relacionais geralmente oferecem menos garantias de
-            integridade e consistência dos dados, possuem linguagens de consulta menos padronizadas e um conjunto de
-            ferramentas e recursos menos maduro em comparação com os SGBDs relacionais.</p>
-
-          <p align="center"><img class="my-4 rounded-lg shadow-sm" src="imagens/capitulos/capitulo-01/image020.jpg" />
-          </p>
-          <p><a name="_Toc206575321">Figura </a>1‑7: Modelos NoSQL: chave-valor, documento, coluna e grafo — usados para
-            grandes volumes de dados.</p>
-
-          <p class="text-sm text-slate-600 dark:text-slate-400 mt-4">Tabela 1-3: Comparativo Relacional vs. NoSQL</p>
-          <table class="tabela-alegre min-w-full border border-slate-300 my-6 border-collapse w-full my-4 text-sm">
-            <thead>
-              <tr class="bg-slate-100 dark:bg-slate-800/70">
-                <th class="border border-slate-300 px-3 py-2 text-left font-semibold">Característica</th>
-                <th class="border border-slate-300 px-3 py-2 text-left font-semibold">Relacional (SQL)</th>
-                <th class="border border-slate-300 px-3 py-2 text-left font-semibold">Não Relacional (NoSQL)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="linha-alegre-1">
-                <td class="border border-slate-300 px-3 py-2 align-top font-semibold">Estrutura</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">Dados organizados em tabelas estruturadas
-                  (linhas e colunas)</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">Modelos flexíveis (Documentos JSON, Grafos,
-                  Chave-Valor, Colunas)</td>
-              </tr>
-              <tr class="linha-alegre-2">
-                <td class="border border-slate-300 px-3 py-2 align-top font-semibold">Foco Principal</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">Integridade e consistência dos dados (ACID)</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">Escalabilidade horizontal e flexibilidade</td>
-              </tr>
-              <tr class="linha-alegre-3">
-                <td class="border border-slate-300 px-3 py-2 align-top font-semibold">Linguagem de Consulta</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">SQL (padronizada, complexa e poderosa)</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">APIs específicas de cada sistema (menos
-                  padronizadas)</td>
-              </tr>
-              <tr class="linha-alegre-4">
-                <td class="border border-slate-300 px-3 py-2 align-top font-semibold">Ideal Para</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">Cadastros, SIG tradicional, dados tabulares e
-                  geométricos</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">Sensores em tempo real, Big Data, redes sociais,
-                  IoT</td>
-              </tr>
-              <tr class="linha-alegre-1">
-                <td class="border border-slate-300 px-3 py-2 align-top font-semibold">Exemplos</td>
-                <td class="border border-slate-300 px-3 py-2 align-top">PostgreSQL (PostGIS), SQLite (GeoPackage), MySQL
-                </td>
-                <td class="border border-slate-300 px-3 py-2 align-top">MongoDB (documento), Redis (chave-valor), Neo4j
-                  (grafo)</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="didactic-block bloco-conceito mt-6">
-            <p class="didactic-title"><i data-lucide="bookmark"></i>O Foco Deste Curso</p>
-            <p>Neste curso, nosso foco será <strong>100% nos Bancos de Dados Relacionais</strong>. Como você verá a
-              seguir, as principais ferramentas de geoprocessamento da atualidade (como o GeoPackage e o PostGIS) são
-              construídas sobre bancos relacionais (<strong>SQLite</strong> e <strong>PostgreSQL</strong>), pois a
-              <strong>precisão e a integridade geométrica são requisitos inegociáveis</strong> na maioria dos projetos
-              geográficos. Dominar SQL e o modelo relacional é a base para qualquer profissional de geoprocessamento
-              moderno.</p>
-          </div>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="banco-de-dados-no-contexto-do-geoprocessamento">1.8 Banco de dados no contexto do geoprocessamento</h2>
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-            <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-              src="imagens/capitulos/capitulo-01/image021.jpg" />
-            <p>Essa capacidade de estruturar e relacionar dados é fundamental. Pense em um mapa digital: ele contém
-              diversas camadas de informação, como estradas, rios, cidades, etc. Um SGBD relacional permite armazenar
-              cada uma dessas camadas em uma tabela, definindo os atributos relevantes para cada elemento (nome da rua,
-              tipo de rio, população da cidade) e as relações entre eles (uma cidade pertence a um estado, uma estrada
-              cruza um rio). <strong class="text-ifsc-green dark:text-emerald-300">A grande diferença de um banco
-                tradicional para um banco espacial é a existência de uma coluna especial</strong> (geralmente chamada de
-              <code>geom</code> ou <code>geometria</code>) que <strong>armazena as coordenadas matemáticas do
-                desenho</strong> (ponto, linha ou polígono), permitindo que o banco "veja" o mapa e execute operações
-              geográficas como distância, interseção e área.</p>
-          </div>
-          <p>No universo dos bancos de dados espaciais, existem
-
-            diferentes caminhos que podem ser seguidos, e a escolha entre eles depende dos
-
-            objetivos do projeto, da complexidade dos dados e das ferramentas disponíveis.</p>
-          <div class="didactic-block didactic-note">
-            <p class="didactic-title"><i data-lucide="lightbulb"></i>Dica</p>
-            <p>Entre as opções mais utilizadas no geoprocessamento,
-
-              destacam-se os bancos baseados em arquivos, como o <b>GeoPackage</b> (baseado
-
-              em SQLite), e os sistemas mais robustos de banco de dados em rede, como o <b>PostgreSQL</b>
-
-              com a extensão <b>PostGIS</b>. Ambos têm suas vantagens, e é importante
-
-              conhecer suas diferenças para fazer escolhas conscientes.</p>
-          </div>
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-            <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-              src="imagens/capitulos/capitulo-01/image022.png" />
-            <p>O <b>GeoPackage</b> é uma alternativa leve,
-
-              prática e extremamente útil para projetos de pequeno e médio porte. Ele
-
-              funciona como um arquivo único que armazena tanto os dados vetoriais quanto as
-
-              tabelas associadas, incluindo coordenadas, atributos e estilos. Por ser baseado
-
-              em <b>SQLite</b>, ele pode ser aberto e manipulado diretamente dentro do QGIS,
-
-              sem a necessidade de instalação de servidores ou configurações complexas. Isso
-
-              o torna ideal para quem está começando, para ambientes educacionais ou para
-
-              trabalhos individuais.</p>
-          </div>
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-            <img class="my-4 rounded-lg shadow-sm md:my-0 md:w-56 md:shrink-0"
-              src="imagens/capitulos/capitulo-01/image023.jpg" />
-            <p>Já o <b>PostgreSQL</b>, especialmente quando combinado
-
-              com a extensão <b>PostGIS</b>, é a escolha preferida para projetos maiores,
-
-              colaborativos ou que demandam automação, segurança e desempenho em ambientes
-
-              multiusuário. Com ele, é possível executar análises espaciais avançadas,
-
-              realizar consultas complexas com eficiência e controlar acessos de diferentes
-
-              usuários em rede. Por outro lado, exige instalação, configuração de servidor e
-
-              uma curva de aprendizado um pouco maior.</p>
-          </div>
-          <p>Em resumo:</p>
-          <p><a name="_Toc206575355">Comparativo visual </a>1-2: GeoPackage/SQLite vs PostgreSQL/PostGIS.</p>
-          <section class="vs-grid" aria-label="Comparativo entre GeoPackage/SQLite e PostgreSQL/PostGIS">
-            <article class="vs-card vs-qgis">
-              <h3>GeoPackage / SQLite</h3>
-              <ul class="vs-list">
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Leve e portátil:</strong> sem
-                    necessidade de servidor.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Uso educacional:</strong> funciona
-                    bem em projetos individuais.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Arquivo único:</strong> guarda
-                    camadas e tabelas no mesmo arquivo.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Relacionamentos:</strong> liga
-                    dados espaciais e não espaciais.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Vetorial e raster:</strong>
-                    suporta ambos no mesmo arquivo.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Offline:</strong> funciona sem
-                    internet.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>OGC:</strong> compatível com
-                    padrões abertos e vários SIG.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>QGIS:</strong> edição,
-                    relacionamento e visualização simples.</span></li>
-                <li class="vs-caution"><i data-lucide="alert-triangle"></i><span><strong>Multiusuário:</strong> não é
-                    ideal para uso simultâneo (bloqueia o arquivo inteiro durante edições, gerando conflitos se duas
-                    pessoas salvarem ao mesmo tempo).</span></li>
-                <li class="vs-caution"><i data-lucide="alert-triangle"></i><span><strong>Limites:</strong> menos
-                    indicado para operações espaciais avançadas.</span></li>
-              </ul>
-            </article>
-            <article class="vs-card vs-postgis">
-              <h3>PostgreSQL / PostGIS</h3>
-              <ul class="vs-list">
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Potente e escalável:</strong>
-                    ideal para ambientes profissionais.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Multiusuário:</strong> suporta
-                    equipes e análises complexas (gerencia transações, permitindo dezenas de pessoas editarem
-                    simultaneamente sem corromper dados).</span></li>
-                <li class="vs-caution"><i data-lucide="alert-triangle"></i><span><strong>Infraestrutura:</strong> requer
-                    instalação, configuração e manutenção.</span></li>
-                <li class="vs-caution"><i data-lucide="alert-triangle"></i><span><strong>Aprendizado:</strong> curva
-                    mais elevada para iniciantes.</span></li>
-              </ul>
-            </article>
-          </section>
-          <p>Nesta apostila, começaremos com a abordagem mais
-
-            acessível, utilizando o <b>SQLite através do formato GeoPackage</b>,
-
-            integrando-o ao QGIS e ao DB Browser. A construção do conhecimento será feita
-
-            de forma progressiva, e posteriormente exploraremos o ambiente mais completo do
-
-            <b>PostGIS</b>, para que você possa comparar as abordagens e escolher a mais
-
-            adequada à sua realidade profissional.
-          </p>
-          <h2 class="mt-16 scroll-mt-24 text-2xl font-semibold text-ifsc-green dark:text-emerald-300"
-            id="comparativo-de-manipulacao-de-dados-espaciais">1.9 Comparativo de Abordagens: Interface Gráfica vs. SQL
-            Direto</h2>
-          <p>Neste capítulo introdutório, você conhecerá duas abordagens fundamentalmente diferentes para manipular
-            dados espaciais:</p>
-          <ul class="list-disc pl-6 mb-4">
-            <li><strong>Abordagem 1: Interface Gráfica (QGIS)</strong> — Você desenha, clica, escolhe em menus. É
-              visual, intuitiva e excelente para aprender. Porém, é manual, sujeita a erros humanos e não escala bem
-              para grandes volumes de dados.</li>
-            <li><strong>Abordagem 2: SQL Direto (PgAdmin/PostGIS)</strong> — Você escreve comandos SQL que o banco
-              executa automaticamente. É precisa, robusta, e garante integridade dos dados por meio de regras
-              explícitas. É a abordagem profissional.</li>
-          </ul>
-          <p><strong>Importante:</strong> Essas abordagens <strong>não são concorrentes</strong>, são
-            <strong>complementares</strong>. QGIS faz chamadas ao PostGIS nos bastidores. Você aprenderá ambas porque na
-            prática profissional você precisa de ambas: QGIS para visualizar e explorar dados, SQL para garantir
-            qualidade e automação. A meta deste curso é fornecer base sólida em ambos os mundos.</p>
-          <p><a name="_Toc206575357">Comparativo visual </a>1‑3: Edição via Interface Gráfica (QGIS) vs. Edição Direta
-            no Banco (SQL/PgAdmin).</p>
-          <section class="vs-grid"
-            aria-label="Comparativo entre Interface Gráfica (QGIS) e SQL Direto (PgAdmin/PostGIS)">
-            <article class="vs-card vs-qgis">
-              <h3>Interface Gráfica (QGIS)</h3>
-              <ul class="vs-list">
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Criação de tabelas:</strong>
-                    interface gráfica simples para começar rápido.</span></li>
-                <li class="vs-caution"><i data-lucide="alert-triangle"></i><span><strong>Limitação:</strong> regras e
-                    tipos avançados nem sempre ficam totalmente cobertos pela interface.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Inserção e edição:</strong> muito
-                    prática para trabalho manual, atributos e geometria.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Visualização espacial:</strong>
-                    excelente integração com simbologia, filtros e expressões.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Integração:</strong> suporte
-                    nativo a shapefiles, GeoPackage e GeoJSON.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Curva de aprendizado:</strong>
-                    baixa, recomendado para iniciantes em SIG.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Indicado para:</strong> análise
-                    espacial cotidiana, mapas e projetos interativos.</span></li>
-              </ul>
-            </article>
-            <article class="vs-card vs-postgis">
-              <h3>SQL Direto (PgAdmin/PostGIS)</h3>
-              <ul class="vs-list">
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Criação de tabelas:</strong>
-                    totalmente baseada em SQL, com tipos e restrições avançadas.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Inserção e edição:</strong> forte
-                    para automações e grandes volumes de dados.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Regras e restrições:</strong> alta
-                    robustez (CHECK, NOT NULL, FK e relações complexas).</span></li>
-                <li class="vs-caution"><i data-lucide="alert-triangle"></i><span><strong>Visualização:</strong>
-                    normalmente depende de integração com QGIS ou clientes GIS web.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Integração:</strong> alta
-                    interoperabilidade com GeoJSON, APIs e dados em rede.</span></li>
-                <li class="vs-caution"><i data-lucide="alert-triangle"></i><span><strong>Curva de aprendizado:</strong>
-                    mais elevada para iniciantes.</span></li>
-                <li class="vs-good"><i data-lucide="check-circle-2"></i><span><strong>Indicado para:</strong> bancos
-                    espaciais multiusuários e ambientes profissionais.</span></li>
-              </ul>
-            </article>
-          </section>
-          <p>Neste curso, utilizaremos inicialmente a interface do
-
-            QGIS para criar e editar as tabelas. Apesar de suas limitações, ela é ideal
-
-            para que os alunos compreendam os fundamentos dos bancos de dados de forma
-
-            visual e prática. Mais adiante, retornaremos a este tema com uma abordagem mais
-
-            técnica, utilizando comandos SQL para reforçar a integridade dos dados
-
-            diretamente no banco.</p>
-
-          <section class="not-prose mt-16" id="quiz-de-fixacao">
-            <h2 class="text-2xl font-semibold text-ifsc-green dark:text-emerald-300 mb-2">1.10 Quiz de Fixação (30
-              questões)</h2>
-            <div class="next-step">
-              <p>Para deixar este capítulo mais leve, o quiz foi movido para uma subpágina dedicada, mantendo o mesmo
-                conteúdo e correção automática.</p>
-              <a class="inline-flex mt-3 items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800"
-                href="capitulo-01-quiz.html">Abrir quiz do Capítulo 1 →</a>
-            </div>
-          </section>
-
-          <section class="not-prose mt-16" id="checklist-aprendizado">
-            <h2 class="text-2xl font-semibold text-ifsc-green dark:text-emerald-300 mb-2">1.11 Checklist do Capítulo
-            </h2>
-            <div class="checklist-box">
-              <ul>
-                <li>Consigo diferenciar dado, informação e conhecimento no contexto geográfico.</li>
-                <li>Entendo por que qualidade de dados impacta diretamente a tomada de decisão.</li>
-                <li>Reconheço as diferenças entre bancos em arquivo (GeoPackage/SQLite) e banco em rede
-                  (PostgreSQL/PostGIS).</li>
-                <li>Compreendo funções essenciais de um SGBD: armazenamento, recuperação, integridade e segurança.</li>
-                <li>Identifico quando usar uma abordagem relacional e quando avaliar alternativas não relacionais.</li>
-              </ul>
-            </div>
-          </section>
         </div>
-        <div
-          class="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
-          <a class="text-slate-500 hover:underline" href="index.html">Sumário</a>
-          <div class="flex gap-3">
-            <a class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800"
-              href="capitulo-02.html">MODELAGEM DE DADOS →</a>
-          </div>
+    </main>
+
+    <footer class="mt-8 bg-white shadow-inner dark:bg-slate-900/90">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
+            <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
+            <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
+            <p class="text-sm">Professor responsável: Arthur Berbert</p>
+            <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
         </div>
-      </article>
-    </div>
-  </main>
-  <footer class="site-footer mt-8 bg-white shadow-inner dark:bg-slate-900/90">
-    <div class="container mx-auto px-6 py-8 text-center text-slate-600 dark:text-slate-400">
-      <p class="text-base font-semibold text-ifsc-green">GE2014902 - GEOPROCESSAMENTO 2 - T01</p>
-      <p class="text-sm">Curso Técnico em Geoprocessamento · DACC - IFSC Florianópolis</p>
-      <p class="text-sm">Professor responsável: Arthur Berbert</p>
-      <p class="text-xs text-slate-400 mt-2">Versão 2026.1</p>
-    </div>
-  </footer>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="main.js"></script>
-  <script>
-    lucide.createIcons();
-  </script>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="main.v2.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
-
 </html>

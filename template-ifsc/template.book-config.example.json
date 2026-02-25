@@ -1,0 +1,15 @@
+{
+  "templateVersion": "1.0.0",
+  "bookTitle": "Geoprocessamento 2 — Bancos de Dados Espaciais",
+  "courseCode": "GE2014902",
+  "themeColor": "#1B5E20",
+  "filesManagedByTemplate": [
+    "estilos.v2.css",
+    "main.v2.js",
+    "manifest.webmanifest",
+    "service-worker.js",
+    "offline.html",
+    "template_base.html",
+    "PADRAO-AGENTES-IFSC.md"
+  ]
+}
